@@ -1,0 +1,1190 @@
+ARM GAS  C:\Users\leoja\AppData\Local\Temp\ccF2wB90.s 			page 1
+
+
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.syntax unified
+  15              		.file	"cymetadata.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.global	cy_metadata
+  20              		.global	cy_meta_flashprotect
+  21              		.global	cy_meta_wonvl
+  22              		.global	cy_meta_custnvl
+  23              		.global	cy_meta_configecc
+  24              		.section	.cyconfigecc,"a",%progbits
+  25              		.align	2
+  26              		.type	cy_meta_configecc, %object
+  27              		.size	cy_meta_configecc, 668
+  28              	cy_meta_configecc:
+  29 0000 02       		.byte	2
+  30 0001 52       		.byte	82
+  31 0002 00       		.byte	0
+  32 0003 40       		.byte	64
+  33 0004 01       		.byte	1
+  34 0005 64       		.byte	100
+  35 0006 00       		.byte	0
+  36 0007 40       		.byte	64
+  37 0008 31       		.byte	49
+  38 0009 00       		.byte	0
+  39 000a 01       		.byte	1
+  40 000b 40       		.byte	64
+  41 000c 45       		.byte	69
+  42 000d 01       		.byte	1
+  43 000e 01       		.byte	1
+  44 000f 40       		.byte	64
+  45 0010 2A       		.byte	42
+  46 0011 02       		.byte	2
+  47 0012 01       		.byte	1
+  48 0013 40       		.byte	64
+  49 0014 31       		.byte	49
+  50 0015 03       		.byte	3
+  51 0016 01       		.byte	1
+  52 0017 40       		.byte	64
+  53 0018 07       		.byte	7
+  54 0019 40       		.byte	64
+  55 001a 01       		.byte	1
+  56 001b 40       		.byte	64
+  57 001c 0C       		.byte	12
+ARM GAS  C:\Users\leoja\AppData\Local\Temp\ccF2wB90.s 			page 2
+
+
+  58 001d 41       		.byte	65
+  59 001e 01       		.byte	1
+  60 001f 40       		.byte	64
+  61 0020 02       		.byte	2
+  62 0021 50       		.byte	80
+  63 0022 01       		.byte	1
+  64 0023 40       		.byte	64
+  65 0024 01       		.byte	1
+  66 0025 51       		.byte	81
+  67 0026 01       		.byte	1
+  68 0027 40       		.byte	64
+  69 0028 00       		.byte	0
+  70 0029 01       		.byte	1
+  71 002a 21       		.byte	33
+  72 002b 02       		.byte	2
+  73 002c 81       		.byte	-127
+  74 002d 0F       		.byte	15
+  75 002e 00       		.byte	0
+  76 002f 40       		.byte	64
+  77 0030 01       		.byte	1
+  78 0031 0D       		.byte	13
+  79 0032 04       		.byte	4
+  80 0033 25       		.byte	37
+  81 0034 05       		.byte	5
+  82 0035 20       		.byte	32
+  83 0036 06       		.byte	6
+  84 0037 5A       		.byte	90
+  85 0038 08       		.byte	8
+  86 0039 02       		.byte	2
+  87 003a 09       		.byte	9
+  88 003b 82       		.byte	-126
+  89 003c 0A       		.byte	10
+  90 003d 0D       		.byte	13
+  91 003e 0B       		.byte	11
+  92 003f 54       		.byte	84
+  93 0040 0C       		.byte	12
+  94 0041 40       		.byte	64
+  95 0042 0D       		.byte	13
+  96 0043 02       		.byte	2
+  97 0044 0E       		.byte	14
+  98 0045 A4       		.byte	-92
+  99 0046 0F       		.byte	15
+ 100 0047 0D       		.byte	13
+ 101 0048 10       		.byte	16
+ 102 0049 E4       		.byte	-28
+ 103 004a 13       		.byte	19
+ 104 004b 80       		.byte	-128
+ 105 004c 14       		.byte	20
+ 106 004d 77       		.byte	119
+ 107 004e 15       		.byte	21
+ 108 004f C2       		.byte	-62
+ 109 0050 16       		.byte	22
+ 110 0051 08       		.byte	8
+ 111 0052 17       		.byte	23
+ 112 0053 38       		.byte	56
+ 113 0054 18       		.byte	24
+ 114 0055 E4       		.byte	-28
+ARM GAS  C:\Users\leoja\AppData\Local\Temp\ccF2wB90.s 			page 3
+
+
+ 115 0056 19       		.byte	25
+ 116 0057 0D       		.byte	13
+ 117 0058 1E       		.byte	30
+ 118 0059 24       		.byte	36
+ 119 005a 21       		.byte	33
+ 120 005b 0D       		.byte	13
+ 121 005c 24       		.byte	36
+ 122 005d A4       		.byte	-92
+ 123 005e 25       		.byte	37
+ 124 005f B1       		.byte	-79
+ 125 0060 26       		.byte	38
+ 126 0061 40       		.byte	64
+ 127 0062 27       		.byte	39
+ 128 0063 42       		.byte	66
+ 129 0064 28       		.byte	40
+ 130 0065 13       		.byte	19
+ 131 0066 29       		.byte	41
+ 132 0067 0D       		.byte	13
+ 133 0068 2A       		.byte	42
+ 134 0069 20       		.byte	32
+ 135 006a 2C       		.byte	44
+ 136 006b E4       		.byte	-28
+ 137 006c 2D       		.byte	45
+ 138 006d 0D       		.byte	13
+ 139 006e 30       		.byte	48
+ 140 006f 80       		.byte	-128
+ 141 0070 32       		.byte	50
+ 142 0071 70       		.byte	112
+ 143 0072 33       		.byte	51
+ 144 0073 C0       		.byte	-64
+ 145 0074 34       		.byte	52
+ 146 0075 0F       		.byte	15
+ 147 0076 35       		.byte	53
+ 148 0077 70       		.byte	112
+ 149 0078 36       		.byte	54
+ 150 0079 70       		.byte	112
+ 151 007a 37       		.byte	55
+ 152 007b 0F       		.byte	15
+ 153 007c 39       		.byte	57
+ 154 007d 20       		.byte	32
+ 155 007e 3A       		.byte	58
+ 156 007f 20       		.byte	32
+ 157 0080 3B       		.byte	59
+ 158 0081 8C       		.byte	-116
+ 159 0082 3E       		.byte	62
+ 160 0083 01       		.byte	1
+ 161 0084 54       		.byte	84
+ 162 0085 09       		.byte	9
+ 163 0086 56       		.byte	86
+ 164 0087 04       		.byte	4
+ 165 0088 58       		.byte	88
+ 166 0089 04       		.byte	4
+ 167 008a 59       		.byte	89
+ 168 008b 04       		.byte	4
+ 169 008c 5B       		.byte	91
+ 170 008d 04       		.byte	4
+ 171 008e 5F       		.byte	95
+ARM GAS  C:\Users\leoja\AppData\Local\Temp\ccF2wB90.s 			page 4
+
+
+ 172 008f 01       		.byte	1
+ 173 0090 00       		.byte	0
+ 174 0091 02       		.byte	2
+ 175 0092 01       		.byte	1
+ 176 0093 20       		.byte	32
+ 177 0094 02       		.byte	2
+ 178 0095 10       		.byte	16
+ 179 0096 03       		.byte	3
+ 180 0097 01       		.byte	1
+ 181 0098 05       		.byte	5
+ 182 0099 10       		.byte	16
+ 183 009a 06       		.byte	6
+ 184 009b 02       		.byte	2
+ 185 009c 07       		.byte	7
+ 186 009d 50       		.byte	80
+ 187 009e 09       		.byte	9
+ 188 009f 51       		.byte	81
+ 189 00a0 0A       		.byte	10
+ 190 00a1 10       		.byte	16
+ 191 00a2 0E       		.byte	14
+ 192 00a3 A1       		.byte	-95
+ 193 00a4 0F       		.byte	15
+ 194 00a5 08       		.byte	8
+ 195 00a6 10       		.byte	16
+ 196 00a7 20       		.byte	32
+ 197 00a8 12       		.byte	18
+ 198 00a9 01       		.byte	1
+ 199 00aa 13       		.byte	19
+ 200 00ab 20       		.byte	32
+ 201 00ac 15       		.byte	21
+ 202 00ad 09       		.byte	9
+ 203 00ae 17       		.byte	23
+ 204 00af 20       		.byte	32
+ 205 00b0 19       		.byte	25
+ 206 00b1 A5       		.byte	-91
+ 207 00b2 1A       		.byte	26
+ 208 00b3 11       		.byte	17
+ 209 00b4 1D       		.byte	29
+ 210 00b5 10       		.byte	16
+ 211 00b6 20       		.byte	32
+ 212 00b7 04       		.byte	4
+ 213 00b8 21       		.byte	33
+ 214 00b9 4C       		.byte	76
+ 215 00ba 22       		.byte	34
+ 216 00bb 08       		.byte	8
+ 217 00bc 24       		.byte	36
+ 218 00bd 28       		.byte	40
+ 219 00be 25       		.byte	37
+ 220 00bf 42       		.byte	66
+ 221 00c0 26       		.byte	38
+ 222 00c1 80       		.byte	-128
+ 223 00c2 27       		.byte	39
+ 224 00c3 20       		.byte	32
+ 225 00c4 29       		.byte	41
+ 226 00c5 04       		.byte	4
+ 227 00c6 2B       		.byte	43
+ 228 00c7 8A       		.byte	-118
+ARM GAS  C:\Users\leoja\AppData\Local\Temp\ccF2wB90.s 			page 5
+
+
+ 229 00c8 2C       		.byte	44
+ 230 00c9 02       		.byte	2
+ 231 00ca 2E       		.byte	46
+ 232 00cb 10       		.byte	16
+ 233 00cc 2F       		.byte	47
+ 234 00cd 80       		.byte	-128
+ 235 00ce 30       		.byte	48
+ 236 00cf 22       		.byte	34
+ 237 00d0 31       		.byte	49
+ 238 00d1 08       		.byte	8
+ 239 00d2 36       		.byte	54
+ 240 00d3 88       		.byte	-120
+ 241 00d4 37       		.byte	55
+ 242 00d5 21       		.byte	33
+ 243 00d6 38       		.byte	56
+ 244 00d7 24       		.byte	36
+ 245 00d8 39       		.byte	57
+ 246 00d9 80       		.byte	-128
+ 247 00da 3A       		.byte	58
+ 248 00db 01       		.byte	1
+ 249 00dc 3D       		.byte	61
+ 250 00dd 20       		.byte	32
+ 251 00de 3E       		.byte	62
+ 252 00df 06       		.byte	6
+ 253 00e0 45       		.byte	69
+ 254 00e1 0A       		.byte	10
+ 255 00e2 46       		.byte	70
+ 256 00e3 10       		.byte	16
+ 257 00e4 47       		.byte	71
+ 258 00e5 20       		.byte	32
+ 259 00e6 4C       		.byte	76
+ 260 00e7 08       		.byte	8
+ 261 00e8 4D       		.byte	77
+ 262 00e9 88       		.byte	-120
+ 263 00ea 54       		.byte	84
+ 264 00eb 03       		.byte	3
+ 265 00ec 56       		.byte	86
+ 266 00ed 20       		.byte	32
+ 267 00ee 57       		.byte	87
+ 268 00ef 44       		.byte	68
+ 269 00f0 58       		.byte	88
+ 270 00f1 A0       		.byte	-96
+ 271 00f2 59       		.byte	89
+ 272 00f3 09       		.byte	9
+ 273 00f4 60       		.byte	96
+ 274 00f5 01       		.byte	1
+ 275 00f6 62       		.byte	98
+ 276 00f7 02       		.byte	2
+ 277 00f8 65       		.byte	101
+ 278 00f9 20       		.byte	32
+ 279 00fa 6C       		.byte	108
+ 280 00fb 20       		.byte	32
+ 281 00fc 6D       		.byte	109
+ 282 00fd 23       		.byte	35
+ 283 00fe 6E       		.byte	110
+ 284 00ff A4       		.byte	-92
+ 285 0100 6F       		.byte	111
+ARM GAS  C:\Users\leoja\AppData\Local\Temp\ccF2wB90.s 			page 6
+
+
+ 286 0101 9B       		.byte	-101
+ 287 0102 76       		.byte	118
+ 288 0103 03       		.byte	3
+ 289 0104 82       		.byte	-126
+ 290 0105 02       		.byte	2
+ 291 0106 C0       		.byte	-64
+ 292 0107 FF       		.byte	-1
+ 293 0108 C2       		.byte	-62
+ 294 0109 FF       		.byte	-1
+ 295 010a C4       		.byte	-60
+ 296 010b 77       		.byte	119
+ 297 010c CA       		.byte	-54
+ 298 010d BF       		.byte	-65
+ 299 010e CC       		.byte	-52
+ 300 010f F7       		.byte	-9
+ 301 0110 CE       		.byte	-50
+ 302 0111 EF       		.byte	-17
+ 303 0112 D0       		.byte	-48
+ 304 0113 E0       		.byte	-32
+ 305 0114 D2       		.byte	-46
+ 306 0115 30       		.byte	48
+ 307 0116 D6       		.byte	-42
+ 308 0117 0F       		.byte	15
+ 309 0118 D8       		.byte	-40
+ 310 0119 29       		.byte	41
+ 311 011a 01       		.byte	1
+ 312 011b 01       		.byte	1
+ 313 011c 05       		.byte	5
+ 314 011d 01       		.byte	1
+ 315 011e 06       		.byte	6
+ 316 011f 02       		.byte	2
+ 317 0120 09       		.byte	9
+ 318 0121 01       		.byte	1
+ 319 0122 0A       		.byte	10
+ 320 0123 34       		.byte	52
+ 321 0124 0C       		.byte	12
+ 322 0125 87       		.byte	-121
+ 323 0126 0E       		.byte	14
+ 324 0127 18       		.byte	24
+ 325 0128 0F       		.byte	15
+ 326 0129 01       		.byte	1
+ 327 012a 11       		.byte	17
+ 328 012b 58       		.byte	88
+ 329 012c 13       		.byte	19
+ 330 012d 20       		.byte	32
+ 331 012e 14       		.byte	20
+ 332 012f AC       		.byte	-84
+ 333 0130 15       		.byte	21
+ 334 0131 12       		.byte	18
+ 335 0132 16       		.byte	22
+ 336 0133 13       		.byte	19
+ 337 0134 17       		.byte	23
+ 338 0135 64       		.byte	100
+ 339 0136 19       		.byte	25
+ 340 0137 32       		.byte	50
+ 341 0138 1A       		.byte	26
+ 342 0139 49       		.byte	73
+ARM GAS  C:\Users\leoja\AppData\Local\Temp\ccF2wB90.s 			page 7
+
+
+ 343 013a 1B       		.byte	27
+ 344 013b 44       		.byte	68
+ 345 013c 1D       		.byte	29
+ 346 013d 02       		.byte	2
+ 347 013e 1F       		.byte	31
+ 348 013f 04       		.byte	4
+ 349 0140 21       		.byte	33
+ 350 0141 01       		.byte	1
+ 351 0142 27       		.byte	39
+ 352 0143 01       		.byte	1
+ 353 0144 28       		.byte	40
+ 354 0145 A1       		.byte	-95
+ 355 0146 2A       		.byte	42
+ 356 0147 0A       		.byte	10
+ 357 0148 2B       		.byte	43
+ 358 0149 08       		.byte	8
+ 359 014a 2D       		.byte	45
+ 360 014b 30       		.byte	48
+ 361 014c 2F       		.byte	47
+ 362 014d 46       		.byte	70
+ 363 014e 31       		.byte	49
+ 364 014f 06       		.byte	6
+ 365 0150 32       		.byte	50
+ 366 0151 40       		.byte	64
+ 367 0152 33       		.byte	51
+ 368 0153 08       		.byte	8
+ 369 0154 34       		.byte	52
+ 370 0155 3F       		.byte	63
+ 371 0156 35       		.byte	53
+ 372 0157 01       		.byte	1
+ 373 0158 36       		.byte	54
+ 374 0159 80       		.byte	-128
+ 375 015a 37       		.byte	55
+ 376 015b 70       		.byte	112
+ 377 015c 3B       		.byte	59
+ 378 015d 82       		.byte	-126
+ 379 015e 3E       		.byte	62
+ 380 015f 40       		.byte	64
+ 381 0160 3F       		.byte	63
+ 382 0161 14       		.byte	20
+ 383 0162 54       		.byte	84
+ 384 0163 40       		.byte	64
+ 385 0164 56       		.byte	86
+ 386 0165 04       		.byte	4
+ 387 0166 58       		.byte	88
+ 388 0167 04       		.byte	4
+ 389 0168 59       		.byte	89
+ 390 0169 04       		.byte	4
+ 391 016a 5B       		.byte	91
+ 392 016b 04       		.byte	4
+ 393 016c 5F       		.byte	95
+ 394 016d 01       		.byte	1
+ 395 016e 05       		.byte	5
+ 396 016f B4       		.byte	-76
+ 397 0170 0D       		.byte	13
+ 398 0171 08       		.byte	8
+ 399 0172 0F       		.byte	15
+ARM GAS  C:\Users\leoja\AppData\Local\Temp\ccF2wB90.s 			page 8
+
+
+ 400 0173 08       		.byte	8
+ 401 0174 17       		.byte	23
+ 402 0175 20       		.byte	32
+ 403 0176 1C       		.byte	28
+ 404 0177 01       		.byte	1
+ 405 0178 1D       		.byte	29
+ 406 0179 14       		.byte	20
+ 407 017a 25       		.byte	37
+ 408 017b 20       		.byte	32
+ 409 017c 26       		.byte	38
+ 410 017d 04       		.byte	4
+ 411 017e 27       		.byte	39
+ 412 017f 42       		.byte	66
+ 413 0180 2D       		.byte	45
+ 414 0181 A0       		.byte	-96
+ 415 0182 2F       		.byte	47
+ 416 0183 90       		.byte	-112
+ 417 0184 36       		.byte	54
+ 418 0185 08       		.byte	8
+ 419 0186 37       		.byte	55
+ 420 0187 62       		.byte	98
+ 421 0188 3D       		.byte	61
+ 422 0189 20       		.byte	32
+ 423 018a 3E       		.byte	62
+ 424 018b 86       		.byte	-122
+ 425 018c 3F       		.byte	63
+ 426 018d 80       		.byte	-128
+ 427 018e 45       		.byte	69
+ 428 018f 20       		.byte	32
+ 429 0190 46       		.byte	70
+ 430 0191 08       		.byte	8
+ 431 0192 66       		.byte	102
+ 432 0193 A9       		.byte	-87
+ 433 0194 80       		.byte	-128
+ 434 0195 08       		.byte	8
+ 435 0196 82       		.byte	-126
+ 436 0197 01       		.byte	1
+ 437 0198 83       		.byte	-125
+ 438 0199 02       		.byte	2
+ 439 019a 8C       		.byte	-116
+ 440 019b 04       		.byte	4
+ 441 019c 8E       		.byte	-114
+ 442 019d 04       		.byte	4
+ 443 019e 90       		.byte	-112
+ 444 019f 04       		.byte	4
+ 445 01a0 92       		.byte	-110
+ 446 01a1 04       		.byte	4
+ 447 01a2 93       		.byte	-109
+ 448 01a3 20       		.byte	32
+ 449 01a4 94       		.byte	-108
+ 450 01a5 01       		.byte	1
+ 451 01a6 99       		.byte	-103
+ 452 01a7 80       		.byte	-128
+ 453 01a8 9A       		.byte	-102
+ 454 01a9 22       		.byte	34
+ 455 01aa 9B       		.byte	-101
+ 456 01ab 20       		.byte	32
+ARM GAS  C:\Users\leoja\AppData\Local\Temp\ccF2wB90.s 			page 9
+
+
+ 457 01ac 9F       		.byte	-97
+ 458 01ad 40       		.byte	64
+ 459 01ae A1       		.byte	-95
+ 460 01af 18       		.byte	24
+ 461 01b0 A2       		.byte	-94
+ 462 01b1 08       		.byte	8
+ 463 01b2 A3       		.byte	-93
+ 464 01b3 C4       		.byte	-60
+ 465 01b4 A4       		.byte	-92
+ 466 01b5 08       		.byte	8
+ 467 01b6 A8       		.byte	-88
+ 468 01b7 84       		.byte	-124
+ 469 01b8 AC       		.byte	-84
+ 470 01b9 21       		.byte	33
+ 471 01ba AE       		.byte	-82
+ 472 01bb 40       		.byte	64
+ 473 01bc AF       		.byte	-81
+ 474 01bd 10       		.byte	16
+ 475 01be C0       		.byte	-64
+ 476 01bf E0       		.byte	-32
+ 477 01c0 C2       		.byte	-62
+ 478 01c1 60       		.byte	96
+ 479 01c2 C4       		.byte	-60
+ 480 01c3 40       		.byte	64
+ 481 01c4 CA       		.byte	-54
+ 482 01c5 F0       		.byte	-16
+ 483 01c6 CC       		.byte	-52
+ 484 01c7 F0       		.byte	-16
+ 485 01c8 CE       		.byte	-50
+ 486 01c9 F0       		.byte	-16
+ 487 01ca D8       		.byte	-40
+ 488 01cb F0       		.byte	-16
+ 489 01cc E2       		.byte	-30
+ 490 01cd 40       		.byte	64
+ 491 01ce E6       		.byte	-26
+ 492 01cf 40       		.byte	64
+ 493 01d0 33       		.byte	51
+ 494 01d1 10       		.byte	16
+ 495 01d2 37       		.byte	55
+ 496 01d3 20       		.byte	32
+ 497 01d4 5B       		.byte	91
+ 498 01d5 40       		.byte	64
+ 499 01d6 83       		.byte	-125
+ 500 01d7 20       		.byte	32
+ 501 01d8 CC       		.byte	-52
+ 502 01d9 30       		.byte	48
+ 503 01da D4       		.byte	-44
+ 504 01db 80       		.byte	-128
+ 505 01dc E2       		.byte	-30
+ 506 01dd 80       		.byte	-128
+ 507 01de 07       		.byte	7
+ 508 01df 80       		.byte	-128
+ 509 01e0 53       		.byte	83
+ 510 01e1 80       		.byte	-128
+ 511 01e2 56       		.byte	86
+ 512 01e3 20       		.byte	32
+ 513 01e4 83       		.byte	-125
+ARM GAS  C:\Users\leoja\AppData\Local\Temp\ccF2wB90.s 			page 10
+
+
+ 514 01e5 D0       		.byte	-48
+ 515 01e6 8E       		.byte	-114
+ 516 01e7 20       		.byte	32
+ 517 01e8 8F       		.byte	-113
+ 518 01e9 80       		.byte	-128
+ 519 01ea 9F       		.byte	-97
+ 520 01eb 50       		.byte	80
+ 521 01ec C0       		.byte	-64
+ 522 01ed 20       		.byte	32
+ 523 01ee D4       		.byte	-44
+ 524 01ef 60       		.byte	96
+ 525 01f0 E0       		.byte	-32
+ 526 01f1 80       		.byte	-128
+ 527 01f2 E2       		.byte	-30
+ 528 01f3 20       		.byte	32
+ 529 01f4 E6       		.byte	-26
+ 530 01f5 80       		.byte	-128
+ 531 01f6 00       		.byte	0
+ 532 01f7 01       		.byte	1
+ 533 01f8 08       		.byte	8
+ 534 01f9 01       		.byte	1
+ 535 01fa 00       		.byte	0
+ 536 01fb 0F       		.byte	15
+ 537 01fc 00       		.byte	0
+ 538 01fd 9A       		.byte	-102
+ 539 01fe 05       		.byte	5
+ 540 01ff 00       		.byte	0
+ 541 0200 05       		.byte	5
+ 542 0201 82       		.byte	-126
+ 543 0202 00       		.byte	0
+ 544 0203 18       		.byte	24
+ 545 0204 D4       		.byte	-44
+ 546 0205 9A       		.byte	-102
+ 547 0206 20       		.byte	32
+ 548 0207 00       		.byte	0
+ 549 0208 05       		.byte	5
+ 550 0209 00       		.byte	0
+ 551 020a 00       		.byte	0
+ 552 020b 00       		.byte	0
+ 553 020c 00       		.byte	0
+ 554 020d 18       		.byte	24
+ 555 020e 05       		.byte	5
+ 556 020f 82       		.byte	-126
+ 557 0210 05       		.byte	5
+ 558 0211 03       		.byte	3
+ 559 0212 00       		.byte	0
+ 560 0213 7C       		.byte	124
+ 561 0214 80       		.byte	-128
+ 562 0215 61       		.byte	97
+ 563 0216 20       		.byte	32
+ 564 0217 18       		.byte	24
+ 565 0218 07       		.byte	7
+ 566 0219 10       		.byte	16
+ 567 021a 08       		.byte	8
+ 568 021b 22       		.byte	34
+ 569 021c 05       		.byte	5
+ 570 021d 9A       		.byte	-102
+ARM GAS  C:\Users\leoja\AppData\Local\Temp\ccF2wB90.s 			page 11
+
+
+ 571 021e 00       		.byte	0
+ 572 021f 00       		.byte	0
+ 573 0220 28       		.byte	40
+ 574 0221 00       		.byte	0
+ 575 0222 42       		.byte	66
+ 576 0223 00       		.byte	0
+ 577 0224 18       		.byte	24
+ 578 0225 13       		.byte	19
+ 579 0226 21       		.byte	33
+ 580 0227 64       		.byte	100
+ 581 0228 00       		.byte	0
+ 582 0229 08       		.byte	8
+ 583 022a 00       		.byte	0
+ 584 022b 10       		.byte	16
+ 585 022c 00       		.byte	0
+ 586 022d 80       		.byte	-128
+ 587 022e 00       		.byte	0
+ 588 022f 0F       		.byte	15
+ 589 0230 FF       		.byte	-1
+ 590 0231 40       		.byte	64
+ 591 0232 00       		.byte	0
+ 592 0233 30       		.byte	48
+ 593 0234 00       		.byte	0
+ 594 0235 08       		.byte	8
+ 595 0236 30       		.byte	48
+ 596 0237 80       		.byte	-128
+ 597 0238 00       		.byte	0
+ 598 0239 00       		.byte	0
+ 599 023a 00       		.byte	0
+ 600 023b 10       		.byte	16
+ 601 023c 23       		.byte	35
+ 602 023d 05       		.byte	5
+ 603 023e 40       		.byte	64
+ 604 023f 00       		.byte	0
+ 605 0240 06       		.byte	6
+ 606 0241 0E       		.byte	14
+ 607 0242 FD       		.byte	-3
+ 608 0243 CB       		.byte	-53
+ 609 0244 3D       		.byte	61
+ 610 0245 FF       		.byte	-1
+ 611 0246 FF       		.byte	-1
+ 612 0247 FF       		.byte	-1
+ 613 0248 22       		.byte	34
+ 614 0249 00       		.byte	0
+ 615 024a F0       		.byte	-16
+ 616 024b 0C       		.byte	12
+ 617 024c 04       		.byte	4
+ 618 024d 00       		.byte	0
+ 619 024e 00       		.byte	0
+ 620 024f 00       		.byte	0
+ 621 0250 00       		.byte	0
+ 622 0251 00       		.byte	0
+ 623 0252 02       		.byte	2
+ 624 0253 24       		.byte	36
+ 625 0254 04       		.byte	4
+ 626 0255 04       		.byte	4
+ 627 0256 04       		.byte	4
+ARM GAS  C:\Users\leoja\AppData\Local\Temp\ccF2wB90.s 			page 12
+
+
+ 628 0257 04       		.byte	4
+ 629 0258 00       		.byte	0
+ 630 0259 00       		.byte	0
+ 631 025a 00       		.byte	0
+ 632 025b 01       		.byte	1
+ 633 025c 00       		.byte	0
+ 634 025d 00       		.byte	0
+ 635 025e C0       		.byte	-64
+ 636 025f 00       		.byte	0
+ 637 0260 40       		.byte	64
+ 638 0261 01       		.byte	1
+ 639 0262 10       		.byte	16
+ 640 0263 11       		.byte	17
+ 641 0264 C0       		.byte	-64
+ 642 0265 01       		.byte	1
+ 643 0266 00       		.byte	0
+ 644 0267 11       		.byte	17
+ 645 0268 40       		.byte	64
+ 646 0269 01       		.byte	1
+ 647 026a 40       		.byte	64
+ 648 026b 01       		.byte	1
+ 649 026c 00       		.byte	0
+ 650 026d 00       		.byte	0
+ 651 026e 00       		.byte	0
+ 652 026f 00       		.byte	0
+ 653 0270 00       		.byte	0
+ 654 0271 00       		.byte	0
+ 655 0272 00       		.byte	0
+ 656 0273 00       		.byte	0
+ 657 0274 00       		.byte	0
+ 658 0275 00       		.byte	0
+ 659 0276 00       		.byte	0
+ 660 0277 00       		.byte	0
+ 661 0278 00       		.byte	0
+ 662 0279 00       		.byte	0
+ 663 027a 00       		.byte	0
+ 664 027b 00       		.byte	0
+ 665 027c 02       		.byte	2
+ 666 027d 05       		.byte	5
+ 667 027e 05       		.byte	5
+ 668 027f 00       		.byte	0
+ 669 0280 05       		.byte	5
+ 670 0281 00       		.byte	0
+ 671 0282 00       		.byte	0
+ 672 0283 00       		.byte	0
+ 673 0284 00       		.byte	0
+ 674 0285 01       		.byte	1
+ 675 0286 01       		.byte	1
+ 676 0287 00       		.byte	0
+ 677 0288 00       		.byte	0
+ 678 0289 00       		.byte	0
+ 679 028a 00       		.byte	0
+ 680 028b 00       		.byte	0
+ 681 028c 00       		.byte	0
+ 682 028d 0B       		.byte	11
+ 683 028e 0B       		.byte	11
+ 684 028f 00       		.byte	0
+ARM GAS  C:\Users\leoja\AppData\Local\Temp\ccF2wB90.s 			page 13
+
+
+ 685 0290 00       		.byte	0
+ 686 0291 00       		.byte	0
+ 687 0292 00       		.byte	0
+ 688 0293 00       		.byte	0
+ 689 0294 00       		.byte	0
+ 690 0295 02       		.byte	2
+ 691 0296 02       		.byte	2
+ 692 0297 00       		.byte	0
+ 693 0298 02       		.byte	2
+ 694 0299 00       		.byte	0
+ 695 029a 00       		.byte	0
+ 696 029b 00       		.byte	0
+ 697              		.section	.cywolatch,"a",%progbits
+ 698              		.align	2
+ 699              		.type	cy_meta_wonvl, %object
+ 700              		.size	cy_meta_wonvl, 4
+ 701              	cy_meta_wonvl:
+ 702 0000 BC       		.byte	-68
+ 703 0001 90       		.byte	-112
+ 704 0002 AC       		.byte	-84
+ 705 0003 AF       		.byte	-81
+ 706              		.section	.cycustnvl,"a",%progbits
+ 707              		.align	2
+ 708              		.type	cy_meta_custnvl, %object
+ 709              		.size	cy_meta_custnvl, 4
+ 710              	cy_meta_custnvl:
+ 711 0000 00       		.byte	0
+ 712 0001 00       		.byte	0
+ 713 0002 40       		.byte	64
+ 714 0003 05       		.byte	5
+ 715              		.section	.cymeta,"a",%progbits
+ 716              		.align	2
+ 717              		.type	cy_metadata, %object
+ 718              		.size	cy_metadata, 12
+ 719              	cy_metadata:
+ 720 0000 00       		.byte	0
+ 721 0001 01       		.byte	1
+ 722 0002 2E       		.byte	46
+ 723 0003 12       		.byte	18
+ 724 0004 30       		.byte	48
+ 725 0005 69       		.byte	105
+ 726 0006 00       		.byte	0
+ 727 0007 01       		.byte	1
+ 728 0008 00       		.byte	0
+ 729 0009 00       		.byte	0
+ 730 000a 00       		.byte	0
+ 731 000b 00       		.byte	0
+ 732              		.section	.cyflashprotect,"a",%progbits
+ 733              		.align	2
+ 734              		.type	cy_meta_flashprotect, %object
+ 735              		.size	cy_meta_flashprotect, 256
+ 736              	cy_meta_flashprotect:
+ 737 0000 00000000 		.space	256
+ 737      00000000 
+ 737      00000000 
+ 737      00000000 
+ 737      00000000 
+ARM GAS  C:\Users\leoja\AppData\Local\Temp\ccF2wB90.s 			page 14
+
+
+ 738              		.text
+ 739              	.Letext0:
+ 740              		.file 1 "c:\\program files (x86)\\cypress\\psoc creator\\4.4\\psoc creator\\import\\gnu\\arm\\5.4.
+ 741              		.file 2 "c:\\program files (x86)\\cypress\\psoc creator\\4.4\\psoc creator\\import\\gnu\\arm\\5.4.
+ 742              		.file 3 "Generated_Source\\PSoC5\\cymetadata.c"
+ 743              		.section	.debug_info,"",%progbits
+ 744              	.Ldebug_info0:
+ 745 0000 31010000 		.4byte	0x131
+ 746 0004 0400     		.2byte	0x4
+ 747 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 748 000a 04       		.byte	0x4
+ 749 000b 01       		.uleb128 0x1
+ 750 000c 2C000000 		.4byte	.LASF17
+ 751 0010 0C       		.byte	0xc
+ 752 0011 C7010000 		.4byte	.LASF18
+ 753 0015 25010000 		.4byte	.LASF19
+ 754 0019 00000000 		.4byte	.Ldebug_line0
+ 755 001d 02       		.uleb128 0x2
+ 756 001e 01       		.byte	0x1
+ 757 001f 06       		.byte	0x6
+ 758 0020 BB010000 		.4byte	.LASF0
+ 759 0024 03       		.uleb128 0x3
+ 760 0025 00000000 		.4byte	.LASF9
+ 761 0029 01       		.byte	0x1
+ 762 002a 1D       		.byte	0x1d
+ 763 002b 2F000000 		.4byte	0x2f
+ 764 002f 02       		.uleb128 0x2
+ 765 0030 01       		.byte	0x1
+ 766 0031 08       		.byte	0x8
+ 767 0032 1E000000 		.4byte	.LASF1
+ 768 0036 02       		.uleb128 0x2
+ 769 0037 02       		.byte	0x2
+ 770 0038 05       		.byte	0x5
+ 771 0039 A8010000 		.4byte	.LASF2
+ 772 003d 02       		.uleb128 0x2
+ 773 003e 02       		.byte	0x2
+ 774 003f 07       		.byte	0x7
+ 775 0040 CC000000 		.4byte	.LASF3
+ 776 0044 02       		.uleb128 0x2
+ 777 0045 04       		.byte	0x4
+ 778 0046 05       		.byte	0x5
+ 779 0047 B2010000 		.4byte	.LASF4
+ 780 004b 02       		.uleb128 0x2
+ 781 004c 04       		.byte	0x4
+ 782 004d 07       		.byte	0x7
+ 783 004e BA000000 		.4byte	.LASF5
+ 784 0052 02       		.uleb128 0x2
+ 785 0053 08       		.byte	0x8
+ 786 0054 05       		.byte	0x5
+ 787 0055 9A010000 		.4byte	.LASF6
+ 788 0059 02       		.uleb128 0x2
+ 789 005a 08       		.byte	0x8
+ 790 005b 07       		.byte	0x7
+ 791 005c 0E010000 		.4byte	.LASF7
+ 792 0060 04       		.uleb128 0x4
+ 793 0061 04       		.byte	0x4
+ 794 0062 05       		.byte	0x5
+ARM GAS  C:\Users\leoja\AppData\Local\Temp\ccF2wB90.s 			page 15
+
+
+ 795 0063 696E7400 		.ascii	"int\000"
+ 796 0067 02       		.uleb128 0x2
+ 797 0068 04       		.byte	0x4
+ 798 0069 07       		.byte	0x7
+ 799 006a 01010000 		.4byte	.LASF8
+ 800 006e 03       		.uleb128 0x3
+ 801 006f 0A000000 		.4byte	.LASF10
+ 802 0073 02       		.byte	0x2
+ 803 0074 18       		.byte	0x18
+ 804 0075 24000000 		.4byte	0x24
+ 805 0079 05       		.uleb128 0x5
+ 806 007a 91000000 		.4byte	0x91
+ 807 007e 8A000000 		.4byte	0x8a
+ 808 0082 06       		.uleb128 0x6
+ 809 0083 8A000000 		.4byte	0x8a
+ 810 0087 9B02     		.2byte	0x29b
+ 811 0089 00       		.byte	0
+ 812 008a 02       		.uleb128 0x2
+ 813 008b 04       		.byte	0x4
+ 814 008c 07       		.byte	0x7
+ 815 008d 91010000 		.4byte	.LASF11
+ 816 0091 07       		.uleb128 0x7
+ 817 0092 6E000000 		.4byte	0x6e
+ 818 0096 08       		.uleb128 0x8
+ 819 0097 EF000000 		.4byte	.LASF12
+ 820 009b 03       		.byte	0x3
+ 821 009c 1F       		.byte	0x1f
+ 822 009d A7000000 		.4byte	0xa7
+ 823 00a1 05       		.uleb128 0x5
+ 824 00a2 03       		.byte	0x3
+ 825 00a3 00000000 		.4byte	cy_meta_configecc
+ 826 00a7 07       		.uleb128 0x7
+ 827 00a8 79000000 		.4byte	0x79
+ 828 00ac 05       		.uleb128 0x5
+ 829 00ad 91000000 		.4byte	0x91
+ 830 00b1 BC000000 		.4byte	0xbc
+ 831 00b5 09       		.uleb128 0x9
+ 832 00b6 8A000000 		.4byte	0x8a
+ 833 00ba 03       		.byte	0x3
+ 834 00bb 00       		.byte	0
+ 835 00bc 08       		.uleb128 0x8
+ 836 00bd DF000000 		.4byte	.LASF13
+ 837 00c1 03       		.byte	0x3
+ 838 00c2 80       		.byte	0x80
+ 839 00c3 CD000000 		.4byte	0xcd
+ 840 00c7 05       		.uleb128 0x5
+ 841 00c8 03       		.byte	0x3
+ 842 00c9 00000000 		.4byte	cy_meta_custnvl
+ 843 00cd 07       		.uleb128 0x7
+ 844 00ce AC000000 		.4byte	0xac
+ 845 00d2 08       		.uleb128 0x8
+ 846 00d3 83010000 		.4byte	.LASF14
+ 847 00d7 03       		.byte	0x3
+ 848 00d8 8E       		.byte	0x8e
+ 849 00d9 E3000000 		.4byte	0xe3
+ 850 00dd 05       		.uleb128 0x5
+ 851 00de 03       		.byte	0x3
+ARM GAS  C:\Users\leoja\AppData\Local\Temp\ccF2wB90.s 			page 16
+
+
+ 852 00df 00000000 		.4byte	cy_meta_wonvl
+ 853 00e3 07       		.uleb128 0x7
+ 854 00e4 AC000000 		.4byte	0xac
+ 855 00e8 05       		.uleb128 0x5
+ 856 00e9 91000000 		.4byte	0x91
+ 857 00ed F8000000 		.4byte	0xf8
+ 858 00f1 09       		.uleb128 0x9
+ 859 00f2 8A000000 		.4byte	0x8a
+ 860 00f6 FF       		.byte	0xff
+ 861 00f7 00       		.byte	0
+ 862 00f8 08       		.uleb128 0x8
+ 863 00f9 6E010000 		.4byte	.LASF15
+ 864 00fd 03       		.byte	0x3
+ 865 00fe 9C       		.byte	0x9c
+ 866 00ff 09010000 		.4byte	0x109
+ 867 0103 05       		.uleb128 0x5
+ 868 0104 03       		.byte	0x3
+ 869 0105 00000000 		.4byte	cy_meta_flashprotect
+ 870 0109 07       		.uleb128 0x7
+ 871 010a E8000000 		.4byte	0xe8
+ 872 010e 05       		.uleb128 0x5
+ 873 010f 91000000 		.4byte	0x91
+ 874 0113 1E010000 		.4byte	0x11e
+ 875 0117 09       		.uleb128 0x9
+ 876 0118 8A000000 		.4byte	0x8a
+ 877 011c 0B       		.byte	0xb
+ 878 011d 00       		.byte	0
+ 879 011e 08       		.uleb128 0x8
+ 880 011f 12000000 		.4byte	.LASF16
+ 881 0123 03       		.byte	0x3
+ 882 0124 C9       		.byte	0xc9
+ 883 0125 2F010000 		.4byte	0x12f
+ 884 0129 05       		.uleb128 0x5
+ 885 012a 03       		.byte	0x3
+ 886 012b 00000000 		.4byte	cy_metadata
+ 887 012f 07       		.uleb128 0x7
+ 888 0130 0E010000 		.4byte	0x10e
+ 889 0134 00       		.byte	0
+ 890              		.section	.debug_abbrev,"",%progbits
+ 891              	.Ldebug_abbrev0:
+ 892 0000 01       		.uleb128 0x1
+ 893 0001 11       		.uleb128 0x11
+ 894 0002 01       		.byte	0x1
+ 895 0003 25       		.uleb128 0x25
+ 896 0004 0E       		.uleb128 0xe
+ 897 0005 13       		.uleb128 0x13
+ 898 0006 0B       		.uleb128 0xb
+ 899 0007 03       		.uleb128 0x3
+ 900 0008 0E       		.uleb128 0xe
+ 901 0009 1B       		.uleb128 0x1b
+ 902 000a 0E       		.uleb128 0xe
+ 903 000b 10       		.uleb128 0x10
+ 904 000c 17       		.uleb128 0x17
+ 905 000d 00       		.byte	0
+ 906 000e 00       		.byte	0
+ 907 000f 02       		.uleb128 0x2
+ 908 0010 24       		.uleb128 0x24
+ARM GAS  C:\Users\leoja\AppData\Local\Temp\ccF2wB90.s 			page 17
+
+
+ 909 0011 00       		.byte	0
+ 910 0012 0B       		.uleb128 0xb
+ 911 0013 0B       		.uleb128 0xb
+ 912 0014 3E       		.uleb128 0x3e
+ 913 0015 0B       		.uleb128 0xb
+ 914 0016 03       		.uleb128 0x3
+ 915 0017 0E       		.uleb128 0xe
+ 916 0018 00       		.byte	0
+ 917 0019 00       		.byte	0
+ 918 001a 03       		.uleb128 0x3
+ 919 001b 16       		.uleb128 0x16
+ 920 001c 00       		.byte	0
+ 921 001d 03       		.uleb128 0x3
+ 922 001e 0E       		.uleb128 0xe
+ 923 001f 3A       		.uleb128 0x3a
+ 924 0020 0B       		.uleb128 0xb
+ 925 0021 3B       		.uleb128 0x3b
+ 926 0022 0B       		.uleb128 0xb
+ 927 0023 49       		.uleb128 0x49
+ 928 0024 13       		.uleb128 0x13
+ 929 0025 00       		.byte	0
+ 930 0026 00       		.byte	0
+ 931 0027 04       		.uleb128 0x4
+ 932 0028 24       		.uleb128 0x24
+ 933 0029 00       		.byte	0
+ 934 002a 0B       		.uleb128 0xb
+ 935 002b 0B       		.uleb128 0xb
+ 936 002c 3E       		.uleb128 0x3e
+ 937 002d 0B       		.uleb128 0xb
+ 938 002e 03       		.uleb128 0x3
+ 939 002f 08       		.uleb128 0x8
+ 940 0030 00       		.byte	0
+ 941 0031 00       		.byte	0
+ 942 0032 05       		.uleb128 0x5
+ 943 0033 01       		.uleb128 0x1
+ 944 0034 01       		.byte	0x1
+ 945 0035 49       		.uleb128 0x49
+ 946 0036 13       		.uleb128 0x13
+ 947 0037 01       		.uleb128 0x1
+ 948 0038 13       		.uleb128 0x13
+ 949 0039 00       		.byte	0
+ 950 003a 00       		.byte	0
+ 951 003b 06       		.uleb128 0x6
+ 952 003c 21       		.uleb128 0x21
+ 953 003d 00       		.byte	0
+ 954 003e 49       		.uleb128 0x49
+ 955 003f 13       		.uleb128 0x13
+ 956 0040 2F       		.uleb128 0x2f
+ 957 0041 05       		.uleb128 0x5
+ 958 0042 00       		.byte	0
+ 959 0043 00       		.byte	0
+ 960 0044 07       		.uleb128 0x7
+ 961 0045 26       		.uleb128 0x26
+ 962 0046 00       		.byte	0
+ 963 0047 49       		.uleb128 0x49
+ 964 0048 13       		.uleb128 0x13
+ 965 0049 00       		.byte	0
+ARM GAS  C:\Users\leoja\AppData\Local\Temp\ccF2wB90.s 			page 18
+
+
+ 966 004a 00       		.byte	0
+ 967 004b 08       		.uleb128 0x8
+ 968 004c 34       		.uleb128 0x34
+ 969 004d 00       		.byte	0
+ 970 004e 03       		.uleb128 0x3
+ 971 004f 0E       		.uleb128 0xe
+ 972 0050 3A       		.uleb128 0x3a
+ 973 0051 0B       		.uleb128 0xb
+ 974 0052 3B       		.uleb128 0x3b
+ 975 0053 0B       		.uleb128 0xb
+ 976 0054 49       		.uleb128 0x49
+ 977 0055 13       		.uleb128 0x13
+ 978 0056 3F       		.uleb128 0x3f
+ 979 0057 19       		.uleb128 0x19
+ 980 0058 02       		.uleb128 0x2
+ 981 0059 18       		.uleb128 0x18
+ 982 005a 00       		.byte	0
+ 983 005b 00       		.byte	0
+ 984 005c 09       		.uleb128 0x9
+ 985 005d 21       		.uleb128 0x21
+ 986 005e 00       		.byte	0
+ 987 005f 49       		.uleb128 0x49
+ 988 0060 13       		.uleb128 0x13
+ 989 0061 2F       		.uleb128 0x2f
+ 990 0062 0B       		.uleb128 0xb
+ 991 0063 00       		.byte	0
+ 992 0064 00       		.byte	0
+ 993 0065 00       		.byte	0
+ 994              		.section	.debug_aranges,"",%progbits
+ 995 0000 14000000 		.4byte	0x14
+ 996 0004 0200     		.2byte	0x2
+ 997 0006 00000000 		.4byte	.Ldebug_info0
+ 998 000a 04       		.byte	0x4
+ 999 000b 00       		.byte	0
+ 1000 000c 0000     		.2byte	0
+ 1001 000e 0000     		.2byte	0
+ 1002 0010 00000000 		.4byte	0
+ 1003 0014 00000000 		.4byte	0
+ 1004              		.section	.debug_line,"",%progbits
+ 1005              	.Ldebug_line0:
+ 1006 0000 3D010000 		.section	.debug_str,"MS",%progbits,1
+ 1006      02003701 
+ 1006      00000201 
+ 1006      FB0E0D00 
+ 1006      01010101 
+ 1007              	.LASF9:
+ 1008 0000 5F5F7569 		.ascii	"__uint8_t\000"
+ 1008      6E74385F 
+ 1008      7400
+ 1009              	.LASF10:
+ 1010 000a 75696E74 		.ascii	"uint8_t\000"
+ 1010      385F7400 
+ 1011              	.LASF16:
+ 1012 0012 63795F6D 		.ascii	"cy_metadata\000"
+ 1012      65746164 
+ 1012      61746100 
+ 1013              	.LASF1:
+ARM GAS  C:\Users\leoja\AppData\Local\Temp\ccF2wB90.s 			page 19
+
+
+ 1014 001e 756E7369 		.ascii	"unsigned char\000"
+ 1014      676E6564 
+ 1014      20636861 
+ 1014      7200
+ 1015              	.LASF17:
+ 1016 002c 474E5520 		.ascii	"GNU C11 5.4.1 20160609 (release) [ARM/embedded-5-br"
+ 1016      43313120 
+ 1016      352E342E 
+ 1016      31203230 
+ 1016      31363036 
+ 1017 005f 616E6368 		.ascii	"anch revision 237715] -mcpu=cortex-m3 -mthumb -g -O"
+ 1017      20726576 
+ 1017      6973696F 
+ 1017      6E203233 
+ 1017      37373135 
+ 1018 0092 67202D66 		.ascii	"g -ffunction-sections -ffat-lto-objects\000"
+ 1018      66756E63 
+ 1018      74696F6E 
+ 1018      2D736563 
+ 1018      74696F6E 
+ 1019              	.LASF5:
+ 1020 00ba 6C6F6E67 		.ascii	"long unsigned int\000"
+ 1020      20756E73 
+ 1020      69676E65 
+ 1020      6420696E 
+ 1020      7400
+ 1021              	.LASF3:
+ 1022 00cc 73686F72 		.ascii	"short unsigned int\000"
+ 1022      7420756E 
+ 1022      7369676E 
+ 1022      65642069 
+ 1022      6E7400
+ 1023              	.LASF13:
+ 1024 00df 63795F6D 		.ascii	"cy_meta_custnvl\000"
+ 1024      6574615F 
+ 1024      63757374 
+ 1024      6E766C00 
+ 1025              	.LASF12:
+ 1026 00ef 63795F6D 		.ascii	"cy_meta_configecc\000"
+ 1026      6574615F 
+ 1026      636F6E66 
+ 1026      69676563 
+ 1026      6300
+ 1027              	.LASF8:
+ 1028 0101 756E7369 		.ascii	"unsigned int\000"
+ 1028      676E6564 
+ 1028      20696E74 
+ 1028      00
+ 1029              	.LASF7:
+ 1030 010e 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 1030      206C6F6E 
+ 1030      6720756E 
+ 1030      7369676E 
+ 1030      65642069 
+ 1031              	.LASF19:
+ 1032 0125 443A5C55 		.ascii	"D:\\Users\\leoja\\Documents\\PSoC Creator\\alpaca-b"
+ 1032      73657273 
+ARM GAS  C:\Users\leoja\AppData\Local\Temp\ccF2wB90.s 			page 20
+
+
+ 1032      5C6C656F 
+ 1032      6A615C44 
+ 1032      6F63756D 
+ 1033 0153 6D732D46 		.ascii	"ms-FE9_Rev2\\Design01.cydsn\000"
+ 1033      45395F52 
+ 1033      6576325C 
+ 1033      44657369 
+ 1033      676E3031 
+ 1034              	.LASF15:
+ 1035 016e 63795F6D 		.ascii	"cy_meta_flashprotect\000"
+ 1035      6574615F 
+ 1035      666C6173 
+ 1035      6870726F 
+ 1035      74656374 
+ 1036              	.LASF14:
+ 1037 0183 63795F6D 		.ascii	"cy_meta_wonvl\000"
+ 1037      6574615F 
+ 1037      776F6E76 
+ 1037      6C00
+ 1038              	.LASF11:
+ 1039 0191 73697A65 		.ascii	"sizetype\000"
+ 1039      74797065 
+ 1039      00
+ 1040              	.LASF6:
+ 1041 019a 6C6F6E67 		.ascii	"long long int\000"
+ 1041      206C6F6E 
+ 1041      6720696E 
+ 1041      7400
+ 1042              	.LASF2:
+ 1043 01a8 73686F72 		.ascii	"short int\000"
+ 1043      7420696E 
+ 1043      7400
+ 1044              	.LASF4:
+ 1045 01b2 6C6F6E67 		.ascii	"long int\000"
+ 1045      20696E74 
+ 1045      00
+ 1046              	.LASF0:
+ 1047 01bb 7369676E 		.ascii	"signed char\000"
+ 1047      65642063 
+ 1047      68617200 
+ 1048              	.LASF18:
+ 1049 01c7 47656E65 		.ascii	"Generated_Source\\PSoC5\\cymetadata.c\000"
+ 1049      72617465 
+ 1049      645F536F 
+ 1049      75726365 
+ 1049      5C50536F 
+ 1050              		.ident	"GCC: (GNU Tools for ARM Embedded Processors) 5.4.1 20160609 (release) [ARM/embedded-5-bran
