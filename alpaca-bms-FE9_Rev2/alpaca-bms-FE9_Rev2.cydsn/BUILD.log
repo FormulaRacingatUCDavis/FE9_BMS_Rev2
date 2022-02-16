@@ -1,0 +1,17 @@
+--------------- Build Started: 02/15/2022 16:31:43 Project: alpaca-bms-FE9_Rev2, Configuration: ARM GCC 5.4-2016-q2-update Debug ---------------
+The code generation step is up to date.
+arm-none-eabi-gcc.exe -mcpu=cortex-m3 -mthumb -I. -IGenerated_Source\PSoC5 -Wa,-alh=.\CortexM3\ARM_GCC_541\Debug/main.lst -g -D DEBUG -D CY_CORE_ID=0 -Wall -ffunction-sections -ffat-lto-objects -Og -c main.c -o .\CortexM3\ARM_GCC_541\Debug\main.o
+arm-none-eabi-gcc.exe -mcpu=cortex-m3 -mthumb -I. -IGenerated_Source\PSoC5 -Wa,-alh=.\CortexM3\ARM_GCC_541\Debug/LTC6811.lst -g -D DEBUG -D CY_CORE_ID=0 -Wall -ffunction-sections -ffat-lto-objects -Og -c LTC6811.c -o .\CortexM3\ARM_GCC_541\Debug\LTC6811.o
+LTC6811.c: In function 'LTC6804_initialize':
+LTC6811.c:29:3: warning: implicit declaration of function 'set_adc' [-Wimplicit-function-declaration]
+   set_adc(adc_mode, DCP_DISABLED, CELL_CH_ALL, AUX_CH_GPIO5); // MD_FILTERED from MD_NORMAL
+   ^
+LTC6811.c:29:21: error: 'DCP_DISABLED' undeclared (first use in this function)
+   set_adc(adc_mode, DCP_DISABLED, CELL_CH_ALL, AUX_CH_GPIO5); // MD_FILTERED from MD_NORMAL
+                     ^
+LTC6811.c:29:21: note: each undeclared identifier is reported only once for each function it appears in
+LTC6811.c:30:3: warning: implicit declaration of function 'LTC6804_init_cfg' [-Wimplicit-function-declaration]
+   LTC6804_init_cfg();
+   ^
+The command 'arm-none-eabi-gcc.exe' failed with exit code '1'.
+--------------- Build Failed: 02/15/2022 16:31:44 ---------------

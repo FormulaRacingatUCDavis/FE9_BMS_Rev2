@@ -1,0 +1,6 @@
+C:\Program Files (x86)\Cypress\PSoC Creator\4.4\PSoC Creator\psoc\content\default\CyAnnotationLibrary\CyAnnotationLibrary.cylib\CyAnnotationLibrary.cyprj|0e55af08-c04a-409c-a001-5f6881e9c4a5
+C:\Users\leoja\Documents\PSoC Creator\4.4\Downloads ( 4.4).cylib\Downloads ( 4.4).cyprj|770e8746-7c9f-47ab-9bdc-ca1eabe1955f
+C:\Program Files (x86)\Cypress\PSoC Creator\4.4\PSoC Creator\psoc\content\cycomponentlibraryupdates\CyComponentLibraryUpdates.cylib\CyComponentLibraryUpdates.cyprj|4ea7ce36-06b1-4ba1-94ba-4d73a70b14b1
+C:\Program Files (x86)\Cypress\PSoC Creator\4.4\PSoC Creator\psoc\content\cycomponentlibrary\CyComponentLibrary.cylib\CyComponentLibrary.cyprj|68e1df1a-c93e-4be1-a6d2-349a74118226
+C:\Program Files (x86)\Cypress\PSoC Creator\4.4\PSoC Creator\psoc\content\cyprimitives\CyPrimitives.cylib\CyPrimitives.cyprj|208f680a-ef57-43f9-b54d-7e47530d0be0
+C:\Users\leoja\Documents\GitHub\FE9_BMS_Rev2\alpaca-bms-FE9_Rev2\alpaca-bms-FE9_Rev2.cydsn\alpaca-bms-FE9_Rev2.cyprj|363621ba-c1f3-47dd-97e9-b4020954eb19
