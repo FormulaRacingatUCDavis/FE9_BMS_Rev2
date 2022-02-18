@@ -17,26 +17,30 @@ void init(void){   //initialize modules
 }
 
 int main(void)
-{
+{  //SEE ADOW ON DATASHEET PAGE 33
     CyGlobalIntEnable; /* Enable global interrupts. */
 
     init();   //initialize modules
-    
     LTC6811_initialize(MD_FILTERED);
 
     uint8_t cfga[6];
-    int8_t success;
+    uint16_t auxb[2][6];
+    LTC6811_rdcfga(1, cfga);
+    uint8_t sel = 0;
     
-    LTC6811_wakeup();
-    success = LTC6811_rdcfga(1, cfga);
-    LTC6811_wrcfga(0xFF, 11, cfga);
-    success = LTC6811_rdcfga(1, cfga);
-    
-    while(1)
-    {
-        BMS_OK_Write(0u);
-        CyDelay(100); 
-        BMS_OK_Write(1);
+
+    while(1){
+        LTC6811_wrcfga(1, sel, cfga);
+        CyDelay(1);
+        LTC6811_adax();
+        CyDelay(1);
+        LTC6811_rdaux(0, 2, auxb);
+        //BMS_OK_Write(0);
+        //if(!LTC6811_rdcfga(1, cfga)){
+            //if(cfga[0] == 0b00101110){
+            //    BMS_OK_Write(1);
+            //}
+        //}
         CyDelay(100);
     }
 }

@@ -139,6 +139,14 @@ static const unsigned int crc15Table[256] = {0x0,0xc599, 0xceab, 0xb32, 0xd8cf, 
 #define DCP_DISABLED 0
 #define DCP_ENABLED 1
 
+enum AuxPins {
+    GPIO1,
+    GPIO2,
+    GPIO3,
+    GPIO4,
+    GPIO5,
+    VREF2
+};
 
 //FUNCTIONS: 
 uint8_t addressify_cmd(uint8_t lt_addr, uint8_t cmd0);
@@ -151,6 +159,13 @@ void LTC6811_wakeup();
 void LTC6811_wrcfga(uint8_t lt_addr, uint8_t select, uint8_t orig_cfga_data[5]);
 void LTC6811_wrcfga_balance(uint8_t lt_addr, uint8_t cfga_data[5]);
 int8_t LTC6811_rdcfga(uint8_t lt_addr, uint8_t cfga[6]);
+
+void LTC6804_adcv();
+void LTC6811_adax();
+
+int8_t LTC6811_rdaux_pin(uint8_t lt_addr, enum AuxPins pin, uint16_t *aux);
+//int8_t LTC6811_rdaux(uint8_t reg, uint8_t total_ic, uint16_t aux_codes[][6]);
+//void LTC6811_rdaux_reg(uint8_t reg, uint8_t total_ic, uint8_t *data);
 
 uint16_t pec15_calc(uint8_t len, uint8_t *data);
 void spi_write_array(uint8_t len, uint8_t data[]);
