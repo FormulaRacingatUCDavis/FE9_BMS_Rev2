@@ -169,6 +169,6 @@ int8_t LTC6811_rdaux_pin(uint8_t lt_addr, enum AuxPins pin, uint16_t *aux);
 
 uint16_t pec15_calc(uint8_t len, uint8_t *data);
 void spi_write_array(uint8_t len, uint8_t data[]);
-int8_t spi_write_read(uint8_t tx_Data[], uint8_t tx_len, uint8_t *rx_data, uint8_t rx_len);
+int8_t spi_write_read(volatile uint8_t tx_Data[], uint8_t tx_len, uint8_t *rx_data, uint8_t rx_len);
 
 /* [] END OF FILE */

@@ -157,18 +157,18 @@ void LTC6811_wrcfga(uint8_t lt_addr, uint8_t select, uint8_t orig_cfga_data[6]) 
     cfga is an 8 byte register on the LTC6811, we care about cfga[0]:
     bits -  |7     |6       |5        |4        |3         |2     |1            |0                  |
             |gpio5 |gpio4   |gpio3    |gpio2    |gpio1     |refon | dten        |adcopt (important) |
-            | x    |select3 | select2 |select 1 |select 0  | 1    | read only   | 0     (adc mode)  |
+            | 1    |select3 | select2 |select 1 |select 0  | 1    | read only   | 0     (adc mode)  |
     
     In testing, we found that dten and refon must be 1, otherwise the function doesn't
     write the select (gpio) bits.
-    GPIO1 is the output of the mux and must be written high. 
+    GPIO5 is the output of the mux and must be written high. 
     If GPIO1 is written low then read function will get microvolts.
     */
     
     uint8_t cfgr0 = (select << 3) & 0b01111000; // 0000xxxx -> 0xxxx000
     
-    cmd[4] = cfgr0 | 0b100;        //refon = 1, dten = read only, adcopt = 0
-    cmd[5] = orig_cfga_data[1];    //rest of the register is written with its prev. values
+    cmd[4] = cfgr0 | 0b10000100;        //gpio5 = 1 refon = 1 adcopt = 0
+    cmd[5] = orig_cfga_data[1];         //rest of the register is written with its prev. values
     cmd[6] = orig_cfga_data[2];
     cmd[7] = orig_cfga_data[3];
     cmd[8] = orig_cfga_data[4];
@@ -368,23 +368,23 @@ int8_t LTC6811_rdaux_pin(uint8_t lt_addr, enum AuxPins pin, uint16_t *aux)
     cmd[2] = (cmd_pec >> 8);
     cmd[3] = cmd_pec;
     
-    int num_tries = 0;
+    //int num_tries = 0;
     
-    do {
-    
+    //do {
+        LTC6811_wakeup();
         spi_write_read(cmd, 4, rx_data, 8);
             
-        received_pec = (*(rx_data + 6) << 8) + *(rx_data + 7);
-        data_pec = pec15_calc(6, rx_data);
-        num_tries++;
+        //received_pec = (*(rx_data + 6) << 8) + *(rx_data + 7);
+        //data_pec = pec15_calc(6, rx_data);
+        //num_tries++;
         
-    if (num_tries > 2) {
+   /* if (num_tries > 2) {
         num_tries = 0;
         *aux = 0xFFFF;
         return -1;
-    }
+    }*/
     
-    }while (data_pec != received_pec);
+    //}while (data_pec != received_pec);
     
     *aux = rx_data[set] | (rx_data[set + 1] << 8);
     
@@ -606,7 +606,7 @@ void spi_write_array(uint8_t len, // Option: Number of bytes to be written on th
 //Returns 0 on success and -1 on fail
 
 */
-int8_t spi_write_read(uint8_t tx_Data[],//array of data to be written on SPI port 
+int8_t spi_write_read(volatile uint8_t tx_Data[],//array of data to be written on SPI port 
 					uint8_t tx_len, //length of the tx data arry
 					uint8_t *rx_data,//Input: array that will store the data read by the SPI port
 					uint8_t rx_len //Option: number of bytes to be read from the SPI port
@@ -617,6 +617,7 @@ int8_t spi_write_read(uint8_t tx_Data[],//array of data to be written on SPI por
     
     uint8_t i = 0;
     uint8_t dummy_read;         //stores uneeded values
+    volatile uint8_t receivedTx[10];
     
     for(i = 0; i < tx_len; i++){
         SPI_WriteTxData(tx_Data[i]);
@@ -635,7 +636,7 @@ int8_t spi_write_read(uint8_t tx_Data[],//array of data to be written on SPI por
     while(!(SPI_ReadTxStatus() & SPI_STS_SPI_DONE)){}  //await tx finished
     
     for(i = 0; i < tx_len; i++){
-        dummy_read = (uint8_t)SPI_ReadRxData();   //read out tx values from rx buffer
+        receivedTx[i] = (uint8_t)SPI_ReadRxData();   //read out tx values from rx buffer
     }
 
     for(i = 0; i < rx_len; i++){

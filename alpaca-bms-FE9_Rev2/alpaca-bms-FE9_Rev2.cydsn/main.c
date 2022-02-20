@@ -24,17 +24,29 @@ int main(void)
     LTC6811_initialize(MD_FILTERED);
 
     uint8_t cfga[6];
+    uint16_t aux[16];
     uint16_t auxb[2][6];
-    LTC6811_rdcfga(1, cfga);
-    uint8_t sel = 0;
+    //uint8_t sel = 5;
     
+    BMS_OK_Write(1);
 
     while(1){
-        LTC6811_wrcfga(1, sel, cfga);
+        LTC6811_rdcfga(1, cfga);
         CyDelay(1);
-        LTC6811_adax();
-        CyDelay(1);
-        LTC6811_rdaux(0, 2, auxb);
+        for (uint8_t sel = 0; sel < 16; sel++){
+            LTC6811_wrcfga(1, sel, cfga);
+            CyDelay(1);
+            //LTC6811_rdcfga(1, cfga);
+            LTC6811_adax();
+            CyDelay(1);
+            LTC6811_rdaux_pin(1, GPIO5, &aux[sel]);
+            CyDelay(1);
+        }
+ 
+        //CyDelay(1);
+       // 
+        //
+        //LTC6811_rdaux(0, 2, auxb);
         //BMS_OK_Write(0);
         //if(!LTC6811_rdcfga(1, cfga)){
             //if(cfga[0] == 0b00101110){
