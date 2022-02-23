@@ -181,7 +181,7 @@ void LTC6811_wrcfga(uint8_t lt_addr, uint8_t select, uint8_t orig_cfga_data[6]) 
     
     // wakeup device and send cmd
     LTC6811_wakeup();
-    spi_write_array(12, cmd);
+    spi_write(cmd, 12);
 }
 
 /*
@@ -216,7 +216,7 @@ void LTC6811_wrcfga_balance(uint8_t lt_addr, uint8_t cfga_data[6]) {  //UNTESTED
     cmd[11] = (uint8_t) temp_pec;
     
     LTC6811_wakeup();
-    spi_write_array(12, cmd);
+    spi_write(cmd, 12);
 }
 
 /*
@@ -272,7 +272,7 @@ int8_t LTC6811_rdcfga(uint8_t lt_addr, uint8_t cfga[6])   //tested 2/17
  | DCP    | Determines if Discharge is Permitted	     |
   
 ***********************************************************************************************/
-void LTC6804_adcv()
+void LTC6811_adcv()
 {
 
   uint8_t cmd[4];
@@ -292,9 +292,329 @@ void LTC6804_adcv()
   
   //4
   CyDelay(1);
-  spi_write_array(4,cmd);
+  spi_write(cmd, 4);
   CyDelay(1);
 }
+
+//reads one register from one chip
+int8_t LTC6811_rdcv_ltc_reg(uint8_t reg, uint8_t * data, uint8_t addr){
+    uint8_t cmd[4];
+    uint16_t temp_pec;
+    uint16_t data_pec;
+    uint16_t received_pec;
+
+    if (reg == 1) {
+        cmd[1] = 0x04;
+        cmd[0] = 0x00;
+    }
+    else if (reg == 2) {
+        cmd[1] = 0x06;
+        cmd[0] = 0x00;
+    }
+    else if (reg == 3) {
+        cmd[1] = 0x08;
+        cmd[0] = 0x00;
+    }
+    else if (reg == 4) {
+        cmd[1] = 0x0A;
+        cmd[0] = 0x00;
+    }
+
+    cmd[0] = 0x80 + (addr << 3);
+
+    temp_pec = pec15_calc(2, cmd);
+    cmd[2] = (uint8_t)(temp_pec >> 8);
+    cmd[3] = (uint8_t)(temp_pec);
+
+    LTC6811_wakeup();
+    
+    int num_tries = 0;
+    int try_again = 0;
+    
+    
+    do {
+        spi_write_read(cmd, 4, &data[addr*8], 8);
+        try_again = 0;
+        
+        // check for missing voltages in reg (6553's)
+        for (int i = 0; i < 3; i+= 2) {
+            if (data[addr*8 + i] == 0xFF && data[addr*8 + i + 1] == 0xFF)
+                try_again = 1;
+        }
+        // check for pec Errors
+        received_pec = (*(&data[addr*8] + 6) << 8) + *(&data[addr*8] + 7);
+        data_pec = pec15_calc(6, &data[addr*8]);
+        
+        num_tries++;
+        if (num_tries > 2)
+            return -1;
+        
+    } while ((data_pec != received_pec) || try_again);
+    
+    return 0;
+}
+/* NOT WORKING
+//read all voltages from one chip
+int8_t LTC6811_rdcv_ltc(uint8_t addr, uint16_t voltages[CELLS_PER_LTC]){
+    
+    //bytes to recieve
+    const uint8_t NUM_RX_BYT = 8;
+    // bytes in a 6811 reg
+    const uint8_t BYT_IN_REG = 6;
+    // each cell gets 2 bytes in a reg
+    const uint8_t CELL_IN_REG = 3;
+    
+    int8_t pec_error = 0;
+    uint16_t parsed_cell;
+    uint16_t received_pec;
+    uint16_t data_pec;
+    uint8_t data_counter=0; //data counter
+    uint8_t cell_data[NUM_RX_BYT];
+    
+    for(uint8_t cell_reg = 1; cell_reg<5; cell_reg++)         			 //executes once for each of the LTC6804 cell voltage registers
+    {
+        data_counter = 0;
+     
+        LTC6811_rdcv_ltc_reg(cell_reg, cell_data, addr);
+
+    	for(uint8_t current_cell = 0; current_cell<CELL_IN_REG; current_cell++)	   // This loop parses the read back data. 
+        {														   		           // Loops once for each cell voltage in the register 
+          parsed_cell = cell_data[data_counter] + (cell_data[data_counter + 1] << 8);
+          voltages[current_cell  + ((cell_reg - 1) * CELL_IN_REG)] = parsed_cell;
+          data_counter = data_counter + 2;
+        }
+        
+        received_pec = (cell_data[data_counter] << 8) + cell_data[data_counter+1];
+        data_pec = pec15_calc(BYT_IN_REG, cell_data);
+        
+        if(received_pec != data_pec)
+        {
+          pec_error = -1;
+        }
+    }
+    
+    return pec_error;
+}
+*/
+/***********************************************//**
+ \brief Read the raw data from the LTC6804 cell voltage register
+ 
+ The function reads a single cell voltage register and stores the read data
+ in the *data point as a byte array. This function is rarely used outside of 
+ the LTC6804_rdcv() command. 
+ 
+ @param[in] uint8_t reg; This controls which cell voltage register is read back. 
+         
+          1: Read back cell group A 
+		  
+          2: Read back cell group B 
+		  
+          3: Read back cell group C 
+		  
+          4: Read back cell group D 
+		  
+ @param[in] uint8_t total_ic; This is the number of ICs in the network
+ 
+ @param[out] uint8_t *data; An array of the unparsed cell codes 
+ *************************************************/
+void LTC6811_rdcv_reg(uint8_t reg,
+					  uint8_t total_ic, 
+					  uint8_t *data
+					  )
+{
+  uint8_t cmd[4];
+  uint16_t temp_pec;
+  
+  //1
+  if (reg == 1)
+  {
+    cmd[1] = 0x04;
+    cmd[0] = 0x00;
+  }
+  else if(reg == 2)
+  {
+    cmd[1] = 0x06;
+    cmd[0] = 0x00;
+  } 
+  else if(reg == 3)
+  {
+    cmd[1] = 0x08;
+    cmd[0] = 0x00;
+  } 
+  else if(reg == 4)
+  {
+    cmd[1] = 0x0A;
+    cmd[0] = 0x00;
+  } 
+
+  //2
+ 
+  
+  //3
+  LTC6811_wakeup(); //This will guarantee that the LTC6804 isoSPI port is awake. This command can be removed.
+  
+  //4
+  for(int current_ic = 0; current_ic<total_ic; current_ic++)
+  {
+	cmd[0] = 0x80 + (current_ic<<3); //Setting address
+    
+    temp_pec = pec15_calc(2, cmd);
+	cmd[2] = (uint8_t)(temp_pec >> 8);
+	cmd[3] = (uint8_t)(temp_pec); 
+	CyDelay(1);
+	spi_write_read(cmd,4,&data[current_ic*8],8);
+    CyDelay(1);
+  }
+}
+
+/*
+  LTC6804_rdcv_reg Function Process:
+  1. Determine Command and initialize command array
+  2. Calculate Command PEC
+  3. Wake up isoSPI, this step is optional
+  4. Send Global Command to LTC6804 stack
+*/
+
+/***********************************************//**
+ \brief Reads and parses the LTC6804 cell voltage registers.
+ 
+ The function is used to read the cell codes of the LTC6804.
+ This function will send the requested read commands parse the data
+ and store the cell voltages in cell_codes variable. 
+ 
+ 
+@param[in] uint8_t reg; This controls which cell voltage register is read back. 
+ 
+          0: Read back all Cell registers 
+		  
+          1: Read back cell group A 
+		  
+          2: Read back cell group B 
+		  
+          3: Read back cell group C 
+		  
+          4: Read back cell group D 
+ 
+@param[in] uint8_t total_ic; This is the number of ICs in the network
+ 
+
+@param[out] uint16_t cell_codes[]; An array of the parsed cell codes from lowest to highest. The cell codes will
+  be stored in the cell_codes[] array in the following format:
+  |  cell_codes[0]| cell_codes[1] |  cell_codes[2]|    .....     |  cell_codes[11]|  cell_codes[12]| cell_codes[13] |  .....   |
+  |---------------|----------------|--------------|--------------|----------------|----------------|----------------|----------|
+  |IC1 Cell 1     |IC1 Cell 2      |IC1 Cell 3    |    .....     |  IC1 Cell 12   |IC2 Cell 1      |IC2 Cell 2      | .....    |
+ 
+ @return int8_t, PEC Status.
+ 
+	0: No PEC error detected
+  
+	-1: PEC error detected, retry read
+ *************************************************/
+int8_t LTC6811_rdcv(uint8_t reg,
+					 uint8_t total_ic,
+					 uint16_t cell_codes[][12]
+					 )
+{
+  //bytes to recieve
+  const uint8_t NUM_RX_BYT = 8;
+  // bytes in a 6811 reg
+  const uint8_t BYT_IN_REG = 6;
+  // each cell gets 2 bytes in a reg
+  const uint8_t CELL_IN_REG = 3;
+  
+  int8_t pec_error = 0;
+  uint16_t parsed_cell;
+  uint16_t received_pec;
+  uint16_t data_pec;
+  uint8_t data_counter=0; //data counter
+  uint8_t cell_data[NUM_RX_BYT * total_ic];
+
+  //1.a
+  if (reg == 0)
+  {
+    //a.i
+    for(uint8_t cell_reg = 1; cell_reg<5; cell_reg++)         			 //executes once for each of the LTC6804 cell voltage registers
+    {
+      data_counter = 0;
+      //LTC6804_rdcv_reg(cell_reg, total_ic,cell_data);
+    
+      for (int ic_num = 0; ic_num < total_ic; ic_num++) {
+         //LTC6804_rdcv_ltc_reg(cell_reg, cell_data, ic_num);
+         LTC6811_rdcv_ltc_reg(cell_reg, cell_data, ic_num);
+      }
+    /*
+      if (cell_reg == 1) {
+          for (int ic_num = 0; ic_num < total_ic; ic_num += 3) {
+             LTC6811_rdcv_ltc_reg(cell_reg, cell_data, ic_num);
+             CyDelay(1);
+             LTC6811_rdcv_ltc_reg(cell_reg, cell_data, ic_num);
+             CyDelay(1);
+          }
+      }*/
+    
+      for (uint8_t current_ic = 0 ; current_ic < total_ic; current_ic++) // executes for every LTC6804 in the stack
+      {																 	  // current_ic is used as an IC counter
+        //a.ii
+		for(uint8_t current_cell = 0; current_cell<CELL_IN_REG; current_cell++)	// This loop parses the read back data. Loops 
+        {														   		  // once for each cell voltages in the register 
+          parsed_cell = cell_data[data_counter] + (cell_data[data_counter + 1] << 8);
+          cell_codes[current_ic][current_cell  + ((cell_reg - 1) * CELL_IN_REG)] = parsed_cell;
+          data_counter = data_counter + 2;
+        }
+		//a.iii
+        received_pec = (cell_data[data_counter] << 8) + cell_data[data_counter+1];
+        data_pec = pec15_calc(BYT_IN_REG, &cell_data[current_ic * NUM_RX_BYT ]);
+        if(received_pec != data_pec)
+        {
+          pec_error = -1;
+        }
+        data_counter=data_counter+2;
+      }
+    }
+  }
+ //1.b
+  else
+  {
+	//b.i
+	
+    LTC6811_rdcv_reg(reg, total_ic,cell_data);
+    for (uint8_t current_ic = 0 ; current_ic < total_ic; current_ic++) // executes for every LTC6804 in the stack
+    {							   									// current_ic is used as an IC counter
+		//b.ii
+		for(uint8_t current_cell = 0; current_cell < CELL_IN_REG; current_cell++)   									// This loop parses the read back data. Loops 
+		{						   									// once for each cell voltage in the register 
+			parsed_cell = cell_data[data_counter] + (cell_data[data_counter+1]<<8);
+			cell_codes[current_ic][current_cell + ((reg - 1) * CELL_IN_REG)] = 0x0000FFFF & parsed_cell;
+			data_counter= data_counter + 2;
+		}
+		//b.iii
+	    received_pec = (cell_data[data_counter] << 8 )+ cell_data[data_counter + 1];
+        data_pec = pec15_calc(BYT_IN_REG, &cell_data[current_ic * NUM_RX_BYT * (reg-1)]);
+		if(received_pec != data_pec)
+		{
+			pec_error--;//pec_error = -1;
+		}
+	}
+  }
+
+    CyDelay(1);
+ //2
+return(pec_error);
+}
+/*
+	LTC6804_rdcv Sequence
+	
+	1. Switch Statement:
+		a. Reg = 0
+			i. Read cell voltage registers A-D for every IC in the stack
+			ii. Parse raw cell voltage data in cell_codes array
+			iii. Check the PEC of the data read back vs the calculated PEC for each read register command
+		b. Reg != 0 
+			i.Read single cell voltage register for all ICs in stack
+			ii. Parse raw cell voltage data in cell_codes array
+			iii. Check the PEC of the data read back vs the calculated PEC for each read register command
+	2. Return pec_error flag
+*/
 
 
 /*!******************************************************************************************************
@@ -320,7 +640,7 @@ void LTC6811_adax()
   cmd[3] = (uint8_t)(temp_pec);
  
   LTC6811_wakeup(); //This will guarantee that the LTC6804 isoSPI port is awake. This command can be removed.
-  spi_write_array(4,cmd);
+  spi_write(cmd, 4);
 }
 /*
   LTC6804_adax Function sequence:
@@ -368,29 +688,30 @@ int8_t LTC6811_rdaux_pin(uint8_t lt_addr, enum AuxPins pin, uint16_t *aux)
     cmd[2] = (cmd_pec >> 8);
     cmd[3] = cmd_pec;
     
-    //int num_tries = 0;
+    uint8_t num_tries = 0;
     
-    //do {
+    do {
         LTC6811_wakeup();
         spi_write_read(cmd, 4, rx_data, 8);
             
-        //received_pec = (*(rx_data + 6) << 8) + *(rx_data + 7);
-        //data_pec = pec15_calc(6, rx_data);
-        //num_tries++;
+        received_pec = (*(rx_data + 6) << 8) + *(rx_data + 7);
+        data_pec = pec15_calc(6, rx_data);
+        num_tries++;
         
-   /* if (num_tries > 2) {
-        num_tries = 0;
-        *aux = 0xFFFF;
-        return -1;
-    }*/
+        if (num_tries > 2) {
+            num_tries = 0;
+            *aux = 0xFFFF;
+            return -1;
+        }
     
-    //}while (data_pec != received_pec);
+    } while (data_pec != received_pec);
     
     *aux = rx_data[set] | (rx_data[set + 1] << 8);
     
     return 0;
 }
-
+//These are unused, but may be useful in the future. 
+/*
 int8_t LTC6811_rdaux(uint8_t reg,
 					 uint8_t total_ic, 
 					 uint16_t aux_codes[][6]
@@ -463,7 +784,7 @@ int8_t LTC6811_rdaux(uint8_t reg,
   }
   return (pec_error);
 }
-
+*/
 
 /*
 	LTC6804_rdaux Sequence
@@ -481,7 +802,7 @@ int8_t LTC6811_rdaux(uint8_t reg,
 */
 
 
-/***********************************************//**
+/***********************************************//*
  \brief Read the raw data from the LTC6804 auxiliary register
  
  The function reads a single GPIO voltage register and stores thre read data
@@ -499,6 +820,7 @@ int8_t LTC6811_rdaux(uint8_t reg,
  
  @param[out] uint8_t *data; An array of the unparsed aux codes 
  *************************************************/
+/*
 void LTC6811_rdaux_reg(uint8_t reg, 
 					   uint8_t total_ic,
 					   uint8_t *data
@@ -540,6 +862,7 @@ void LTC6811_rdaux_reg(uint8_t reg,
 	spi_write_read(cmd,4,&data[current_ic*8],8);
   }
 }
+*/
 /*
   LTC6804_rdaux_reg Function Process:
   1. Determine Command and initialize command array
@@ -582,16 +905,20 @@ uint16_t pec15_calc(uint8_t len, uint8_t *data)
  @param[in] uint8_t data[] the data array to be written on the SPI port
  
 */
-void spi_write_array(uint8_t len, // Option: Number of bytes to be written on the SPI port
-					 uint8_t data[] //Array of bytes to be written on the SPI port
-					 )
-{ // SKY_ADDED
-  CyDelay(1);
+void spi_write(uint8_t data[], //Array of bytes to be written on the SPI port
+               uint8_t len     //Option: Number of bytes to be written on the SPI port 
+			   )
+{ 
+  uint8_t dummy[1];
+  spi_write_read(data, len, dummy, 0);
+    
+  //SOMETHING WITH THIS WAS FUCKED I HAD TO RUN ADAX AND WRCFGA 5 TIMES TO GET THEM TO WORK FUCK YOU 
+  /*CyDelay(1);
   for(uint8_t i = 0; i < len; i++)
   {
      SPI_WriteTxData((int8_t)data[i]);
   }
-  CyDelay(1);
+  CyDelay(1);*/ 
 }
 
 

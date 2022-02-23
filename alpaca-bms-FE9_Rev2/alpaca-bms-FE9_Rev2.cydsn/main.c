@@ -24,46 +24,34 @@ int main(void)
     LTC6811_initialize(MD_FAST);
 
     uint8_t cfga[6];
-    volatile uint8_t read_cfga[15][6];
-    uint16_t temp;
-    volatile uint16_t aux[16];
-    uint16_t auxb[2][6];
-    //uint8_t sel = 5;
+    uint16_t aux;
+    volatile uint16_t volts[16];
+    uint8_t i; 
     
-    BMS_OK_Write(1);
+    uint16_t cell_voltages[2][12];
+    
+    BMS_OK_Write(0);
 
     while(1){
-        LTC6811_rdcfga(1, cfga);
+        LTC6811_wakeup();
         CyDelay(1);
-        for (uint8_t sel = 0; sel < 16; sel++){
-            LTC6811_wrcfga(1, sel, cfga);
-            CyDelay(100);
-            LTC6811_rdcfga(1, read_cfga[sel]);
-            CyDelay(50);
+        
+        LTC6811_adcv();
+        CyDelay(1);
+        //LTC6811_rdcv(0, 2, cell_voltages);
+        LTC6811_rdcv(0, 2, cell_voltages);
+        
+        LTC6811_rdcfga(1, cfga);
+        BMS_OK_Write(1);
+        for (i=0; i<16; i++){
+            LTC6811_wrcfga(1, i, cfga);
             LTC6811_adax();
-            CyDelay(100);
-            
-            if(LTC6811_rdaux_pin(1, GPIO5, &temp)){
-                BMS_OK_Write(0);
-                aux[sel] = 0xFFFF;
-            } else {
-            aux[sel] = temp;
-            }
-            
-            CyDelay(100);
+            CyDelayUs(200);
+            LTC6811_rdaux_pin(1, GPIO5, &aux);
+            volts[i] = aux;
         }
- 
-        //CyDelay(1);
-       // 
-        //
-        //LTC6811_rdaux(0, 2, auxb);
-        //BMS_OK_Write(0);
-        //if(!LTC6811_rdcfga(1, cfga)){
-            //if(cfga[0] == 0b00101110){
-            //    BMS_OK_Write(1);
-            //}
-        //}
-        CyDelay(100);
+        BMS_OK_Write(0);
+        CyDelay(1);
     }
 }
 
