@@ -31,15 +31,17 @@ int main(void)
     
     uint16_t cell_voltages[2][12];
     
-    /*
+    BMS_OK_Write(1);
+    
     PCAN_TX_MSG message; 
     
     message.dlc = 0; 
     message.id = 1; 
     message.ide = 0; 
-    message.irq = 0; */
+    message.irq = 0;
 
     while(1){
+        /*
         LTC6811_wakeup();
         CyDelay(1);
         
@@ -50,7 +52,7 @@ int main(void)
         
         LTC6811_wrcfga_balance(1); 
         
-        
+        */
         /*
         LTC6811_rdcfga(1, cfga);
         BMS_OK_Write(1);
@@ -62,6 +64,8 @@ int main(void)
             volts[i] = aux;
         }*/
 
+        PCAN_SendMsg(&message); 
+        CyDelay(2000);
     }
 }
 
