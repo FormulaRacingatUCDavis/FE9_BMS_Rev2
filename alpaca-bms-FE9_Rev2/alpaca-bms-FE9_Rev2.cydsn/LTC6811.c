@@ -17,6 +17,7 @@ uint8_t ADAX[2]; //!< GPIO conversion command.
 
 uint8_t tx_cfg[IC_PER_BUS][6];   //!< 
 
+
 /*
 addressify_cmd: 
 
@@ -48,6 +49,7 @@ uint8_t addressify_cmd(uint8_t lt_addr, uint8_t cmd0)
     return cmd0;
 }
 
+
 /*
 LTC6811_initialize: 
 
@@ -77,7 +79,6 @@ void LTC6811_initialize(uint8_t adc_mode)  //tested 2/15/22
 			|ADCV:	    |   0   |   1   | MD[1] | MD[2] |   1   |   1   |  DCP  |   0   | CH[2] | CH[1] | CH[0] | 
 			|ADAX:	    |   1   |   0   | MD[1] | MD[2] |   1   |   1   |  DCP  |   0   | CHG[2]| CHG[1]| CHG[0]| 
  ******************************************************************************************************************/
-//tested 2/15/22
 void LTC6811_set_adc(uint8_t MD, //ADC Mode   
 			         uint8_t DCP, //Discharge Permit
 			         uint8_t CH, //Cell Channels to be measured
@@ -109,6 +110,22 @@ void LTC6811_init_cfg() //tested 2/15/22
     tx_cfg[i][4] = 0x00;
     tx_cfg[i][5] = 0x20; // DCTO=0x2 1 min
   }
+}
+
+void LTC6811_wrcfga_mux(uint8_t addr, uint8_t select){
+    
+    uint8_t cfg0 = (select << 3) & 0b01111000;
+    cfg0 |= 0b10000100;
+    
+    if (addr == 0xFF){
+        for (uint8_t i = 0; i < IC_PER_BUS; i++){
+            tx_cfg[i][0] = cfg0;
+        }
+    } else {
+        tx_cfg[addr][0] = cfg0; 
+    }
+    
+    //LTC6811_wrcfga(addr); 
 }
 
 /*!****************************************************
@@ -190,7 +207,7 @@ void LTC6811_wrcfga(uint8_t lt_addr, uint8_t select, uint8_t orig_cfga_data[6]) 
  *  lt_addr (0-17) corresponds to the address of an lt chip
 */
 
-void LTC6811_wrcfga_balance(uint8_t lt_addr, uint8_t cfga_data[6]) {  //UNTESTED
+void LTC6811_wrcfga_balance(uint8_t lt_addr){//, uint8_t cfga_data[6]) {  //UNTESTED
     
     uint8_t cmd[12];
     uint16_t temp_pec;
@@ -205,11 +222,11 @@ void LTC6811_wrcfga_balance(uint8_t lt_addr, uint8_t cfga_data[6]) {  //UNTESTED
     cmd[3] = (uint8_t) temp_pec;
     
     cmd[4] = 0x0E;
-    cmd[5] = cfga_data[1];
-    cmd[6] = cfga_data[2];
-    cmd[7] = cfga_data[3];
-    cmd[8] = cfga_data[4];
-    cmd[9] = cfga_data[5] | 0x20;
+    cmd[5] = 0x00; //cfga_data[1];
+    cmd[6] = 0x00; //cfga_data[2];
+    cmd[7] = 0x00; //cfga_data[3];
+    cmd[8] = 0x02;
+    cmd[9] = 0x20;
     
     temp_pec = pec15_calc(6, (uint8_t*) cmd + 4);
     cmd[10] = (uint8_t) (temp_pec >> 8);
@@ -655,7 +672,7 @@ void LTC6811_adax()
 
 
 /*
- *  Read the voltage of a specific pin
+ *  Read the voltage of a specific GPIO pin
  *  for reference:
  *  group 0 (auxa): set 0 = gpio1, set 1 = gpio2, set 2 = gpio2
  *  group 1 (auxb): set 0 = gpio4, set 1 = gpio5, set 2 = vref2

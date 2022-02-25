@@ -331,11 +331,14 @@
       <Data key="2b46f600-054c-4f2d-b3db-d55e5a4d05a8" value="ss" />
       <Data key="5eb5792a-6fe6-42a4-aac6-15599f74b868" value="PIC18_Rx" />
       <Data key="8d318d8b-cf7b-4b6b-b02c-ab1c5c49d0ba" value="miso" />
+      <Data key="8f0ab840-9627-48e7-bd76-29217071ca4f" value="Pin_1" />
       <Data key="74fd9d9d-57ab-46d0-aba2-52fa59594c8a" value="miso" />
       <Data key="264be2d3-9481-494b-8d9c-c1905a45e9cc" value="mosi" />
       <Data key="09546b02-5be8-411f-8fd0-c9110d7aa20b" value="sclk" />
       <Data key="1425177d-0d0e-4468-8bcc-e638e5509a9b" value="PCAN_Rx" />
       <Data key="b5d01cd7-6ac7-4087-8e36-061f85471ec4" value="sclk" />
+      <Data key="beca5e2d-f70f-4900-a4db-7eca1ed3126e/8b77a6c4-10a0-4390-971c-672353e2a49c" value="USBUART_Dm" />
+      <Data key="beca5e2d-f70f-4900-a4db-7eca1ed3126e/618a72fc-5ddd-4df5-958f-a3d55102db42" value="USBUART_Dp" />
       <Data key="e851a3b9-efb8-48be-bbb8-b303b216c393" value="BMS_OK" />
       <Data key="ed092b9b-d398-4703-be89-cebf998501f6" value="PCAN_Tx" />
       <Data key="ef71b3b0-51fd-4ace-bf2e-dbb3e0fc1dd5" value="PIC18_Tx" />
@@ -3444,6 +3447,11 @@
     <Group key="8d318d8b-cf7b-4b6b-b02c-ab1c5c49d0ba">
       <Group key="0">
         <Data key="Port Format" value="0,1" />
+      </Group>
+    </Group>
+    <Group key="8f0ab840-9627-48e7-bd76-29217071ca4f">
+      <Group key="0">
+        <Data key="Port Format" value="1,7" />
       </Group>
     </Group>
     <Group key="74fd9d9d-57ab-46d0-aba2-52fa59594c8a">

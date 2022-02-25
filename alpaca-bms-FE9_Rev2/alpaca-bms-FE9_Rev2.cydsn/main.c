@@ -13,7 +13,8 @@
 #include <LTC6811.h>
 
 void init(void){   //initialize modules
-    SPI_Start();     
+    SPI_Start();  
+    //PCAN_Start();
 }
 
 int main(void)
@@ -26,11 +27,17 @@ int main(void)
     uint8_t cfga[6];
     uint16_t aux;
     volatile uint16_t volts[16];
-    uint8_t i; 
+    uint16_t i = 0; 
     
     uint16_t cell_voltages[2][12];
     
-    BMS_OK_Write(0);
+    /*
+    PCAN_TX_MSG message; 
+    
+    message.dlc = 0; 
+    message.id = 1; 
+    message.ide = 0; 
+    message.irq = 0; */
 
     while(1){
         LTC6811_wakeup();
@@ -41,6 +48,10 @@ int main(void)
         //LTC6811_rdcv(0, 2, cell_voltages);
         LTC6811_rdcv(0, 2, cell_voltages);
         
+        LTC6811_wrcfga_balance(1); 
+        
+        
+        /*
         LTC6811_rdcfga(1, cfga);
         BMS_OK_Write(1);
         for (i=0; i<16; i++){
@@ -49,9 +60,8 @@ int main(void)
             CyDelayUs(200);
             LTC6811_rdaux_pin(1, GPIO5, &aux);
             volts[i] = aux;
-        }
-        BMS_OK_Write(0);
-        CyDelay(1);
+        }*/
+
     }
 }
 
