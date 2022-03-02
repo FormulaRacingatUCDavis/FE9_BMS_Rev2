@@ -14,6 +14,8 @@
 
 void init(void){   //initialize modules
     SPI_Start();  
+    //USB_Start(0, USB_5V_OPERATION);
+    //USB_CDC_Init();
     //PCAN_Start();
 }
 
@@ -22,17 +24,28 @@ int main(void)
     CyGlobalIntEnable; /* Enable global interrupts. */
 
     init();   //initialize modules
+    
     LTC6811_initialize(MD_FAST);
+    LTC6811_init_cfg();
 
     uint8_t cfga[6];
     uint16_t aux;
     volatile uint16_t volts[16];
-    uint16_t i = 0; 
+    volatile uint16_t i = 0; 
+    
+    const char8 str[] = "Bitch"; 
     
     uint16_t cell_voltages[2][12];
     
+<<<<<<< Updated upstream
     BMS_OK_Write(1);
     
+=======
+    LTC6811_wrcfga_mux(0, 5);
+    LTC6811_wrcfga_discharge_cell(0xFF, 10);
+    LTC6811_wrcfga_reset_discharge(0xFF);
+    /*
+>>>>>>> Stashed changes
     PCAN_TX_MSG message; 
     
     message.dlc = 0; 
@@ -41,6 +54,7 @@ int main(void)
     message.irq = 0;
 
     while(1){
+<<<<<<< Updated upstream
         /*
         LTC6811_wakeup();
         CyDelay(1);
@@ -66,6 +80,10 @@ int main(void)
 
         PCAN_SendMsg(&message); 
         CyDelay(2000);
+=======
+        //USB_PutString("Bitch\n"); 
+        CyDelay(1000);
+>>>>>>> Stashed changes
     }
 }
 

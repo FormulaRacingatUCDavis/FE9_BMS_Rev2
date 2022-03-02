@@ -15,7 +15,8 @@
 uint8_t ADCV[2]; //!< Cell Voltage conversion command.
 uint8_t ADAX[2]; //!< GPIO conversion command.
 
-uint8_t tx_cfg[IC_PER_BUS][6];   //!< 
+uint8_t tx_cfg[IC_PER_BUS][6];   //!< stores cfga data to be written to each LTC
+uint8_t tx_cfg_global[6];        //!< stores cfga data for global write
 
 
 /*
@@ -98,36 +99,6 @@ void LTC6811_set_adc(uint8_t MD, //ADC Mode
 }
 
 
-void LTC6811_init_cfg() //tested 2/15/22
-{
-  uint8_t i = 0;
-  for(i = 0; i<IC_PER_BUS;i++)
-  {
-    tx_cfg[i][0] = 0xFE; // See notes and page 59 for reasoning.
-    tx_cfg[i][1] = 0x00; 
-    tx_cfg[i][2] = 0x00;
-    tx_cfg[i][3] = 0x00; 
-    tx_cfg[i][4] = 0x00;
-    tx_cfg[i][5] = 0x20; // DCTO=0x2 1 min
-  }
-}
-
-void LTC6811_wrcfga_mux(uint8_t addr, uint8_t select){
-    
-    uint8_t cfg0 = (select << 3) & 0b01111000;
-    cfg0 |= 0b10000100;
-    
-    if (addr == 0xFF){
-        for (uint8_t i = 0; i < IC_PER_BUS; i++){
-            tx_cfg[i][0] = cfg0;
-        }
-    } else {
-        tx_cfg[addr][0] = cfg0; 
-    }
-    
-    //LTC6811_wrcfga(addr); 
-}
-
 /*!****************************************************
   \brief Wake the LTC6804 from the sleep state
   
@@ -143,25 +114,119 @@ void LTC6811_wakeup()  //tested 2/17
     CyDelayUs(WAKE_UP_DELAY_US);       //wait specified time
 }
 
+
+void LTC6811_init_cfg() //tested 2/15/22
+{
+  uint8_t i = 0;
+  for(i = 0; i<IC_PER_BUS;i++)
+  {
+    tx_cfg[i][0] = 0xFE; // See notes and page 59 for reasoning.
+    tx_cfg[i][1] = 0x00; 
+    tx_cfg[i][2] = 0x00;
+    tx_cfg[i][3] = 0x00; 
+    tx_cfg[i][4] = 0x00;
+    tx_cfg[i][5] = 0x20; // DCTO=0x2 1 min
+  }
+
+  for(i=0; i<6; i++){  //set global cfg
+    tx_cfg_global[i] = tx_cfg[0][i];
+  }
+}
+
+void LTC6811_set_cfga_mux(uint8_t addr, uint8_t select){
+    
+    /*
+    cfga is an 8 byte register on the LTC6811, we care about cfga[0]:
+    bits -  |7     |6       |5        |4        |3         |2     |1            |0                  |
+            |gpio5 |gpio4   |gpio3    |gpio2    |gpio1     |refon | dten        |adcopt (important) |
+            | 1    |select3 | select2 |select 1 |select 0  | 1    | read only   | 0     (adc mode)  |
+    
+    In testing, we found that dten and refon must be 1, otherwise the function doesn't
+    write the select (gpio) bits.
+    GPIO5 is the output of the mux and must be written high. 
+    If GPIO1 is written low then read function will get microvolts.
+    */
+    
+    uint8_t cfg0 = (select << 3) & 0b01111000;
+    cfg0 |= 0b10000100;
+    
+    if (addr == 0xFF){
+        tx_cfg_global[0] = cfg0;   
+    } else {
+        tx_cfg[addr][0] = cfg0; 
+    }
+}
+
+void LTC6811_set_cfga_reset_discharge(uint8_t addr){
+    uint8_t cfg4 = 0x00;
+    uint8_t cfg5 = 0x20;  // DCTO=0x2 1 min
+    
+    if (addr == 0xFF){
+        tx_cfg_global[4] = cfg4;  
+        tx_cfg_global[5] = cfg5; 
+    } else {
+      uint8_t i = 0;
+      for(i = 0; i<IC_PER_BUS;i++)
+      {
+        tx_cfg[i][4] = cfg4;
+        tx_cfg[i][5] = cfg5; 
+      } 
+    }
+}
+
+void LTC6811_set_cfga_discharge_cell(uint8_t addr, uint8_t cell_num){
+    if (cell_num >= CELLS_PER_LTC) return; 
+    
+    uint8_t set_cfg4 = 0x00;
+    uint8_t set_cfg5 = 0x00;
+    
+    //see CFGA register
+    if (cell_num < 8){
+        set_cfg4 = (0x01 << cell_num);
+    } else {
+        set_cfg5 = (0x01 << (cell_num - 8));
+    }
+    
+    if(addr == 0xFF){
+        tx_cfg_global[4] |= set_cfg4;
+        tx_cfg_global[5] |= set_cfg5;
+    } else {
+        tx_cfg[addr][4] |= set_cfg4;
+        tx_cfg[addr][5] |= set_cfg4; 
+    }
+}
+
+
+
 /*
  * Broadcast write command -
  * select - the value the mux select pins should be set to
  * orig_cfga_data - old register values we don't want to change
  */
-void LTC6811_wrcfga(uint8_t lt_addr, uint8_t select, uint8_t orig_cfga_data[6])  //tested 2/17
+void LTC6811_wrcfga(uint8_t lt_addr)//, uint8_t select)  //tested 2/17
 {
     uint8_t cmd[12];
     uint16_t temp_pec;
-    
+    uint8_t cfga_data;
+    uint8_t i; 
     
     // see LTC6811 datasheet for command codes
     if (lt_addr == 0xFF) {
         cmd[0] = 0; // For global write
+        
+        for(i=0; i<6; i++){
+            cmd[i+4] = tx_cfg_global[i];
+        }
     }
     else {    
         cmd[0] = 128;     // For addressed write
         cmd[0] = addressify_cmd(lt_addr, cmd[0]);
+        
+        for(i=0; i<6; i++){
+            cmd[i+4] = tx_cfg[lt_addr][i];
+        }
     }
+    
     cmd[1] = 1;     // specifies wrcfga cmd
     
     // calculate pec for command code
@@ -181,7 +246,7 @@ void LTC6811_wrcfga(uint8_t lt_addr, uint8_t select, uint8_t orig_cfga_data[6]) 
     GPIO5 is the output of the mux and must be written high. 
     If GPIO1 is written low then read function will get microvolts.
     */
-    
+    /*
     uint8_t cfgr0 = (select << 3) & 0b01111000; // 0000xxxx -> 0xxxx000
     
     cmd[4] = cfgr0 | 0b10000100;        //gpio5 = 1 refon = 1 adcopt = 0
@@ -190,6 +255,7 @@ void LTC6811_wrcfga(uint8_t lt_addr, uint8_t select, uint8_t orig_cfga_data[6]) 
     cmd[7] = orig_cfga_data[3];
     cmd[8] = orig_cfga_data[4];
     cmd[9] = orig_cfga_data[5];
+    */
 
     // calculate pec on data
     temp_pec = pec15_calc(6, (uint8_t*)(cmd + 4));
@@ -206,7 +272,7 @@ void LTC6811_wrcfga(uint8_t lt_addr, uint8_t select, uint8_t orig_cfga_data[6]) 
  *  data[5] bytes 4 and 5 contain discharge time and cells to discharge
  *  lt_addr (0-17) corresponds to the address of an lt chip
 */
-
+/*
 void LTC6811_wrcfga_balance(uint8_t lt_addr){//, uint8_t cfga_data[6]) {  //UNTESTED
     
     uint8_t cmd[12];
@@ -235,12 +301,14 @@ void LTC6811_wrcfga_balance(uint8_t lt_addr){//, uint8_t cfga_data[6]) {  //UNTE
     LTC6811_wakeup();
     spi_write(cmd, 12);
 }
+*/
 
 /*
  * Address read command 
  * TODO: implement address parameter
  * cfga[6] - stores values read from the 6811
  */
+
 int8_t LTC6811_rdcfga(uint8_t lt_addr, uint8_t cfga[6])   //tested 2/17
 {
     uint8_t cmd[4];         // bytes for rdcfga cmd; sent to slaves
@@ -961,7 +1029,6 @@ int8_t spi_write_read(volatile uint8_t tx_Data[],//array of data to be written o
     
     uint8_t i = 0;
     uint8_t dummy_read;         //stores uneeded values
-    volatile uint8_t receivedTx[10];
     
     for(i = 0; i < tx_len; i++){
         SPI_WriteTxData(tx_Data[i]);
@@ -980,7 +1047,7 @@ int8_t spi_write_read(volatile uint8_t tx_Data[],//array of data to be written o
     while(!(SPI_ReadTxStatus() & SPI_STS_SPI_DONE)){}  //await tx finished
     
     for(i = 0; i < tx_len; i++){
-        receivedTx[i] = (uint8_t)SPI_ReadRxData();   //read out tx values from rx buffer
+        dummy_read = (uint8_t)SPI_ReadRxData();   //read out tx values from rx buffer
     }
 
     for(i = 0; i < rx_len; i++){

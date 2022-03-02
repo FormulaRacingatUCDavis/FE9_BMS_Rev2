@@ -156,13 +156,19 @@ void LTC6811_set_adc(uint8_t MD, uint8_t DCP, uint8_t CH, uint8_t CHG);
 void LTC6811_init_cfg();
 void LTC6811_wakeup();
 
-void LTC6811_wrcfga(uint8_t lt_addr, uint8_t select, uint8_t orig_cfga_data[5]);
-void LTC6811_wrcfga_balance(uint8_t lt_addr);//, uint8_t cfga_data[5]);
+void LTC6811_set_cfga_mux(uint8_t addr, uint8_t select);
+void LTC6811_set_cfga_reset_discharge(uint8_t addr);
+void LTC6811_set_cfga_discharge_cell(uint8_t addr, uint8_t cell_num);
+void LTC6811_wrcfga(uint8_t lt_addr);//, uint8_t select, uint8_t orig_cfga_data[5]);
+//void LTC6811_wrcfga_balance(uint8_t lt_addr);//, uint8_t cfga_data[5]);
 int8_t LTC6811_rdcfga(uint8_t lt_addr, uint8_t cfga[6]);
 
-void LTC6804_adcv();
+void LTC6811_adcv();
 void LTC6811_adax();
 
+int8_t LTC6811_rdcv_ltc_reg(uint8_t reg, uint8_t * data, uint8_t addr);
+void LTC6811_rdcv_reg(uint8_t reg, uint8_t total_ic, uint8_t *data);
+int8_t LTC6811_rdcv(uint8_t reg, uint8_t total_ic, uint16_t cell_codes[][12]);
 int8_t LTC6811_rdaux_pin(uint8_t lt_addr, enum AuxPins pin, uint16_t *aux);
 //int8_t LTC6811_rdaux(uint8_t reg, uint8_t total_ic, uint16_t aux_codes[][6]);
 //void LTC6811_rdaux_reg(uint8_t reg, uint8_t total_ic, uint8_t *data);
