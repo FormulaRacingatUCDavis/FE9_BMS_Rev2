@@ -36,55 +36,8 @@ int main(void)
     const char8 str[] = "Bitch"; 
     
     uint16_t cell_voltages[2][12];
-    
-<<<<<<< Updated upstream
-    BMS_OK_Write(1);
-    
-=======
-    LTC6811_wrcfga_mux(0, 5);
-    LTC6811_wrcfga_discharge_cell(0xFF, 10);
-    LTC6811_wrcfga_reset_discharge(0xFF);
-    /*
->>>>>>> Stashed changes
-    PCAN_TX_MSG message; 
-    
-    message.dlc = 0; 
-    message.id = 1; 
-    message.ide = 0; 
-    message.irq = 0;
 
-    while(1){
-<<<<<<< Updated upstream
-        /*
-        LTC6811_wakeup();
-        CyDelay(1);
-        
-        LTC6811_adcv();
-        CyDelay(1);
-        //LTC6811_rdcv(0, 2, cell_voltages);
-        LTC6811_rdcv(0, 2, cell_voltages);
-        
-        LTC6811_wrcfga_balance(1); 
-        
-        */
-        /*
-        LTC6811_rdcfga(1, cfga);
-        BMS_OK_Write(1);
-        for (i=0; i<16; i++){
-            LTC6811_wrcfga(1, i, cfga);
-            LTC6811_adax();
-            CyDelayUs(200);
-            LTC6811_rdaux_pin(1, GPIO5, &aux);
-            volts[i] = aux;
-        }*/
-
-        PCAN_SendMsg(&message); 
-        CyDelay(2000);
-=======
-        //USB_PutString("Bitch\n"); 
-        CyDelay(1000);
->>>>>>> Stashed changes
-    }
+    
 }
 
 /* [] END OF FILE */

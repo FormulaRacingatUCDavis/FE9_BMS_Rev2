@@ -1887,7 +1887,7 @@
       </registers>
     </peripheral>
     <peripheral>
-      <name>USB</name>
+      <name>USBUART</name>
       <description>USBFS</description>
       <baseAddress>0x0</baseAddress>
       <addressBlock>

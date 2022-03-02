@@ -197,7 +197,6 @@ void LTC6811_set_cfga_discharge_cell(uint8_t addr, uint8_t cell_num){
 }
 
 
-
 /*
  * Broadcast write command -
  * select - the value the mux select pins should be set to
