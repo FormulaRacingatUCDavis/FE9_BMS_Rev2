@@ -115,17 +115,18 @@ void LTC6811_wakeup()  //tested 2/17
 }
 
 
-void LTC6811_init_cfg() //tested 2/15/22
+//initializes tx_cfg and tx_cfg_global to defaults
+void LTC6811_init_cfg()
 {
   uint8_t i = 0;
   for(i = 0; i<IC_PER_BUS;i++)
   {
-    tx_cfg[i][0] = 0xFE; // See notes and page 59 for reasoning.
-    tx_cfg[i][1] = 0x00; 
-    tx_cfg[i][2] = 0x00;
-    tx_cfg[i][3] = 0x00; 
-    tx_cfg[i][4] = 0x00;
-    tx_cfg[i][5] = 0x20; // DCTO=0x2 1 min
+    tx_cfg[i][0] = CFGA0; 
+    tx_cfg[i][1] = CFGA1;
+    tx_cfg[i][2] = CFGA2;
+    tx_cfg[i][3] = CFGA3; 
+    tx_cfg[i][4] = CFGA4;
+    tx_cfg[i][5] = CFGA5; 
   }
 
   for(i=0; i<6; i++){  //set global cfg
@@ -133,6 +134,8 @@ void LTC6811_init_cfg() //tested 2/15/22
   }
 }
 
+//changes tx_cfg to set mux select bits
+//does not affect cfga1 - cfga5, including discharge bits
 void LTC6811_set_cfga_mux(uint8_t addr, uint8_t select){
     
     /*
@@ -144,11 +147,11 @@ void LTC6811_set_cfga_mux(uint8_t addr, uint8_t select){
     In testing, we found that dten and refon must be 1, otherwise the function doesn't
     write the select (gpio) bits.
     GPIO5 is the output of the mux and must be written high. 
-    If GPIO1 is written low then read function will get microvolts.
+    If GPIO5 is written low then read function will get microvolts.
     */
     
-    uint8_t cfg0 = (select << 3) & 0b01111000;
-    cfg0 |= 0b10000100;
+    uint8_t cfg0 = (select << 3) & 0b01111000;  //move value of select to bits 6-3
+    cfg0 |= (CFGA0 & 0b10000111);               //set other bits to default
     
     if (addr == 0xFF){
         tx_cfg_global[0] = cfg0;   
@@ -157,25 +160,25 @@ void LTC6811_set_cfga_mux(uint8_t addr, uint8_t select){
     }
 }
 
+//turns off discharge for all cells by resetting cfga4 and cfga5 to default
+//does not affect cfga0 - cfga3, including gpio bits
 void LTC6811_set_cfga_reset_discharge(uint8_t addr){
-    uint8_t cfg4 = 0x00;
-    uint8_t cfg5 = 0x20;  // DCTO=0x2 1 min
-    
     if (addr == 0xFF){
-        tx_cfg_global[4] = cfg4;  
-        tx_cfg_global[5] = cfg5; 
+        tx_cfg_global[4] = CFGA4;  
+        tx_cfg_global[5] = CFGA5; 
     } else {
       uint8_t i = 0;
       for(i = 0; i<IC_PER_BUS;i++)
       {
-        tx_cfg[i][4] = cfg4;
-        tx_cfg[i][5] = cfg5; 
+        tx_cfg[i][4] = CFGA4;
+        tx_cfg[i][5] = CFGA5; 
       } 
     }
 }
 
+//turns on discharge for specified cell
 void LTC6811_set_cfga_discharge_cell(uint8_t addr, uint8_t cell_num){
-    if (cell_num >= CELLS_PER_LTC) return; 
+    if (cell_num >= CELLS_PER_LTC) return; //ignore values too large
     
     uint8_t set_cfg4 = 0x00;
     uint8_t set_cfg5 = 0x00;
@@ -198,9 +201,9 @@ void LTC6811_set_cfga_discharge_cell(uint8_t addr, uint8_t cell_num){
 
 
 /*
- * Broadcast write command -
- * select - the value the mux select pins should be set to
- * orig_cfga_data - old register values we don't want to change
+ * Broadcast cfga write command -
+ * Uses values in tx_cfg, or tx_cfg_global if address == 0xFF
+ * 
  */
 void LTC6811_wrcfga(uint8_t lt_addr)//, uint8_t select)  //tested 2/17
 {

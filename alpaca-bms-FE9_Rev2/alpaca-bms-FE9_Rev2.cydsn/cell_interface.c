@@ -16,7 +16,7 @@
 void cell_interface_init(){
     LTC6811_init_cfg();
 }
-
+/*
 void  bms_init(uint8_t adc_mode){
     SS_SetDriveMode(SS_DM_RES_UP);
     LTC68_Start();
@@ -25,7 +25,7 @@ void  bms_init(uint8_t adc_mode){
     LTC6804_wrcfg(IC_PER_BUS, tx_cfg);
     //Select6820_Write(1);
     //LTC6804_wrcfg(IC_PER_BUS, tx_cfg);
-}
+}*/
 
 void get_all_temps(){
     uint16_t temps[N_OF_LTC][TEMPS_PER_LTC];

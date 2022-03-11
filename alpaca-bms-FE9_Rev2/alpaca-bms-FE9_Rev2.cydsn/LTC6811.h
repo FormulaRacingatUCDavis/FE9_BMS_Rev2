@@ -148,6 +148,14 @@ enum AuxPins {
     VREF2
 };
 
+//default values for cfga register
+#define CFGA0 0xFE   // See notes and page 59 for reasoning.
+#define CFGA1 0x00
+#define CFGA2 0x00
+#define CFGA3 0x00
+#define CFGA4 0x00
+#define CFGA5 0x20   // DCTO=0x2 1 min
+
 //FUNCTIONS: 
 uint8_t addressify_cmd(uint8_t lt_addr, uint8_t cmd0);
 
