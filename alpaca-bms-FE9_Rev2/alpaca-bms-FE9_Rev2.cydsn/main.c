@@ -11,13 +11,31 @@
 */
 #include "project.h"
 #include "cell_interface.h"
-//includes for current data and can manager
-//#include "currrent_sense.h"
-//#include "can_manager.h"
+#include "can_manager.h"
 #include <LTC6811.h>
 
 #include "math.h"
 #include <time.h>
+
+//global variables
+//uint8_t cfga_on_init[6];
+//uint8_t auxa[6];
+volatile uint8_t CAN_UPDATE_FLAG=0;
+extern volatile BAT_PACK_t bat_pack;
+extern BAT_SUBPACK_t bat_subpack[N_OF_SUBPACK];
+extern volatile float32 sortedTemps[N_OF_TEMP_CELL]; 
+extern float32 high_temp_overall;
+extern volatile BAT_ERR_t* bat_err_array;
+extern volatile uint8_t bat_err_index;
+extern volatile uint8_t bat_err_index_loop;
+volatile uint8_t CAN_DEBUG=0;
+//volatile uint8_t RACING_FLAG=0;    // this flag should be set in CAN handler
+BAT_SOC_t bat_soc;
+//Dash_State dash_state = 0;
+uint8_t rx_cfg[IC_PER_BUS][8];
+void DEBUG_send_cell_voltage();
+void DEBUG_send_temp();
+//void DEBUG_send_current();
 
 //The old code had many more BMS modes, are we ever going to need that?
 //Need BMS_CHARGING at least. We only want to balance cells during charging. 
@@ -34,9 +52,9 @@ void init(void){   //initialize modules
     //USB_Start(0, USB_5V_OPERATION);
     //USB_CDC_Init();
     //PCAN_Start();
-    //can_init();
-    //bms_init(MD_NORMAL); 
-    //mypack_init();
+    can_init();
+    bms_init(MD_NORMAL); 
+    mypack_init();
 }
 
 void process_event(){
@@ -58,20 +76,12 @@ void process_event(){
     //send temp only if within reasonable range from last temperature
 
     //TODO: rewrite this for dynamic number of subpacks? 
-    can_send_temp(bat_pack.subpacks[0]->high_temp,
-			bat_pack.subpacks[1]->high_temp,
-            bat_pack.subpacks[2]->high_temp,
-            bat_pack.subpacks[3]->high_temp,
-            bat_pack.subpacks[4]->high_temp,
-            //bat_pack.subpacks[5]->high_temp,
-            bat_pack.HI_temp_node_index,
+    can_send_temp(bat_pack.subpacks,
 			bat_pack.HI_temp_node,
 			bat_pack.HI_temp_c);
     
     can_send_volt(bat_pack.LO_voltage, bat_pack.HI_voltage, bat_pack.voltage);
-    //TODO: current will be sent by PEI board, skip this
-    // send current
-    //can_send_current(bat_pack.current);
+    //TODO: current will be sent by PEI board
     CyDelay(10);
 
     CyGlobalIntEnable;
@@ -92,7 +102,12 @@ int main(void)
     CyGlobalIntEnable; /* Enable global interrupts. */
 
     init();   //initialize modules
+
+    //Initialize state machine
     BMS_MODE bms_status = BMS_NORMAL;
+    uint32_t system_interval = 0;
+
+    volatile double prev_time_interval;
 
     while(1) {
         switch(bms_status) {
@@ -118,7 +133,7 @@ int main(void)
                 //higher accuracy requires more time to acquire (datasheet). Don't need as much accuracy on temps.
                 bms_init(MD_NORMAL); 
                 get_all_temps();
-                //SOC_estimation();
+                //SOC_estimation(double prev_time_interval);
                 bms_status = bat_health_check();
 
                 //Calculating time spent in state
@@ -127,10 +142,8 @@ int main(void)
                 //we can maybe send it over to the dashboard through UART?
                 //I think time was used to estimate an integral for coulomb counting. Unless the Kalmann filter needs time, we can get rid of it. 
                 Timer_1_Stop();
-                uint32 time_left = Timer_1_ReadCounter();
-                double time_spent = time_spent_start - (double)time_left;
-                time_spent_start = time_left;
-                double time_spent_seconds = (double)(time_spent) / (double)(24000000); //gives time in seconds
+                uint32 time_spent_cycle = Timer_1_ReadCounter();
+                prev_time_interval = (double)(time_spent_cycle) / (double)(24000000); //gives time in seconds
                 
                 break;
             case BMS_FAULT:
@@ -144,7 +157,7 @@ int main(void)
                 break;
         }
         process_event();
-        CyDelay(system_intercal);
+        CyDelay(system_interval);
     }
 }
 
