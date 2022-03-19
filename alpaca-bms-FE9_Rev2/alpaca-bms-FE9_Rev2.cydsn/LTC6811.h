@@ -10,6 +10,9 @@
  * ========================================
 */
 
+#ifndef LTC6811_H
+#define LTC6811_H
+
 #include <stdint.h>
 #include <data.h>
 #include <SPI.h>
@@ -185,4 +188,5 @@ uint16_t pec15_calc(uint8_t len, uint8_t *data);
 void spi_write(uint8_t data[], uint8_t len);
 int8_t spi_write_read(volatile uint8_t tx_Data[], uint8_t tx_len, uint8_t *rx_data, uint8_t rx_len);
 
+#endif
 /* [] END OF FILE */

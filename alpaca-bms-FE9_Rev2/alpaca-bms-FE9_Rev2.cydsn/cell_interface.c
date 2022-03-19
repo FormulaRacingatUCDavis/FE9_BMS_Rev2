@@ -18,13 +18,11 @@ void cell_interface_init(){
 }
 
 void  bms_init(uint8_t adc_mode){
-    SS_SetDriveMode(SS_DM_RES_UP);
-    LTC68_Start();
-    LTC6804_initialize(adc_mode);
-    Select6820_Write(1); // Configure each bus
-    LTC6804_wrcfg(IC_PER_BUS, tx_cfg);
-    //Select6820_Write(1);
-    //LTC6804_wrcfg(IC_PER_BUS, tx_cfg);
+    ss_SetDriveMode(ss_DM_RES_UP);
+    SPI_Start();
+    LTC6811_initialize(adc_mode);
+    LTC6811_init_cfg();             //initialize local cfga values
+    LTC6811_wrcfga(0xFF);           //write to cfga register for all LTC6811s
 }
 
 void get_all_temps(){
