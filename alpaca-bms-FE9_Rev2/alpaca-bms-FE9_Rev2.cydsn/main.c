@@ -133,7 +133,8 @@ int main(void)
                 //higher accuracy requires more time to acquire (datasheet). Don't need as much accuracy on temps.
                 bms_init(MD_NORMAL); 
                 get_all_temps();
-                //SOC_estimation(double prev_time_interval);
+		//double SOC;
+                //SOC = SOC_estimation(double prev_time_interval, voltage, current);
                 bms_status = bat_health_check();
 
                 //Calculating time spent in state
