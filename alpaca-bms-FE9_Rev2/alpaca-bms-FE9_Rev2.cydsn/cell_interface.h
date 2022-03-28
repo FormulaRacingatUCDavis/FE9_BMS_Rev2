@@ -152,5 +152,13 @@ typedef struct
   volatile uint32_t absolute_SOC;
 }BAT_SOC_t;
 
+
+
+//functions
+void cell_interface_init();
+void bms_init(uint8_t adc_mode);
+void get_all_temps();
+void get_voltages();
+
 #endif
 /* [] END OF FILE */
