@@ -34,8 +34,8 @@ int main(void)
             LTC6811_wrcfga(1);
             get_voltages();
         }*/
-        LTC6811_set_cfga_discharge_cell(1, 5);
-        get_voltages();
+        //LTC6811_set_cfga_discharge_cell(1, 5);
+        //get_voltages();
         get_all_temps();
     }
 }
