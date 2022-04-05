@@ -106,11 +106,14 @@ void LTC6811_set_adc(uint8_t MD, //ADC Mode
  *****************************************************/
 void LTC6811_wakeup()  //tested 2/17
 {
+    uint8_t txData[1] = {0x4D};
+    spi_write(txData, 1);
+    /*
     CyDelay(1);
     SPI_WriteTxData(0x4D);  //write dummy byte to wake up (ascii 'M')
     CyDelay(1);
     while(! (SPI_ReadTxStatus() & SPI_STS_SPI_DONE)){}  //wait for tx to finish
-    SPI_ReadRxData();                                   //read out buffer
+    SPI_ReadRxData();                                   //read out buffer*/
     CyDelayUs(WAKE_UP_DELAY_US);       //wait specified time
 }
 
@@ -265,7 +268,6 @@ void LTC6811_wrcfga(uint8_t lt_addr)//, uint8_t select)  //tested 2/17
     cmd[11] = (uint8_t)(temp_pec);
     
     // wakeup device and send cmd
-    LTC6811_wakeup();
     spi_write(cmd, 12);
 }
 
@@ -328,7 +330,7 @@ int8_t LTC6811_rdcfga(uint8_t lt_addr, uint8_t cfga[6])   //tested 2/17
     cmd[2] = (uint8_t)(cmd_pec >> 8);
     cmd[3] = (uint8_t)(cmd_pec);
     
-    LTC6811_wakeup();
+    //LTC6811_wakeup();
     spi_write_read(cmd, 4, rx_data, 8);
     
     recieved_pec = *(uint16_t *)(rx_data + 6);
@@ -375,7 +377,7 @@ void LTC6811_adcv()
   cmd[3] = (uint8_t)(temp_pec);
   
   //3
-  LTC6811_wakeup();
+  //LTC6811_wakeup();
   
   //4
   CyDelay(1);
@@ -413,7 +415,7 @@ int8_t LTC6811_rdcv_ltc_reg(uint8_t reg, uint8_t * data, uint8_t addr){
     cmd[2] = (uint8_t)(temp_pec >> 8);
     cmd[3] = (uint8_t)(temp_pec);
 
-    LTC6811_wakeup();
+    //LTC6811_wakeup();
     
     int num_tries = 0;
     int try_again = 0;
@@ -539,7 +541,7 @@ void LTC6811_rdcv_reg(uint8_t reg,
  
   
   //3
-  LTC6811_wakeup(); //This will guarantee that the LTC6804 isoSPI port is awake. This command can be removed.
+  //LTC6811_wakeup(); //This will guarantee that the LTC6804 isoSPI port is awake. This command can be removed.
   
   //4
   for(int current_ic = 0; current_ic<total_ic; current_ic++)
@@ -727,7 +729,7 @@ void LTC6811_adax()
   cmd[2] = (uint8_t)(temp_pec >> 8);
   cmd[3] = (uint8_t)(temp_pec);
  
-  LTC6811_wakeup(); //This will guarantee that the LTC6804 isoSPI port is awake. This command can be removed.
+  //LTC6811_wakeup(); //This will guarantee that the LTC6804 isoSPI port is awake. This command can be removed.
   spi_write(cmd, 4);
 }
 /*
@@ -779,7 +781,7 @@ int8_t LTC6811_rdaux_pin(uint8_t lt_addr, enum AuxPins pin, uint16_t *aux)
     uint8_t num_tries = 0;
     
     do {
-        LTC6811_wakeup();
+        //LTC6811_wakeup();
         spi_write_read(cmd, 4, rx_data, 8);
             
         received_pec = (*(rx_data + 6) << 8) + *(rx_data + 7);

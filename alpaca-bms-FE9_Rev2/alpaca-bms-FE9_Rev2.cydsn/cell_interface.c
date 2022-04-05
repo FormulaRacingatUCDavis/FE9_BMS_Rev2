@@ -39,8 +39,10 @@ void get_all_temps(){
         LTC6811_adax(); //run ADC conversion (all LTCs)
         CyDelay(1);
         
-        for(ltc_addr = 0; ltc_addr < N_OF_LTC; ltc_addr++){                //for each LTC
-            LTC6811_rdaux_pin(ltc_addr, GPIO5, &temps[ltc_addr][select]);      //get ADC result
+        for(ltc_addr = 0; ltc_addr < N_OF_LTC; ltc_addr++){                    //for each LTC
+            if(LTC6811_rdaux_pin(ltc_addr, GPIO5, &temps[ltc_addr][select])){  //get ADC result
+                CyDelay(1); //TODO: pec error
+            }
         }
     }
     CyDelay(1); 
@@ -48,13 +50,17 @@ void get_all_temps(){
 
 void get_voltages(){
     LTC6811_adcv();  //run ADC conversion (all LTCs)
+    CyDelay(1);
+    
     uint16_t cell_voltages[N_OF_LTC][CELLS_PER_LTC];
     
-    if(LTC6811_rdcv_ltc(1, cell_voltages[1])){
-        CyDelay(1);
-    } else {
-        CyDelay(1);
+    for(uint8_t addr = 1; addr < N_OF_LTC; addr++){//TODO: CHANGE START TO 0!!!
+        if(LTC6811_rdcv_ltc(addr, cell_voltages[addr])){
+            CyDelay(1);  //TODO: pec error
+        }
     }
+    
+    CyDelay(1);
 }
 
 /* [] END OF FILE */

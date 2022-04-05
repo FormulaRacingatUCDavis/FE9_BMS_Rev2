@@ -28,6 +28,13 @@ int main(void)
     init();   //initialize modules
 
     while(1) {
+        /*for(uint8_t i = 0; i < 12; i++){
+            LTC6811_set_cfga_reset_discharge(1);
+            LTC6811_set_cfga_discharge_cell(1, i); 
+            LTC6811_wrcfga(1);
+            get_voltages();
+        }*/
+        LTC6811_set_cfga_discharge_cell(1, 5);
         get_voltages();
         get_all_temps();
     }
