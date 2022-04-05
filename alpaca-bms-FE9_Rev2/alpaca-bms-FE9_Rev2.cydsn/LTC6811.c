@@ -440,7 +440,7 @@ int8_t LTC6811_rdcv_ltc_reg(uint8_t reg, uint8_t * data, uint8_t addr){
     
     return 0;
 }
-/* NOT WORKING
+
 //read all voltages from one chip
 int8_t LTC6811_rdcv_ltc(uint8_t addr, uint16_t voltages[CELLS_PER_LTC]){
     
@@ -451,16 +451,15 @@ int8_t LTC6811_rdcv_ltc(uint8_t addr, uint16_t voltages[CELLS_PER_LTC]){
     // each cell gets 2 bytes in a reg
     const uint8_t CELL_IN_REG = 3;
     
-    int8_t pec_error = 0;
     uint16_t parsed_cell;
     uint16_t received_pec;
     uint16_t data_pec;
-    uint8_t data_counter=0; //data counter
-    uint8_t cell_data[NUM_RX_BYT];
+    uint8_t data_counter; //data counter
+    uint8_t cell_data[NUM_RX_BYT * N_OF_LTC];  //will only be using part of this array. Doing this for backwards compatibility.
     
     for(uint8_t cell_reg = 1; cell_reg<5; cell_reg++)         			 //executes once for each of the LTC6804 cell voltage registers
     {
-        data_counter = 0;
+        data_counter = 8*addr;    //backwards compatibility. LTC6811_rdcv_ltc_reg will start writing here. 
      
         LTC6811_rdcv_ltc_reg(cell_reg, cell_data, addr);
 
@@ -472,17 +471,19 @@ int8_t LTC6811_rdcv_ltc(uint8_t addr, uint16_t voltages[CELLS_PER_LTC]){
         }
         
         received_pec = (cell_data[data_counter] << 8) + cell_data[data_counter+1];
-        data_pec = pec15_calc(BYT_IN_REG, cell_data);
+        data_pec = pec15_calc(BYT_IN_REG, &cell_data[addr*NUM_RX_BYT]);
         
         if(received_pec != data_pec)
         {
-          pec_error = -1;
+          return -1;
         }
+        
+        data_counter += 2;
     }
     
-    return pec_error;
+    return 0;
 }
-*/
+
 /***********************************************//**
  \brief Read the raw data from the LTC6804 cell voltage register
  
