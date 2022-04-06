@@ -178,6 +178,7 @@ void LTC6811_adcv();
 void LTC6811_adax();
 
 int8_t LTC6811_rdcv_ltc_reg(uint8_t reg, uint8_t * data, uint8_t addr);
+int8_t LTC6811_rdcv_ltc(uint8_t addr, uint16_t voltages[CELLS_PER_LTC]);
 void LTC6811_rdcv_reg(uint8_t reg, uint8_t total_ic, uint8_t *data);
 int8_t LTC6811_rdcv(uint8_t reg, uint8_t total_ic, uint16_t cell_codes[][12]);
 int8_t LTC6811_rdaux_pin(uint8_t lt_addr, enum AuxPins pin, uint16_t *aux);

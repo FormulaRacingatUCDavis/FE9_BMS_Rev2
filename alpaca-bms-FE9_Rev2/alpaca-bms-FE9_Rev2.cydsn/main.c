@@ -47,15 +47,18 @@ typedef enum {
 
 void init(void){   //initialize modules
     SPI_Start();  
-    FTDI_UART_Start();
-    PIC18_UART_Start();
+    //FTDI_UART_Start();
+    //PIC18_UART_Start();
     //USB_Start(0, USB_5V_OPERATION);
     //USB_CDC_Init();
     //PCAN_Start();
-    can_init();
+    //can_init();
     bms_init(MD_NORMAL); 
+    LTC6811_init_cfg();
     mypack_init();
 }
+
+/*
 
 void process_event(){
     CyGlobalIntDisable
@@ -86,7 +89,21 @@ void process_event(){
 
     CyGlobalIntEnable;
 }
+*/
 
+int main(void){
+    CyGlobalIntEnable; //Enable global interrupts. 
+
+    init();   //initialize modules
+    
+    while(1){
+        get_all_temps();
+    }
+}
+
+
+
+/*
 
 int main(void)
 {  //SEE ADOW ON DATASHEET PAGE 33
@@ -99,7 +116,7 @@ int main(void)
     //Even if something throws a fault outside of the while loop, cant we still set the mode to BMS_FAULT to the same effect? 
     
 
-    CyGlobalIntEnable; /* Enable global interrupts. */
+    CyGlobalIntEnable; //Enable global interrupts. 
 
     init();   //initialize modules
 
@@ -161,5 +178,5 @@ int main(void)
         CyDelay(system_interval);
     }
 }
-
+*/
 /* [] END OF FILE */
