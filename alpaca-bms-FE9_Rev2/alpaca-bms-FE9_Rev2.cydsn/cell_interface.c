@@ -39,7 +39,7 @@ void bms_init(uint8_t adc_mode){
 }
 
 void get_all_temps(){
-    uint16_t temps[N_OF_LTC][TEMPS_PER_LTC];
+    uint16_t temps[N_OF_LTC][TEMPS_PER_LTC];   //store all temps in matrix
     uint8_t select;
     uint8_t ltc_addr;
     
@@ -59,7 +59,7 @@ void get_all_temps(){
         }
     }
     
-    //sort temps
+    //sort temps into bat_pack 
     for(uint8_t pack = 0; pack < N_OF_SUBPACK; pack++){
         uint8_t cell_temp_counter = 0;
         uint8_t board_temp_counter = 0; 
@@ -70,47 +70,51 @@ void get_all_temps(){
         //IC1 cell temps
         for(i = 0; i < sizeof(CELL_TEMP_INDEXES_IC1); i++){
             raw_temp = temps[ltc_addr][CELL_TEMP_INDEXES_IC1[i]];
-            bat_pack.subpacks[pack]->cell_temps[cell_temp_counter]->temp_raw = raw_temp;
-            bat_pack.subpacks[pack]->cell_temps[cell_temp_counter]->temp_c = rawToCelcius(raw_temp);
+            setCellTemp(pack, cell_temp_counter, raw_temp);
             cell_temp_counter++;
         }
         
         //IC1 board temps
         for(i = 0; i < sizeof(BOARD_TEMP_INDEXES_IC1); i++){
             raw_temp = temps[ltc_addr][BOARD_TEMP_INDEXES_IC1[i]];
-            bat_pack.subpacks[pack]->board_temps[board_temp_counter]->temp_raw = raw_temp;
-            bat_pack.subpacks[pack]->board_temps[board_temp_counter]->temp_c = rawToCelcius(raw_temp);
+            setBoardTemp(pack, board_temp_counter, raw_temp);
             board_temp_counter++;
         }
         
-        ltc_addr = pack*IC_PER_PACK + 1;
+        ltc_addr++;
         //IC2 cell temps
         for(i = 0; i < sizeof(CELL_TEMP_INDEXES_IC2); i++){
             raw_temp = temps[ltc_addr][CELL_TEMP_INDEXES_IC2[i]];
-            bat_pack.subpacks[pack]->cell_temps[cell_temp_counter]->temp_raw = raw_temp;
-            bat_pack.subpacks[pack]->cell_temps[cell_temp_counter]->temp_c = rawToCelcius(raw_temp);
+            setCellTemp(pack, cell_temp_counter, raw_temp);
             cell_temp_counter++;
         }
         
         //IC2 board temps
         for(i = 0; i < sizeof(BOARD_TEMP_INDEXES_IC2); i++){
             raw_temp = temps[ltc_addr][BOARD_TEMP_INDEXES_IC2[i]];
-            bat_pack.subpacks[pack]->board_temps[board_temp_counter]->temp_raw = raw_temp;
-            bat_pack.subpacks[pack]->board_temps[board_temp_counter]->temp_c = rawToCelcius(raw_temp);
+            setBoardTemp(pack, board_temp_counter, raw_temp);
             board_temp_counter++;
         }
-        
-        CyDelay(1);
         
     }
     CyDelay(1); 
 }
 
+void setCellTemp(uint8_t pack, uint8_t index, uint16_t raw_temp){
+    bat_pack.subpacks[pack]->cell_temps[index]->temp_raw = raw_temp;
+    bat_pack.subpacks[pack]->cell_temps[index]->temp_c = rawToCelcius(raw_temp);
+}
+
+void setBoardTemp(uint8_t pack, uint8_t index, uint16_t raw_temp){
+    bat_pack.subpacks[pack]->board_temps[index]->temp_raw = raw_temp;
+    bat_pack.subpacks[pack]->board_temps[index]->temp_c = rawToCelcius(raw_temp);
+}
+
 float32 rawToCelcius(uint16_t raw){
     float32 temp = (float32)raw/10000;
-    //temp = (1/((1/298.15) + ((1/3428.0)*log(temp/(3-temp))))) - 273.15;
+    temp = (1/((1/298.15) + ((1/3428.0)*log(temp/(3-temp))))) - 273.15;
     
-    return 0;
+    return temp;
 }
 
 void get_voltages(){

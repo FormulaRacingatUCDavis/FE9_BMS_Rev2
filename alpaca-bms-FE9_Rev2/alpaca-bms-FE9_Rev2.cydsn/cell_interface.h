@@ -157,6 +157,8 @@ typedef struct
 void cell_interface_init();
 void bms_init(uint8_t adc_mode);
 void get_all_temps();
+void setCellTemp(uint8_t pack, uint8_t index, uint16_t raw_temp);
+void setBoardTemp(uint8_t pack, uint8_t index, uint16_t raw_temp);
 float32 rawToCelcius(uint16_t raw);
 void get_voltages();
 void mypack_init();
