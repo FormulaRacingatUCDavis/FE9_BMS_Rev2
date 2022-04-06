@@ -110,9 +110,16 @@ typedef struct
 
 typedef struct
 {
+  volatile uint16_t humidity_raw; 
+  volatile uint8_t humidity; 
+}PACK_HUMIDITY_t;
+
+typedef struct
+{
   volatile BAT_CELL_t *cells[N_OF_CELL / N_OF_SUBPACK]; // Cells per subpack
   volatile BAT_TEMP_t *cell_temps[N_OF_TEMP_CELL / N_OF_SUBPACK]; // 14 Thermistors per subpack (measuring cells)
   volatile BAT_TEMP_t *board_temps[N_OF_TEMP_BOARD / N_OF_SUBPACK];
+  volatile PACK_HUMIDITY_t *pack_humidity[HUMIDITY_SENSORS_PER_PACK];
   volatile uint8 high_temp;
   volatile uint32_t over_temp_cell;
   volatile uint32_t under_temp_cell;
@@ -144,8 +151,6 @@ typedef struct
   volatile uint16_t HI_voltage;
   volatile uint16_t LO_voltage;
   volatile uint16_t time_stamp;
-  volatile uint16_t humidity_raw; 
-  volatile uint8_t humidity; 
 }BAT_PACK_t;
 
 typedef struct 
@@ -159,6 +164,8 @@ void bms_init(uint8_t adc_mode);
 void get_all_temps();
 void setCellTemp(uint8_t pack, uint8_t index, uint16_t raw_temp);
 void setBoardTemp(uint8_t pack, uint8_t index, uint16_t raw_temp);
+void setBoardHum(uint8_t pack, uint8_t index, uint16_t raw_temp);
+uint8_t rawToHumidity(uint16_t raw);
 float32 rawToCelcius(uint16_t raw);
 void get_voltages();
 void mypack_init();
