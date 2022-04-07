@@ -21,30 +21,26 @@
 #define ERROR_TEMPERATURE_LIMIT (4u)
 #define FUSE_BAD_LIMIT (10u)
 #define BAD_FILTER_LIMIT (10u)
+#define SPI_ERROR_LIMIT (4u);
 
 #define CELL_ENABLE_HIGH (0x7DF)
 #define CELL_ENABLE_LOW (0x3DF)
-#define OVER_VOLTAGE (4200u) // Updated for FE5 (4.2V)
-#define UNDER_VOLTAGE (2500u) // Updated for FE5 (2.5V)
-#define STACK_VOLT_DIFF_LIMIT (9000u)   //9 volt
+#define OVER_VOLTAGE (42000u) //(4.2V)
+#define UNDER_VOLTAGE (25000u) //(2.5V)
+#define STACK_VOLT_DIFF_LIMIT (90000u)   //9 volt
 #define CRITICAL_TEMP_L (0u)          // 0 C
 #define CRITICAL_TEMP_H (60u)             //60 C
 #define CRITICAL_TEMP_BOARD_L (0u)          // 0 C
 #define CRITICAL_TEMP_BOARD_H (60u)  
 #define BAD_THERM_LIMIT (15u)
 #define SOC_NOMIAL      (50000*3600u)    //nomial SOC before calibration
-#define SOC_CALI_HIGH (106000u)     //High cali point at 106V
+#define SOC_CALI_HIGH (900000u)     //High cali point at 90V?
 #define SOC_SOC_HIGH  (60000*3600u)      //manually set it in mAh
-#define SOC_CALI_LOW (80000u)     //Low Cali point at 80V
+#define SOC_CALI_LOW (700000)     //Low Cali point at 70V
 #define SOC_SOC_LOW   (10000*3600u)      //manually set it in mAh
 #define SOC_FULL_CAP (75000*3600u)     //let's say, 75,000mAh
-#define SOC_FULL      (115000u)   //when voltage reaches 115V, consider it full
+#define SOC_FULL (OVER_VOLTAGE*N_OF_CELL)   //when voltage reaches 100.8V, consider it full
 #define BALANCE_THRESHOLD (10u)
-
-// Stores cell data
-uint16_t cell_codes[IC_PER_BUS * N_OF_BUSSES][12]; 
-uint16_t cell_codes_lower[IC_PER_BUS][12]; 
-uint16_t cell_codes_higher[IC_PER_BUS][12]; 
 
 uint16_t aux_codes[IC_PER_BUS][5];
 
@@ -68,6 +64,7 @@ uint16_t aux_codes[IC_PER_BUS][5];
 #define NEG_CONT_CLOSED   0x0100
 #define POS_CONT_CLOSED   0x0200 
 #define ISO_FAULT   0x0400
+#define SPI_FAULT   0x0400
 #define CELL_VOLT_OVER   0x0800
 #define CELL_VOLT_UNDER   0x1000
 #define CHARGE_HAULT   0x2000
@@ -144,13 +141,14 @@ typedef struct
   volatile uint8_t SOC_cali_flag;
   volatile uint8_t HI_temp_c;
   volatile uint8_t HI_temp_board_c;
-  volatile uint8_t HI_temp_board_node;
-  volatile uint8_t HI_temp_node;
-  volatile uint8_t HI_temp_node_index;
+  volatile uint8_t HI_temp_board_subpack;
+  volatile uint8_t HI_temp_subpack;
+  volatile uint8_t HI_temp_subpack_index;
   volatile uint8_t HI_temp_raw;
   volatile uint16_t HI_voltage;
   volatile uint16_t LO_voltage;
   volatile uint16_t time_stamp;
+  volatile uint16_t spi_error_address;    
 }BAT_PACK_t;
 
 typedef struct 
@@ -161,14 +159,22 @@ typedef struct
 
 void cell_interface_init();
 void bms_init(uint8_t adc_mode);
-void get_all_temps();
+
+void get_temps();
+void get_voltages();
+
+void check_voltages();
+void check_temps();
+
+void mypack_init();
+
+void setVoltage(uint8_t pack, uint8_t index, uint16_t raw_voltage);
 void setCellTemp(uint8_t pack, uint8_t index, uint16_t raw_temp);
 void setBoardTemp(uint8_t pack, uint8_t index, uint16_t raw_temp);
 void setBoardHum(uint8_t pack, uint8_t index, uint16_t raw_temp);
+
 uint8_t rawToHumidity(uint16_t raw);
 float32 rawToCelcius(uint16_t raw);
-void get_voltages();
-void mypack_init();
 
 #endif
 /* [] END OF FILE */

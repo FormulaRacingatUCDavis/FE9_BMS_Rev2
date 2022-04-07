@@ -106,8 +106,7 @@ void LTC6811_set_adc(uint8_t MD, //ADC Mode
  *****************************************************/
 void LTC6811_wakeup()
 {
-    uint8_t txData[1] = {0x4D};
-    spi_write(txData, 1);
+    LTC6811_rdcfga(0xFF, NULL);  //send dummy command
     /*
     CyDelay(1);
     SPI_WriteTxData(0x4D);  //write dummy byte to wake up (ascii 'M')
@@ -268,6 +267,7 @@ void LTC6811_wrcfga(uint8_t lt_addr)//, uint8_t select)  //tested 2/17
     cmd[11] = (uint8_t)(temp_pec);
     
     // wakeup device and send cmd
+    LTC6811_wakeup();
     spi_write(cmd, 12);
 }
 
@@ -330,7 +330,6 @@ int8_t LTC6811_rdcfga(uint8_t lt_addr, uint8_t cfga[6])   //tested 2/17
     cmd[2] = (uint8_t)(cmd_pec >> 8);
     cmd[3] = (uint8_t)(cmd_pec);
     
-    //LTC6811_wakeup();
     spi_write_read(cmd, 4, rx_data, 8);
     
     recieved_pec = *(uint16_t *)(rx_data + 6);
@@ -377,12 +376,11 @@ void LTC6811_adcv()
   cmd[3] = (uint8_t)(temp_pec);
   
   //3
-  //LTC6811_wakeup();
+  LTC6811_wakeup();
   
   //4
-  CyDelay(1);
   spi_write(cmd, 4);
-  CyDelay(1);
+  CyDelay(5);
 }
 
 //reads one register from one chip
@@ -541,7 +539,7 @@ void LTC6811_rdcv_reg(uint8_t reg,
  
   
   //3
-  //LTC6811_wakeup(); //This will guarantee that the LTC6804 isoSPI port is awake. This command can be removed.
+  LTC6811_wakeup(); //This will guarantee that the LTC6804 isoSPI port is awake. This command can be removed.
   
   //4
   for(int current_ic = 0; current_ic<total_ic; current_ic++)
@@ -551,7 +549,7 @@ void LTC6811_rdcv_reg(uint8_t reg,
     temp_pec = pec15_calc(2, cmd);
 	cmd[2] = (uint8_t)(temp_pec >> 8);
 	cmd[3] = (uint8_t)(temp_pec); 
-	CyDelay(1);
+    
 	spi_write_read(cmd,4,&data[current_ic*8],8);
     CyDelay(1);
   }
@@ -729,8 +727,9 @@ void LTC6811_adax()
   cmd[2] = (uint8_t)(temp_pec >> 8);
   cmd[3] = (uint8_t)(temp_pec);
  
-  //LTC6811_wakeup(); //This will guarantee that the LTC6804 isoSPI port is awake. This command can be removed.
+  LTC6811_wakeup(); //This will guarantee that the LTC6804 isoSPI port is awake. This command can be removed.
   spi_write(cmd, 4);
+  CyDelay(5);
 }
 /*
   LTC6804_adax Function sequence:
@@ -781,7 +780,7 @@ int8_t LTC6811_rdaux_pin(uint8_t lt_addr, enum AuxPins pin, uint16_t *aux)
     uint8_t num_tries = 0;
     
     do {
-        //LTC6811_wakeup();
+        LTC6811_wakeup();
         spi_write_read(cmd, 4, rx_data, 8);
             
         received_pec = (*(rx_data + 6) << 8) + *(rx_data + 7);

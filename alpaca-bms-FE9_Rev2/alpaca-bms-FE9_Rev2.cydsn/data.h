@@ -15,12 +15,12 @@
     
 #include <stdint.h>
     
-#define N_OF_SUBPACK (1u)    //number of subpacks
+#define N_OF_SUBPACK (5u)    //number of subpacks
 #define N_OF_BUSSES (1u)     //number of isoSPI busses
 //Some code will need changing if switching back to multiple busses. 
 //In cell_interface.c, get_cell_temps() is hard coded for bus 0. 
     
-#define IC_PER_BUS (2u)      //6811 per bus. 
+#define IC_PER_BUS (10u)      //6811 per bus. 
 #define IC_PER_PACK (2u)     //6811 per subpack
 #define CELLS_PER_LTC 12u    //number of cells per LTC
     

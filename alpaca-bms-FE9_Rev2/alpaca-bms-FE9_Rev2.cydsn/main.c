@@ -97,7 +97,12 @@ int main(void){
     init();   //initialize modules
     
     while(1){
-        get_all_temps();
+        BMS_OK_Write(1);
+        get_voltages();
+        check_voltages();
+        BMS_OK_Write(0);
+        get_temps();
+        check_temps();
     }
 }
 
