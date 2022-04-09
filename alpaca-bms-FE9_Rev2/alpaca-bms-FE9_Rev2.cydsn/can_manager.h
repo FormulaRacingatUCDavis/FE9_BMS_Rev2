@@ -16,9 +16,11 @@
 #include "data.h"
 #include "LTC6811.h"
 #include "cell_interface.h"
+#include "PCAN.h"
 
-
-
+/* When cleaning and rebuilding project, change PCAN_TXn_FUNC_ENABLE
+   for n in range [0, 4] to (1u) in lines 78 - 82 in file PCAN.h
+*/    
 
 void can_send_temp(volatile BAT_SUBPACK_t *subpacks[N_OF_SUBPACK],
     uint8_t high_tempNode,
@@ -37,6 +39,8 @@ void can_send_status(uint8_t name,
                     uint8_t stack,
                     uint8_t cell,
                     uint16_t value16);
+
+int16_t get_current();
 
 void can_init();
 

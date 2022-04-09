@@ -34,6 +34,11 @@ BAT_TEMP_t board_temp[N_OF_TEMP_BOARD];
 PACK_HUMIDITY_t pack_humidity[N_OF_SUBPACK];
 BAT_SUBPACK_t bat_subpack[N_OF_SUBPACK];
 volatile BAT_ERR_t bat_err;
+// Copied from old code
+volatile BAT_ERR_t bat_err_array[100];
+volatile uint8_t bat_err_index;
+volatile uint8_t bat_err_index_loop;
+// End of copy
 BAT_PACK_t bat_pack;
 uint8_t spi_error_counter[N_OF_LTC];
 
@@ -457,4 +462,65 @@ uint8_t rawToHumidity(uint16_t raw){
     return (uint8_t)humidity;
 }
 
+// Also copied from old code, to be edited to fit our use.
+uint8_t bat_health_check(){
+    if (
+        (bat_pack.status & PACK_TEMP_OVER) ||
+        (bat_pack.status & STACK_FUSE_BROKEN) ||
+        (bat_pack.status & PACK_TEMP_UNDER) ||
+        //(bat_pack.status & IMBALANCE) || not in use
+        (bat_pack.status & COM_FAILURE) ||
+        (bat_pack.status & ISO_FAULT) || 
+        (bat_pack.status & CELL_VOLT_OVER) ||
+        (bat_pack.status & CELL_VOLT_UNDER)       
+    ){
+        bat_pack.health = FAULT;
+        return 1;
+    }else{
+        return 0;
+    }   
+}
+
+void bat_err_add(uint16_t err, uint8_t bad_cell, uint8_t bad_subpack){
+    bat_pack.health = FAULT; 
+    /* 
+    * Sirius: I know this set-to-fault is redundant with the check in bat_health_check(), 
+    * but just want to have an extra assurance for FE4 Competition because we haven't run this new firmware
+    * on track
+    */
+    
+    uint8_t i=0;
+    // check array, dont duplicate
+    if (bat_err_index_loop){
+        for (i=0;i<100;i++){
+            if (err == bat_err_array[i].err
+             || bad_cell == bat_err_array[i].bad_cell
+             || bad_subpack == bat_err_array[i].bad_node){
+                return;
+            }
+        }
+    }else{
+        for (i=0;i<bat_err_index;i++){
+            if (err == bat_err_array[i].err
+             || bad_cell == bat_err_array[i].bad_cell
+             || bad_subpack == bat_err_array[i].bad_node){
+                return;
+            }
+        }
+    }
+
+    if (bat_err_index>=100){
+        bat_err_index_loop = 1;
+        bat_err_index = 0;
+    }else{
+        bat_err_index++;
+    }
+
+    bat_err_array[bat_err_index].err = err;
+    bat_err_array[bat_err_index].bad_cell = bad_cell;
+    bat_err_array[bat_err_index].bad_node = bad_subpack;
+
+    return;
+}
+// End of copy
 /* [] END OF FILE */
