@@ -40,7 +40,10 @@ void can_send_status(uint8_t name,
                     uint8_t cell,
                     uint16_t value16);
 
-int16_t get_current();
+// Function called from main to set current
+void get_current(volatile BAT_PACK_t *bat_pack);
+// Function called from PCAN_ReceiveMsg() at line 624 in file PCAN_TX_RX_func.c
+void RX_get_current(uint8_t *msg, int CAN_ID);
 
 void can_init();
 

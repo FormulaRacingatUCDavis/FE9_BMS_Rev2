@@ -188,7 +188,7 @@ int main(void)
                 //Yes. Accuracy is specified in the LTC6811 datasheet. 
                 bms_init(MD_FILTERED);
                 get_voltages();
-                bat_pack.current = get_current(); //get_current used to be under bms_init(MD_NORMAL) but it seemed that
+                get_current(&bat_pack); //get_current used to be under bms_init(MD_NORMAL) but it seemed that
                                //the precision was necessary for SOC estimation
                                //current used to come from a analog input on the PSoC. It will now be coming from PCAN. 
 

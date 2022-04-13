@@ -16,6 +16,7 @@
 
 volatile uint8_t can_buffer[8];
 volatile uint8_t rx_can_buffer[8];
+volatile int16_t current = 0;
 extern BAT_PACK_t bat_pack;
 extern volatile uint8_t CAN_DEBUG;
 
@@ -98,12 +99,28 @@ void can_send_status(volatile uint8_t name,
     PCAN_SendMsg3(); // Sends Status
 }
 
-// Still need to figure this out
-int16_t get_current()
+void get_current(volatile BAT_PACK_t *bat_pack)
 {
-    PCAN_ReceiveMsg(0);
-    rx_can_buffer[0] = 0;
-    return 0;
+    bat_pack->current = current;
+}
+
+void RX_get_current(uint8_t *msg, int CAN_ID)
+{
+    uint8 InterruptState = CyEnterCriticalSection();
+    
+    if (CAN_ID == 0x069)
+    {
+        for (int i = 0; i < 8; i++) 
+        {
+            rx_can_buffer[i] = msg[i];
+        }
+        current += rx_can_buffer[0] << 8;
+        current += rx_can_buffer[1];
+    }
+    
+    
+    CyExitCriticalSection(InterruptState);
+    //return current;
 }
                     
 void can_init()
