@@ -58,7 +58,7 @@ void init(void){   //initialize modules
     mypack_init();
 }
 
-/*
+
 
 void process_event(){
     CyGlobalIntDisable
@@ -80,7 +80,7 @@ void process_event(){
 
     //TODO: rewrite this for dynamic number of subpacks? 
     can_send_temp(bat_pack.subpacks,
-			bat_pack.HI_temp_node,
+			bat_pack.HI_temp_subpack,
 			bat_pack.HI_temp_c);
     
     can_send_volt(bat_pack.LO_voltage, bat_pack.HI_voltage, bat_pack.voltage);
@@ -89,8 +89,48 @@ void process_event(){
 
     CyGlobalIntEnable;
 }
-*/
 
+void process_failure_helper(BAT_ERR_t err){
+	switch(err.err){
+		case CELL_VOLT_OVER:
+        	can_send_volt(((err.bad_node<<8) | err.bad_cell),
+			    bat_subpack[err.bad_node].cells[err.bad_cell]->voltage, bat_pack.voltage);
+		case CELL_VOLT_UNDER:
+			can_send_volt(((err.bad_node<<8) | err.bad_cell),
+				bat_subpack[err.bad_node].cells[err.bad_cell]->voltage, bat_pack.voltage);
+			break;
+		case PACK_TEMP_OVER:
+		case PACK_TEMP_UNDER:
+			// waiting for CAN mesg been defined clearly
+			break;
+
+	}
+	return;
+}
+
+// Copied from old code
+void process_failure(){
+	int8_t i=0;
+	// broadcast error in inverse chronological order
+	if (bat_err_index_loop){
+		// start from bat_err_index back to 0
+		for (i=bat_err_index;i>=0;i--){
+			process_failure_helper(bat_err_array[i]);
+		}
+		// start from index=99 to bat_err_index+1
+		for (i=99;i>bat_err_index;i--){
+			process_failure_helper(bat_err_array[i]);
+		}
+	}else{
+		// start from bat_err_index back to 0
+		for (i=bat_err_index;i>=0;i--){
+			process_failure_helper(bat_err_array[i]);
+		}
+	}
+}
+// End of copy
+
+/*
 int main(void){
     CyGlobalIntEnable; //Enable global interrupts. 
 
@@ -105,10 +145,11 @@ int main(void){
         check_temps();
     }
 }
+*/
 
 
 
-/*
+
 
 int main(void)
 {  //SEE ADOW ON DATASHEET PAGE 33
@@ -147,14 +188,14 @@ int main(void)
                 //Yes. Accuracy is specified in the LTC6811 datasheet. 
                 bms_init(MD_FILTERED);
                 get_voltages();
-                get_current(); //get_current used to be under bms_init(MD_NORMAL) but it seemed that
+                get_current(&bat_pack); //get_current used to be under bms_init(MD_NORMAL) but it seemed that
                                //the precision was necessary for SOC estimation
                                //current used to come from a analog input on the PSoC. It will now be coming from PCAN. 
 
                 //Not quite sure why it set it as normal, does it waste time when we leave it as MD_FILTERED?
                 //higher accuracy requires more time to acquire (datasheet). Don't need as much accuracy on temps.
                 bms_init(MD_NORMAL); 
-                get_all_temps();
+                get_temps();
 		//double SOC;
                 //SOC = SOC_estimation(double prev_time_interval, voltage, current);
                 bms_status = bat_health_check();
@@ -183,5 +224,5 @@ int main(void)
         CyDelay(system_interval);
     }
 }
-*/
+
 /* [] END OF FILE */

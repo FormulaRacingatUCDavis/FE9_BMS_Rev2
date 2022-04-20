@@ -15,6 +15,8 @@
 #include "cell_interface.h"
 
 volatile uint8_t can_buffer[8];
+volatile uint8_t rx_can_buffer[8];
+volatile int16_t current = 0;
 extern BAT_PACK_t bat_pack;
 extern volatile uint8_t CAN_DEBUG;
 
@@ -25,6 +27,13 @@ The datatype consists of three bytes:
 3. lower byte of data
 */
 
+/* PCAN_SendMsgx() function associations
+0. PCAN_SendMsg0() => Sends Temps
+1. PCAN_SendMsg1() => Sends Voltage
+2. PCAN_SendMsg2() => Sends Current
+3. PCAN_SendMsg3() => Sends Status
+4. PCAN_SendMsg4() => Sends SOC message(may not be used)
+*/
 
 void can_send_temp(volatile BAT_SUBPACK_t *subpacks[N_OF_SUBPACK],
     volatile uint8_t high_tempNode,
@@ -38,7 +47,7 @@ void can_send_temp(volatile BAT_SUBPACK_t *subpacks[N_OF_SUBPACK],
 
     //This works in the case that the number of subpacks is
 
-	CAN_1_SendMsgtemp();
+	PCAN_SendMsg0(); // Sends Temps
     CyDelay(5);
 } // can_send_temp() 
 
@@ -61,7 +70,7 @@ void can_send_volt(
         can_buffer[7] = 0xFF & (pack_voltage);
 
 
-        CAN_1_SendMsgvolt();
+        PCAN_SendMsg1();  // Sends Voltage
         CyDelay(1);
 
 } // can_send_volt()
@@ -87,13 +96,37 @@ void can_send_status(volatile uint8_t name,
     can_buffer[6] = HI8(value16);
     can_buffer[7] = LO8(value16);
 
-    CAN_1_SendMsgstatus();
+    PCAN_SendMsg3(); // Sends Status
 }
 
+void get_current(volatile BAT_PACK_t *bat_pack)
+{
+    bat_pack->current = current;
+}
+
+void RX_get_current(uint8_t *msg, int CAN_ID)
+{
+    uint8 InterruptState = CyEnterCriticalSection();
+    
+    if (CAN_ID == 0x069)
+    {
+        for (int i = 0; i < 8; i++) 
+        {
+            rx_can_buffer[i] = msg[i];
+        }
+        current += rx_can_buffer[0] << 8;
+        current += rx_can_buffer[1];
+    }
+    
+    
+    CyExitCriticalSection(InterruptState);
+    //return current;
+}
+                    
 void can_init()
 {
-	CAN_1_GlobalIntEnable(); // CAN Initialization
-	CAN_1_Init();
-	CAN_1_Start();
+	PCAN_GlobalIntEnable(); // CAN Initialization
+	PCAN_Init();
+	PCAN_Start();
 } // can_init(
 /* [] END OF FILE */

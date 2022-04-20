@@ -21,7 +21,7 @@
 #define ERROR_TEMPERATURE_LIMIT (4u)
 #define FUSE_BAD_LIMIT (10u)
 #define BAD_FILTER_LIMIT (10u)
-#define SPI_ERROR_LIMIT (4u);
+#define SPI_ERROR_LIMIT (4u)
 
 #define CELL_ENABLE_HIGH (0x7DF)
 #define CELL_ENABLE_LOW (0x3DF)
@@ -175,6 +175,9 @@ void setBoardHum(uint8_t pack, uint8_t index, uint16_t raw_temp);
 
 uint8_t rawToHumidity(uint16_t raw);
 float32 rawToCelcius(uint16_t raw);
+
+uint8_t bat_health_check();
+void bat_err_add(uint16_t err, uint8_t bad_cell, uint8_t bad_subpack);
 
 #endif
 /* [] END OF FILE */
