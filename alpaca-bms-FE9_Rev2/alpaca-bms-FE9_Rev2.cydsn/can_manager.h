@@ -22,7 +22,7 @@
    for n in range [0, 4] to (1u) in lines 78 - 82 in file PCAN.h
 */    
 
-void can_send_temp(volatile BAT_SUBPACK_t *subpacks[N_OF_SUBPACK],
+void can_send_temp(volatile BAT_SUBPACK_t *volatile subpacks[N_OF_SUBPACK],
     uint8_t high_tempNode,
     uint8_t high_temp);
 

@@ -52,7 +52,7 @@ void init(void){   //initialize modules
     //USB_Start(0, USB_5V_OPERATION);
     //USB_CDC_Init();
     //PCAN_Start();
-    //can_init();
+    can_init();
     bms_init(MD_NORMAL); 
     LTC6811_init_cfg();
     mypack_init();
@@ -176,13 +176,13 @@ int main(void)
         switch(bms_status) {
             case BMS_NORMAL:
                 //Start timer to time normal state
-                Timer_1_Start();
+                //Timer_1_Start();
 
                 //Flowchart: "Tells board to keep HV path closed (CAN)"
                 //Not quite sure wha that means.
                 //If OK signal goes low, the car shutsdown and cannot be turned back on without power cycling. 
                 //The OK signal must be high within a couple seconds of startup to prevent unwanted shutdown. 
-                OK_SIG_Write(1);
+                BMS_OK_Write(1);
 
                 //Apparantly the filtered version gives more precision for measurements
                 //Yes. Accuracy is specified in the LTC6811 datasheet. 
@@ -205,13 +205,13 @@ int main(void)
                 //Not sure what that quite means. Also it seems like we didn't really use the time at all, so 
                 //we can maybe send it over to the dashboard through UART?
                 //I think time was used to estimate an integral for coulomb counting. Unless the Kalmann filter needs time, we can get rid of it. 
-                Timer_1_Stop();
-                uint32 time_spent_cycle = Timer_1_ReadCounter();
-                prev_time_interval = (double)(time_spent_cycle) / (double)(24000000); //gives time in seconds
+                //Timer_1_Stop();
+                //uint32 time_spent_cycle = Timer_1_ReadCounter();
+                //prev_time_interval = (double)(time_spent_cycle) / (double)(24000000); //gives time in seconds
                 
                 break;
             case BMS_FAULT:
-                OK_SIG_Write(0u);
+                BMS_OK_Write(0u);
                 bms_status = BMS_FAULT;
                 system_interval = 500;
                 process_failure();
