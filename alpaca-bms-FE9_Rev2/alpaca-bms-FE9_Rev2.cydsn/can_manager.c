@@ -19,6 +19,8 @@ volatile uint8_t rx_can_buffer[8];
 volatile int16_t current = 0;
 extern BAT_PACK_t bat_pack;
 extern volatile uint8_t CAN_DEBUG;
+extern volatile VCU_STATE vcu_state; 
+extern volatile VCU_ERROR vcu_error; 
 
 /* Data Frame format for Voltage and Temperature
 The datatype consists of three bytes:
@@ -116,7 +118,39 @@ void can_send_status(volatile uint8_t name,
 
     PCAN_SendMsgstatus(); // Sends Status
 }
+                    
+//IRQ handler for receiving current
+//moves current into bat_pack
+void PCAN_ReceiveMsg_current_Callback(){
+    CyGlobalIntDisable; 
+    int16_t current = 0; 
+    current |= (PCAN_RX_DATA_BYTE1(PCAN_RX_MAILBOX_current)<<8) & 0xFF00; 
+    current |= PCAN_RX_DATA_BYTE2(PCAN_RX_MAILBOX_current) & 0xFF; 
+    bat_pack.current = current; 
+    CyGlobalIntEnable; 
+}
 
+//IRQ handler for receiving VCU state
+//moves state 
+void PCAN_RecieveMsgvehicle_state_Callback(){
+    uint8_t state = PCAN_RX_DATA_BYTE1(PCAN_RX_MAILBOX_vehicle_state); 
+    if(state & 0x80){  //check fault bit
+        vcu_state = VCU_FAULT; 
+        vcu_error = state & 0x0F; 
+    } else {      //no fault
+        vcu_state = state & 0x0F;
+        vcu_error = NONE; 
+    }
+}
+
+//IRQ handler for charger
+//How will we tell when we have entered HV? PEI message? 
+void PCAN_RecieveMsgcharger_state_Callback(){
+    uint8_t state = PCAN_RX_DATA_BYTE1(PCAN_RX_MAILBOX_charger_state); 
+    vcu_state = state & 0x0F; 
+}
+
+/*
 void get_current(volatile BAT_PACK_t *bat_pack)
 {
     bat_pack->current = current;
@@ -139,7 +173,7 @@ void RX_get_current(uint8_t *msg, int CAN_ID)
     
     CyExitCriticalSection(InterruptState);
     //return current;
-}
+}*/
                     
 void can_init()
 {

@@ -17,6 +17,25 @@
 #include "LTC6811.h"
 #include "cell_interface.h"
 #include "PCAN.h"
+    
+typedef enum {
+    LV,
+    PRECHARGING,
+    HV_ENABLED,
+    DRIVE,
+    VCU_FAULT, 
+    CHARGING
+} VCU_STATE; 
+
+typedef enum {
+    NONE,
+    DRIVE_REQUEST_FROM_LV,
+    CONSERVATIVE_TIMER_MAXED,
+    BRAKE_NOT_PRESSED,
+    HV_DISABLED_WHILE_DRIVING,
+    SENSOR_DISCREPANCY,
+    BRAKE_IMPLAUSIBLE
+} VCU_ERROR;
 
 /* When cleaning and rebuilding project, change PCAN_TXn_FUNC_ENABLE
    for n in range [0, 4] to (1u) in lines 78 - 82 in file PCAN.h

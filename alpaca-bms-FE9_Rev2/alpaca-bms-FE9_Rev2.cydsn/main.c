@@ -9,41 +9,9 @@
  *
  * ========================================
 */
-#include "project.h"
-#include "cell_interface.h"
-#include "can_manager.h"
-#include <LTC6811.h>
 
-#include "math.h"
-#include <time.h>
 
-//global variables
-//uint8_t cfga_on_init[6];
-//uint8_t auxa[6];
-volatile uint8_t CAN_UPDATE_FLAG=0;
-extern volatile BAT_PACK_t bat_pack;
-extern BAT_SUBPACK_t bat_subpack[N_OF_SUBPACK];
-extern volatile float32 sortedTemps[N_OF_TEMP_CELL]; 
-extern float32 high_temp_overall;
-extern volatile BAT_ERR_t* bat_err_array;
-extern volatile uint8_t bat_err_index;
-extern volatile uint8_t bat_err_index_loop;
-volatile uint8_t CAN_DEBUG=0;
-//volatile uint8_t RACING_FLAG=0;    // this flag should be set in CAN handler
-BAT_SOC_t bat_soc;
-//Dash_State dash_state = 0;
-uint8_t rx_cfg[IC_PER_BUS][8];
-void DEBUG_send_cell_voltage();
-void DEBUG_send_temp();
-//void DEBUG_send_current();
-
-//The old code had many more BMS modes, are we ever going to need that?
-//Need BMS_CHARGING at least. We only want to balance cells during charging. 
-//BMS_CHARGING will share a lot with BMS_NORMAL, so maybe charging shouldn't be its own mode
-typedef enum {
-    BMS_NORMAL, 
-    BMS_FAULT
-}BMS_MODE;
+#include "main.h"
 
 void init(void){   //initialize modules
     SPI_Start();  
@@ -57,8 +25,6 @@ void init(void){   //initialize modules
     LTC6811_init_cfg();
     mypack_init();
 }
-
-
 
 void process_event(){
     CyGlobalIntDisable
@@ -182,13 +148,20 @@ int main(void)
                 //Not quite sure wha that means.
                 //If OK signal goes low, the car shutsdown and cannot be turned back on without power cycling. 
                 //The OK signal must be high within a couple seconds of startup to prevent unwanted shutdown. 
-                BMS_OK_Write(1);
+                OK_SIG_Write(1);
 
                 //Apparantly the filtered version gives more precision for measurements
                 //Yes. Accuracy is specified in the LTC6811 datasheet. 
                 bms_init(MD_FILTERED);
                 get_voltages();
-                get_current(&bat_pack); //get_current used to be under bms_init(MD_NORMAL) but it seemed that
+                
+                if(vcu_state == CHARGING){
+                    balance_cells();
+                } else {
+                    disable_cell_balancing();
+                }
+                
+                //get_current(&bat_pack); //get_current used to be under bms_init(MD_NORMAL) but it seemed that
                                //the precision was necessary for SOC estimation
                                //current used to come from a analog input on the PSoC. It will now be coming from PCAN. 
 
@@ -196,7 +169,7 @@ int main(void)
                 //higher accuracy requires more time to acquire (datasheet). Don't need as much accuracy on temps.
                 bms_init(MD_NORMAL); 
                 get_temps();
-		//double SOC;
+		        //double SOC;
                 //SOC = SOC_estimation(double prev_time_interval, voltage, current);
                 bms_status = bat_health_check();
 

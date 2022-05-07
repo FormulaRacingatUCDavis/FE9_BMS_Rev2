@@ -166,6 +166,9 @@ void get_voltages();
 void check_voltages();
 void check_temps();
 
+void disable_cell_balancing();
+void balance_cells();
+
 void mypack_init();
 
 void setVoltage(uint8_t pack, uint8_t index, uint16_t raw_voltage);
