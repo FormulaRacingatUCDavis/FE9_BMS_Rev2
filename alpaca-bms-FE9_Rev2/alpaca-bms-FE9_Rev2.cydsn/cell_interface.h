@@ -40,7 +40,7 @@
 #define SOC_SOC_LOW   (10000*3600u)      //manually set it in mAh
 #define SOC_FULL_CAP (75000*3600u)     //let's say, 75,000mAh
 #define SOC_FULL (OVER_VOLTAGE*N_OF_CELL)   //when voltage reaches 100.8V, consider it full
-#define BALANCE_THRESHOLD (10u)
+#define BALANCE_THRESHOLD (100u)
 
 uint16_t aux_codes[IC_PER_BUS][5];
 

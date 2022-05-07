@@ -49,7 +49,7 @@ Bytes:
 7: Highest temp
 */
 
-void can_send_temp(volatile BAT_SUBPACK_t *volatile subpacks[N_OF_SUBPACK],
+void can_send_temp(volatile BAT_SUBPACK_t ** subpacks,
     volatile uint8_t high_temp_subpack,
     volatile uint8_t high_temp)
 {

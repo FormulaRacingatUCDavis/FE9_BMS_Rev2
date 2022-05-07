@@ -344,6 +344,33 @@ void check_temps(){
     
 }
 
+void disable_cell_balancing(){
+    uint8_t addr; 
+    for(addr=0; addr<N_OF_LTC; addr++){
+        LTC6811_set_cfga_reset_discharge(addr); 
+    }
+}
+
+//update LTCs to balance cells too far above minimum voltage
+void balance_cells(){
+    uint8_t addr, cell; 
+    uint8_t cell_counter = 0; 
+    
+    for(addr = 0; addr<N_OF_LTC; addr++){
+        
+        LTC6811_set_cfga_reset_discharge(addr); //clear previous discharges
+        
+        for(cell=0; cell<CELLS_PER_LTC; cell++){
+            uint32_t difference =  bat_cell[cell_counter].voltage - bat_pack.LO_voltage; 
+            if(difference > BALANCE_THRESHOLD){
+                LTC6811_set_cfga_discharge_cell(addr, cell); //discharge cell
+            }
+        }
+        
+        LTC6811_wrcfga(addr);  //write updated cfga values to LTC
+    }
+}
+
 /**
  * @initialize the mypack struct. 
  *
