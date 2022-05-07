@@ -24,6 +24,8 @@ void init(void){   //initialize modules
     bms_init(MD_NORMAL); 
     LTC6811_init_cfg();
     mypack_init();
+    RAD_PUMP_PWM_Init();
+    // ACC pwm init here
 }
 
 void process_event(){
@@ -131,6 +133,7 @@ int main(void)
     CyGlobalIntEnable; //Enable global interrupts. 
 
     init();   //initialize modules
+    RAD_PUMP_PWM_Enable();
 
     //Initialize state machine
     BMS_MODE bms_status = BMS_NORMAL;
@@ -184,7 +187,7 @@ int main(void)
                 
                 break;
             case BMS_FAULT:
-                BMS_OK_Write(0u);
+                OK_SIG_Write(0u);
                 bms_status = BMS_FAULT;
                 system_interval = 500;
                 process_failure();
