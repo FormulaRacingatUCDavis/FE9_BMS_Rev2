@@ -14,13 +14,11 @@
 #include "cell_interface.h"
 #include "project.h"
 
-volatile uint8_t can_buffer[8];
-volatile uint8_t rx_can_buffer[8];
-volatile int16_t current = 0;
 extern BAT_PACK_t bat_pack;
-extern volatile uint8_t CAN_DEBUG;
+
 extern volatile VCU_STATE vcu_state; 
 extern volatile VCU_ERROR vcu_error; 
+extern volatile uint8_t charger_attached; 
 
 /* Data Frame format for Voltage and Temperature
 The datatype consists of three bytes:
@@ -127,6 +125,24 @@ void PCAN_ReceiveMsg_current_Callback(){
     current |= (PCAN_RX_DATA_BYTE1(PCAN_RX_MAILBOX_current)<<8) & 0xFF00; 
     current |= PCAN_RX_DATA_BYTE2(PCAN_RX_MAILBOX_current) & 0xFF; 
     bat_pack.current = current; 
+    
+    //if charger is attached, keep track of LV/HV state from PEI feedback
+    if(charger_attached){
+        uint8_t shutdown_status = PCAN_RX_DATA_BYTE3(PCAN_RX_MAILBOX_current); 
+        /*
+        HV is enabled when shutdown_final is high and AIRs are low.
+        
+         bits -  |7     |6       |5      |4              |3               |2     |1     |0           |
+                 |x     |x       |x      |Ready to drive |Shutdown final  |AIR1  |AIR2  |Precharge   |
+                 |x     |x       |x      |x              |1               |0     |0     |x           |
+        */
+        if ((shutdown_status & 0b00001110) == 0b00001000){
+            vcu_state = CHARGING; 
+        } else {
+            vcu_state = LV; 
+        }
+            
+    }
     CyGlobalIntEnable; 
 }
 
@@ -144,10 +160,9 @@ void PCAN_RecieveMsgvehicle_state_Callback(){
 }
 
 //IRQ handler for charger
-//How will we tell when we have entered HV? PEI message? 
-void PCAN_RecieveMsgcharger_state_Callback(){
-    uint8_t state = PCAN_RX_DATA_BYTE1(PCAN_RX_MAILBOX_charger_state); 
-    vcu_state = state & 0x0F; 
+//If charger is attached, LV/HV state will be determined from PEI message
+void PCAN_RecieveMsgcharger_Callback(){
+    charger_attached = 1; 
 }
 
 /*

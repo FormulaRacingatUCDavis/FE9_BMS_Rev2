@@ -10,8 +10,33 @@
  * ========================================
 */
 
+#include "project.h"
+#include "cell_interface.h"
+#include "can_manager.h"
+#include "LTC6811.h"
+#include "math.h"
+#include "time.h"
 
-#include "main.h"
+//The old code had many more BMS modes, are we ever going to need that?
+//Need BMS_CHARGING at least. We only want to balance cells during charging. 
+//BMS_CHARGING will share a lot with BMS_NORMAL, so maybe charging shouldn't be its own mode
+typedef enum {
+    BMS_NORMAL, 
+    BMS_FAULT
+}BMS_MODE;
+
+extern volatile BAT_PACK_t bat_pack;
+extern BAT_SUBPACK_t bat_subpack[N_OF_SUBPACK];
+extern volatile float32 sortedTemps[N_OF_TEMP_CELL]; 
+extern volatile BAT_ERR_t* bat_err_array;
+extern volatile uint8_t bat_err_index;
+extern volatile uint8_t bat_err_index_loop;
+
+volatile VCU_STATE vcu_state = LV;
+volatile VCU_ERROR vcu_error = NONE; 
+volatile uint8_t charger_attached = 0;  
+
+
 
 void init(void){   //initialize modules
     SPI_Start();  
@@ -102,26 +127,6 @@ void process_failure(){
 }
 // End of copy
 
-/*
-int main(void){
-    CyGlobalIntEnable; //Enable global interrupts. 
-
-    init();   //initialize modules
-    
-    while(1){
-        BMS_OK_Write(1);
-        get_voltages();
-        check_voltages();
-        BMS_OK_Write(0);
-        get_temps();
-        check_temps();
-    }
-}
-*/
-
-
-
-
 
 int main(void)
 {  //SEE ADOW ON DATASHEET PAGE 33
@@ -147,8 +152,6 @@ int main(void)
     //set Duty cycle for water pump
     RAD_PUMP_PWM_WriteCompare2(255);
     
-    
-    
     //Initialize state machine
     BMS_MODE bms_status = BMS_NORMAL;
     uint32_t system_interval = 0;
@@ -161,33 +164,29 @@ int main(void)
                 //Start timer to time normal state
                 //Timer_1_Start();
 
-                //Flowchart: "Tells board to keep HV path closed (CAN)"
-                //Not quite sure wha that means.
-                //If OK signal goes low, the car shutsdown and cannot be turned back on without power cycling. 
-                //The OK signal must be high within a couple seconds of startup to prevent unwanted shutdown. 
+                //Make sure OK signal is high
                 OK_SIG_Write(1);
 
-                //Apparantly the filtered version gives more precision for measurements
-                //Yes. Accuracy is specified in the LTC6811 datasheet. 
+                //Set higher acuracy for voltages
                 bms_init(MD_FILTERED);
                 get_voltages();
                 
+                //Balancing should only be done when charger is attached and HV is enabled
+                //This corresponds to vcu_state == CHARGING (see can_manager.c)
                 if(vcu_state == CHARGING){
                     balance_cells();
                 } else {
                     disable_cell_balancing();
                 }
-                
-                //get_current(&bat_pack); //get_current used to be under bms_init(MD_NORMAL) but it seemed that
-                               //the precision was necessary for SOC estimation
-                               //current used to come from a analog input on the PSoC. It will now be coming from PCAN. 
 
-                //Not quite sure why it set it as normal, does it waste time when we leave it as MD_FILTERED?
-                //higher accuracy requires more time to acquire (datasheet). Don't need as much accuracy on temps.
+                //Set lower accuracy (higher speed) for temp measurement
                 bms_init(MD_NORMAL); 
                 get_temps();
+                
 		        //double SOC;
                 //SOC = SOC_estimation(double prev_time_interval, voltage, current);
+                
+                //Update status
                 bms_status = bat_health_check();
 
                 //Calculating time spent in state
@@ -200,13 +199,24 @@ int main(void)
                 //prev_time_interval = (double)(time_spent_cycle) / (double)(24000000); //gives time in seconds
                 
                 break;
-            case BMS_FAULT:
+                
+            case BMS_FAULT:  //fault state (no shit)
+                
+                //set OK signal to low to open shutdown circuit
                 OK_SIG_Write(0u);
+                
+                //make sure to stay in this state
                 bms_status = BMS_FAULT;
+                
+                //will send error code every 500ms
                 system_interval = 500;
+                
+                //send error codes over CAN
                 process_failure();
+                
                 break;
             default:
+                //shouldn't be here, must be broken
                 bms_status = BMS_FAULT;
                 break;
         }
