@@ -148,7 +148,7 @@ void PCAN_ReceiveMsg_current_Callback(){
 
 //IRQ handler for receiving VCU state
 //moves state 
-void PCAN_RecieveMsgvehicle_state_Callback(){
+void PCAN_RecieveMsg_vehicle_state_Callback(){
     uint8_t state = PCAN_RX_DATA_BYTE1(PCAN_RX_MAILBOX_vehicle_state); 
     if(state & 0x80){  //check fault bit
         vcu_state = VCU_FAULT; 
@@ -161,7 +161,7 @@ void PCAN_RecieveMsgvehicle_state_Callback(){
 
 //IRQ handler for charger
 //If charger is attached, LV/HV state will be determined from PEI message
-void PCAN_RecieveMsgcharger_Callback(){
+void PCAN_RecieveMsg_charger_Callback(){
     charger_attached = 1; 
 }
 

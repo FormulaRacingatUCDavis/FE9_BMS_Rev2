@@ -12,10 +12,13 @@
 #ifndef CYAPICALLBACKS_H
 #define CYAPICALLBACKS_H
     
-
-    /*Define your macro callbacks here */
-    /*For more information, refer to the Writing Code topic in the PSoC Creator Help.*/
-
+//callbacks defined in can_manager
+#include "can_manager.h"
     
+//define these so that PCAN_TX_RX_func will call the IRQ handlers
+#define PCAN_RECEIVE_MSG_current_CALLBACK
+#define PCAN_RECEIVE_MSG_vehicle_state_CALLBACK
+#define PCAN_RECEIVE_MSG_charger_CALLBACK
+
 #endif /* CYAPICALLBACKS_H */   
 /* [] */
