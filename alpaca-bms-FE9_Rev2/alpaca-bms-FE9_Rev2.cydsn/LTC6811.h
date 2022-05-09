@@ -162,7 +162,7 @@ enum AuxPins {
 //FUNCTIONS: 
 uint8_t addressify_cmd(uint8_t lt_addr, uint8_t cmd0);
 
-void LTC6811_initialize(uint8_t adc_mode);
+void LTC6811_initialize();
 void LTC6811_set_adc(uint8_t MD, uint8_t DCP, uint8_t CH, uint8_t CHG);
 void LTC6811_init_cfg();
 void LTC6811_wakeup();

@@ -15,8 +15,8 @@
 uint8_t ADCV[2]; //!< Cell Voltage conversion command.
 uint8_t ADAX[2]; //!< GPIO conversion command.
 
-uint8_t tx_cfg[IC_PER_BUS][6];   //!< stores cfga data to be written to each LTC
-uint8_t tx_cfg_global[6];        //!< stores cfga data for global write
+uint8_t tx_cfga[IC_PER_BUS][6];   //!< stores cfga data to be written to each LTC
+uint8_t tx_cfga_global[6];        //!< stores cfga data for global write
 
 
 /*
@@ -48,22 +48,6 @@ uint8_t addressify_cmd(uint8_t lt_addr, uint8_t cmd0)
     cmd0 |= lt_addr;         //set address bits
     
     return cmd0;
-}
-
-
-/*
-LTC6811_initialize: 
-
-Sets adc mode and initializes LTC6811 config. 
-
-Parameters: 
-adc_mode - MD_FAST, MD_NORMAL, or MD_FILTERED
-
-*/
-void LTC6811_initialize(uint8_t adc_mode)  //tested 2/15/22
-{
-  LTC6811_set_adc(adc_mode, DCP_DISABLED, CELL_CH_ALL, AUX_CH_GPIO5); // MD_FILTERED from MD_NORMAL
-  LTC6811_init_cfg();
 }
 
 /*!******************************************************************************************************************
@@ -117,26 +101,26 @@ void LTC6811_wakeup()
 }
 
 
-//initializes tx_cfg and tx_cfg_global to defaults
+//initializes tx_cfga and tx_cfga_global to defaults
 void LTC6811_init_cfg()
 {
   uint8_t i = 0;
   for(i = 0; i<IC_PER_BUS;i++)
   {
-    tx_cfg[i][0] = CFGA0; 
-    tx_cfg[i][1] = CFGA1;
-    tx_cfg[i][2] = CFGA2;
-    tx_cfg[i][3] = CFGA3; 
-    tx_cfg[i][4] = CFGA4;
-    tx_cfg[i][5] = CFGA5; 
+    tx_cfga[i][0] = CFGA0; 
+    tx_cfga[i][1] = CFGA1;
+    tx_cfga[i][2] = CFGA2;
+    tx_cfga[i][3] = CFGA3; 
+    tx_cfga[i][4] = CFGA4;
+    tx_cfga[i][5] = CFGA5; 
   }
 
   for(i=0; i<6; i++){  //set global cfg
-    tx_cfg_global[i] = tx_cfg[0][i];
+    tx_cfga_global[i] = tx_cfga[0][i];
   }
 }
 
-//changes tx_cfg to set mux select bits
+//changes tx_cfga to set mux select bits
 //does not affect cfga1 - cfga5, including discharge bits
 void LTC6811_set_cfga_mux(uint8_t addr, uint8_t select){
     
@@ -156,9 +140,9 @@ void LTC6811_set_cfga_mux(uint8_t addr, uint8_t select){
     cfg0 |= (CFGA0 & 0b10000111);               //set other bits to default
     
     if (addr == 0xFF){
-        tx_cfg_global[0] = cfg0;   
+        tx_cfga_global[0] = cfg0;   
     } else {
-        tx_cfg[addr][0] = cfg0; 
+        tx_cfga[addr][0] = cfg0; 
     }
 }
 
@@ -166,14 +150,14 @@ void LTC6811_set_cfga_mux(uint8_t addr, uint8_t select){
 //does not affect cfga0 - cfga3, including gpio bits
 void LTC6811_set_cfga_reset_discharge(uint8_t addr){
     if (addr == 0xFF){
-        tx_cfg_global[4] = CFGA4;  
-        tx_cfg_global[5] = CFGA5; 
+        tx_cfga_global[4] = CFGA4;  
+        tx_cfga_global[5] = CFGA5; 
     } else {
       uint8_t i = 0;
       for(i = 0; i<IC_PER_BUS;i++)
       {
-        tx_cfg[i][4] = CFGA4;
-        tx_cfg[i][5] = CFGA5; 
+        tx_cfga[i][4] = CFGA4;
+        tx_cfga[i][5] = CFGA5; 
       } 
     }
 }
@@ -193,18 +177,18 @@ void LTC6811_set_cfga_discharge_cell(uint8_t addr, uint8_t cell_num){
     }
     
     if(addr == 0xFF){
-        tx_cfg_global[4] |= set_cfg4;
-        tx_cfg_global[5] |= set_cfg5;
+        tx_cfga_global[4] |= set_cfg4;
+        tx_cfga_global[5] |= set_cfg5;
     } else {
-        tx_cfg[addr][4] |= set_cfg4;
-        tx_cfg[addr][5] |= set_cfg4; 
+        tx_cfga[addr][4] |= set_cfg4;
+        tx_cfga[addr][5] |= set_cfg4; 
     }
 }
 
 
 /*
  * Broadcast cfga write command -
- * Uses values in tx_cfg, or tx_cfg_global if address == 0xFF
+ * Uses values in tx_cfga, or tx_cfga_global if address == 0xFF
  * 
  */
 void LTC6811_wrcfga(uint8_t lt_addr)//, uint8_t select)  //tested 2/17
@@ -219,15 +203,16 @@ void LTC6811_wrcfga(uint8_t lt_addr)//, uint8_t select)  //tested 2/17
         cmd[0] = 0; // For global write
         
         for(i=0; i<6; i++){
-            cmd[i+4] = tx_cfg_global[i];
+            cmd[i+4] = tx_cfga_global[i];
         }
     }
     else {    
         cmd[0] = 128;     // For addressed write
         cmd[0] = addressify_cmd(lt_addr, cmd[0]);
         
+        //set cmd 4 - 10 to values in tx_cfg
         for(i=0; i<6; i++){
-            cmd[i+4] = tx_cfg[lt_addr][i];
+            cmd[i+4] = tx_cfga[lt_addr][i];
         }
     }
     

@@ -32,7 +32,9 @@ BAT_CELL_t bat_cell[N_OF_CELL];
 BAT_TEMP_t bat_temp[N_OF_TEMP_CELL];
 BAT_TEMP_t board_temp[N_OF_TEMP_BOARD];
 PACK_HUMIDITY_t pack_humidity[N_OF_SUBPACK];
+
 BAT_SUBPACK_t bat_subpack[N_OF_SUBPACK];
+
 volatile BAT_ERR_t bat_err;
 // Copied from old code
 volatile BAT_ERR_t bat_err_array[100];
@@ -42,8 +44,25 @@ volatile uint8_t bat_err_index_loop;
 BAT_PACK_t bat_pack;
 uint8_t spi_error_counter[N_OF_LTC];
 
-void bms_init(uint8_t adc_mode){
-    LTC6811_initialize(adc_mode);
+
+//initialize important stuff
+void cell_interface_init(){
+    LTC6811_init_cfg();          //set cfga to defaults
+    set_adc_mode(MD_FILTERED);   //set ADC mode to filtered
+    SPI_Start();                 //start isoSPI module
+    mypack_init();               //initialize bat_pack
+}
+
+/*
+set_adc_mode: 
+
+Sets LTC6811 adc mode. 
+
+Parameters: 
+adc_mode - MD_FAST, MD_NORMAL, or MD_FILTERED
+*/
+void set_adc_mode(uint8_t adc_mode){
+    LTC6811_set_adc(adc_mode, DCP_DISABLED, CELL_CH_ALL, AUX_CH_GPIO5);
 }
 
 //reads cell voltages from LTCs
@@ -85,7 +104,7 @@ void get_temps(){
     
     for(select = 0; select < TEMPS_PER_LTC; select++){       //for each mux pin
         for(ltc_addr = 0; ltc_addr < N_OF_LTC; ltc_addr++){  //for each LTC
-            LTC6811_set_cfga_mux(ltc_addr, select);             //set tx_cfg variable
+            LTC6811_set_cfga_mux(ltc_addr, select);             //set tx_cfga variable
             LTC6811_wrcfga(ltc_addr);                           //write to LTC with wrcfga
         }
         
@@ -323,27 +342,28 @@ void check_temps(){
     for (subpack = 0; subpack < N_OF_SUBPACK; subpack++){
         if (bat_pack.subpacks[subpack]->over_temp_cell != 0){
             bat_pack.status |= PACK_TEMP_OVER;
-            //bat_err_add(PACK_TEMP_OVER, bat_subpack[subpack].over_temp, subpack);  
+            bat_err_add(PACK_TEMP_OVER, bat_subpack[subpack].over_temp_cell, subpack);  
         }
 
         if (bat_pack.subpacks[subpack]->under_temp_cell != 0){
             bat_pack.status  |= PACK_TEMP_UNDER;
-            //bat_err_add(PACK_TEMP_UNDER, bat_subpack[subpack].under_temp, subpack);
+            bat_err_add(PACK_TEMP_UNDER, bat_subpack[subpack].under_temp_cell, subpack);
         }
         
         if (bat_pack.subpacks[subpack]->over_temp_board != 0){
             bat_pack.status |= PACK_TEMP_OVER;
-            //bat_err_add(PACK_TEMP_OVER, bat_subpack[subpack].over_temp, subpack);
+            bat_err_add(PACK_TEMP_OVER, bat_subpack[subpack].over_temp_board, subpack);
         }
 
         if (bat_pack.subpacks[subpack]->under_temp_board != 0){
             bat_pack.status  |= PACK_TEMP_UNDER;
-            //bat_err_add(PACK_TEMP_UNDER, bat_subpack[subpack].under_temp, subpack);
+            bat_err_add(PACK_TEMP_UNDER, bat_subpack[subpack].under_temp_board, subpack);
         }
     }
     
 }
 
+//make sure no cells will discharge
 void disable_cell_balancing(){
     uint8_t addr; 
     for(addr=0; addr<N_OF_LTC; addr++){
@@ -476,6 +496,7 @@ void setBoardHum(uint8_t pack, uint8_t index, uint16_t raw_humidity){
     bat_pack.subpacks[pack]->pack_humidity[index]->humidity = rawToHumidity(raw_humidity);
   //still need to create rawToRelative function for conversion
 }
+
 float32 rawToCelcius(uint16_t raw){
     float32 temp = (float32)raw/10000;
     temp = (1/((1/298.15) + ((1/3428.0)*log(temp/(3-temp))))) - 273.15;

@@ -16,6 +16,7 @@
 #include "LTC6811.h"
 #include "math.h"
 #include "time.h"
+#include "pwm.h"
 
 //The old code had many more BMS modes, are we ever going to need that?
 //Need BMS_CHARGING at least. We only want to balance cells during charging. 
@@ -36,25 +37,20 @@ volatile VCU_STATE vcu_state = LV;
 volatile VCU_ERROR vcu_error = NONE; 
 volatile uint8_t charger_attached = 0;  
 
-
-
 void init(void){   //initialize modules
-    SPI_Start();  
     //FTDI_UART_Start();
     //PIC18_UART_Start();
     //USB_Start(0, USB_5V_OPERATION);
     //USB_CDC_Init();
-    //PCAN_Start();
+
+    //initialize CAN
     can_init();
-    bms_init(MD_NORMAL); 
-    LTC6811_init_cfg();
-    mypack_init();
     
-    //Initialize and enable radiator fan and water pump PWM
-    RAD_PUMP_PWM_Start();
+    //initialize cell interface
+    cell_interface_init(); 
     
-    //Initialize and enable accumulator fan PWM
-    ACC_PWM_Start();
+    //Initialize and enable radiator fan, water pump, and accumulator fan PWM modules
+    pwm_init(); 
 }
 
 void process_event(){
@@ -143,14 +139,7 @@ int main(void)
 
     init();   //initialize modules
     
-    //Set duty cycle for accumulator fan
-    ACC_PWM_WriteCompare1(255);
-    
-    //set Duty cycle for the radiator fan
-    RAD_PUMP_PWM_WriteCompare1(128);
-    
-    //set Duty cycle for water pump
-    RAD_PUMP_PWM_WriteCompare2(255);
+    set_pwm(); //set PWM values for fans & pump
     
     //Initialize state machine
     BMS_MODE bms_status = BMS_NORMAL;
@@ -168,7 +157,7 @@ int main(void)
                 OK_SIG_Write(1);
 
                 //Set higher acuracy for voltages
-                bms_init(MD_FILTERED);
+                set_adc_mode(MD_FILTERED);
                 get_voltages();
                 
                 //Balancing should only be done when charger is attached and HV is enabled
@@ -180,7 +169,7 @@ int main(void)
                 }
 
                 //Set lower accuracy (higher speed) for temp measurement
-                bms_init(MD_NORMAL); 
+                set_adc_mode(MD_NORMAL); 
                 get_temps();
                 
 		        //double SOC;
