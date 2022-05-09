@@ -14,6 +14,7 @@
 #include "cell_interface.h"
 #include "can_manager.h"
 #include <LTC6811.h>
+#include "RAD_PUMP_PWM.h"
 
 #include "math.h"
 #include <time.h>

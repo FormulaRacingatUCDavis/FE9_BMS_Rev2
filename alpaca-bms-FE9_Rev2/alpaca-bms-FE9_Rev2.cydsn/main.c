@@ -24,6 +24,12 @@ void init(void){   //initialize modules
     bms_init(MD_NORMAL); 
     LTC6811_init_cfg();
     mypack_init();
+    
+    //Initialize and enable radiator fan and water pump PWM
+    RAD_PUMP_PWM_Start();
+    
+    //Initialize and enable accumulator fan PWM
+    ACC_PWM_Start();
 }
 
 void process_event(){
@@ -131,7 +137,18 @@ int main(void)
     CyGlobalIntEnable; //Enable global interrupts. 
 
     init();   //initialize modules
-
+    
+    //Set duty cycle for accumulator fan
+    ACC_PWM_WriteCompare1(255);
+    
+    //set Duty cycle for the radiator fan
+    RAD_PUMP_PWM_WriteCompare1(128);
+    
+    //set Duty cycle for water pump
+    RAD_PUMP_PWM_WriteCompare2(255);
+    
+    
+    
     //Initialize state machine
     BMS_MODE bms_status = BMS_NORMAL;
     uint32_t system_interval = 0;
@@ -184,7 +201,7 @@ int main(void)
                 
                 break;
             case BMS_FAULT:
-                BMS_OK_Write(0u);
+                OK_SIG_Write(0u);
                 bms_status = BMS_FAULT;
                 system_interval = 500;
                 process_failure();
