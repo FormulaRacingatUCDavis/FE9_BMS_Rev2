@@ -12,10 +12,10 @@
 #ifndef CAN_MANAGER_H
 #define CAN_MANAGER_H
 
-#include <project.h>
 #include "data.h"
 #include "LTC6811.h"
 #include "cell_interface.h"
+#include "project.h"
     
 typedef enum {
     LV,

@@ -11,8 +11,6 @@
 */
 
 #include "can_manager.h"
-#include "cell_interface.h"
-#include "project.h"
 
 extern BAT_PACK_t bat_pack;
 
@@ -73,8 +71,7 @@ void can_send_temp(volatile BAT_SUBPACK_t ** subpacks,
 void can_send_volt(
     volatile uint16_t min_voltage,
     volatile uint16_t max_voltage,
-    volatile uint32_t pack_voltage)
-{
+    volatile uint32_t pack_voltage){
     //max and min voltage means the voltage of single cell
         PCAN_TX_DATA_BYTE1(PCAN_TX_MAILBOX_volt) = HI8(min_voltage);
         PCAN_TX_DATA_BYTE2(PCAN_TX_MAILBOX_volt) = LO8(min_voltage);
@@ -118,7 +115,8 @@ void can_send_status(volatile uint8_t name,
 }
                     
 //IRQ handler for receiving current
-//moves current into bat_pack
+//moves current into bat_pack struct
+//handles state if charger is attached
 void PCAN_ReceiveMsg_current_Callback(){
     CyGlobalIntDisable; 
     int16_t current = 0; 
@@ -148,7 +146,7 @@ void PCAN_ReceiveMsg_current_Callback(){
 
 //IRQ handler for receiving VCU state
 //moves state 
-void PCAN_RecieveMsg_vehicle_state_Callback(){
+void PCAN_ReceiveMsg_vehicle_state_Callback(){
     uint8_t state = PCAN_RX_DATA_BYTE1(PCAN_RX_MAILBOX_vehicle_state); 
     if(state & 0x80){  //check fault bit
         vcu_state = VCU_FAULT; 
@@ -157,12 +155,14 @@ void PCAN_RecieveMsg_vehicle_state_Callback(){
         vcu_state = state & 0x0F;
         vcu_error = NONE; 
     }
+    
+    charger_attached = 0; //make sure we don't think the charger is attached, eh? 
 }
 
 //IRQ handler for charger
 //If charger is attached, LV/HV state will be determined from PEI message
-void PCAN_RecieveMsg_charger_Callback(){
-    charger_attached = 1; 
+void PCAN_ReceiveMsg_charger_Callback(){
+    charger_attached = 1;   //simple as dat 
 }
 
 /*

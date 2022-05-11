@@ -12,13 +12,14 @@
 #ifndef CYAPICALLBACKS_H
 #define CYAPICALLBACKS_H
     
-//callbacks defined in can_manager
-#include "can_manager.h"
-    
 //define these so that PCAN_TX_RX_func will call the IRQ handlers
 #define PCAN_RECEIVE_MSG_current_CALLBACK
 #define PCAN_RECEIVE_MSG_vehicle_state_CALLBACK
 #define PCAN_RECEIVE_MSG_charger_CALLBACK
+    
+extern void PCAN_ReceiveMsg_current_Callback();
+extern void PCAN_ReceiveMsg_vehicle_state_Callback(); 
+extern void PCAN_ReceiveMsg_charger_Callback();
 
 #endif /* CYAPICALLBACKS_H */   
 /* [] */

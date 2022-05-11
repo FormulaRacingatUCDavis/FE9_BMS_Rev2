@@ -17,6 +17,7 @@
 #include "math.h"
 #include "time.h"
 #include "pwm.h"
+#include "cyapicallbacks.h"
 
 //The old code had many more BMS modes, are we ever going to need that?
 //Need BMS_CHARGING at least. We only want to balance cells during charging. 
