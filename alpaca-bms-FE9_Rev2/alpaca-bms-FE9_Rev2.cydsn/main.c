@@ -159,19 +159,21 @@ int main(void)
 
                 //Set higher acuracy for voltages
                 set_adc_mode(MD_FILTERED);
-                get_voltages();
+                get_voltages();     //update voltages from packs
+                check_voltages();   //parse voltages
                 
                 //Balancing should only be done when charger is attached and HV is enabled
                 //This corresponds to vcu_state == CHARGING (see can_manager.c)
                 if(vcu_state == CHARGING){
                     balance_cells();
                 } else {
-                    disable_cell_balancing();
+                    disable_cell_balancing();  //this should be redundant
                 }
 
                 //Set lower accuracy (higher speed) for temp measurement
                 set_adc_mode(MD_NORMAL); 
-                get_temps();
+                get_temps();     //update temperatures from packs
+                check_temps();   //parse temps
                 
 		        //double SOC;
                 //SOC = SOC_estimation(double prev_time_interval, voltage, current);

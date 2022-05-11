@@ -42,7 +42,7 @@ volatile uint8_t bat_err_index;
 volatile uint8_t bat_err_index_loop;
 // End of copy
 BAT_PACK_t bat_pack;
-uint8_t spi_error_counter[N_OF_LTC];
+uint8_t spi_error_counter[N_OF_LTC];   //stores the number of SPI communication errors for each LTC
 
 
 //initialize important stuff
@@ -174,6 +174,7 @@ void check_voltages(){
     uint16_t voltage16 = 0;
     uint16_t max_voltage = 0;
     uint16_t min_voltage = 0xFFFF;
+    uint32_t total_voltage = 0; 
 
     // Check each cell
     for (cell = 0; cell < N_OF_CELL; cell++){
@@ -198,26 +199,33 @@ void check_voltages(){
                 bat_cell[cell].bad_counter--;
             }           
         }
+        
+        total_voltage += bat_cell[cell].voltage; 
     }
     
     bat_pack.HI_voltage = max_voltage;
     bat_pack.LO_voltage = min_voltage;
+    bat_pack.voltage = total_voltage/N_OF_CELL; 
 
+    
     // Update subpacks & pack for errors
     for (subpack = 0; subpack < N_OF_SUBPACK; subpack++){
+        total_voltage = 0; 
         for (cell = 0; cell < (N_OF_CELL / N_OF_SUBPACK); cell++){
             if (bat_subpack[subpack].cells[cell]->bad_counter > ERROR_VOLTAGE_LIMIT){
                 if (bat_subpack[subpack].cells[cell]->bad_type == 0){
                     bat_subpack[subpack].under_voltage |= (1u<<cell);
                     bat_pack.status |= CELL_VOLT_OVER;
-                    //bat_err_add(CELL_VOLT_OVER, bat_subpack[subpack].over_voltage, subpack);
+                    bat_err_add(CELL_VOLT_OVER, bat_subpack[subpack].over_voltage, subpack);
                 }else{
                     bat_subpack[subpack].over_voltage |= (1u<<cell);
                     bat_pack.status  |= CELL_VOLT_UNDER;
-                    //bat_err_add(CELL_VOLT_UNDER, bat_subpack[subpack].under_voltage, subpack);
+                    bat_err_add(CELL_VOLT_UNDER, bat_subpack[subpack].under_voltage, subpack);
                 }
             }
+            total_voltage += bat_subpack[subpack].cells[cell]->voltage; 
         }
+        bat_subpack[subpack].voltage = total_voltage/CELLS_PER_SUBPACK; 
     } 
     
     //check for spi errors
@@ -234,7 +242,6 @@ void check_temps(){
     uint16_t temp_c;
     
     //float median = getMedianTemp();
-    float threshold = 2; // acceptable temperature degree threshold
     
     // check cell temps
     for (cell = 0; cell < N_OF_TEMP_CELL; cell++){
