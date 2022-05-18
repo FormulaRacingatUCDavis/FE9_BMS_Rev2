@@ -57,17 +57,15 @@ void init(void){   //initialize modules
 void process_event(){
     CyGlobalIntDisable
     //Old code: small delay(idk why)
-    CyDelay(10);
+    CyDelay(50);
     can_send_status(0xFE,
     	bat_pack.SOC_percent,
     	bat_pack.status,
     	0,0,0);
-    CyDelay(10);
+    CyDelay(50);
     // send voltage   
-    can_send_volt(bat_pack.LO_voltage,
-				bat_pack.HI_voltage,
-				bat_pack.voltage);
-    CyDelay(10);
+    can_send_volt(bat_pack.LO_voltage, bat_pack.HI_voltage, bat_pack.voltage);
+    CyDelay(50);
     
     // TEST_DAY_1
     //send temp only if within reasonable range from last temperature
@@ -77,9 +75,9 @@ void process_event(){
 			bat_pack.HI_temp_subpack,
 			bat_pack.HI_temp_c);
     
-    can_send_volt(bat_pack.LO_voltage, bat_pack.HI_voltage, bat_pack.voltage);
+    
     //TODO: current will be sent by PEI board
-    CyDelay(10);
+    CyDelay(50);
 
     CyGlobalIntEnable;
 }
