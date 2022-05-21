@@ -91,6 +91,11 @@ void process_failure_helper(BAT_ERR_t err){
 			can_send_volt(((err.bad_node<<8) | err.bad_cell),
 				bat_subpack[err.bad_node].cells[err.bad_cell]->voltage, bat_pack.voltage);
 			break;
+        //Added case for if fuse blown, redundant?
+        case FUSE_BLOWN:
+            can_send_volt(((err.bad_node<<8) | err.bad_cell),
+				bat_subpack[err.bad_node].cells[err.bad_cell]->voltage, bat_pack.voltage);
+            break;
 		case PACK_TEMP_OVER:
 		case PACK_TEMP_UNDER:
 			// waiting for CAN mesg been defined clearly

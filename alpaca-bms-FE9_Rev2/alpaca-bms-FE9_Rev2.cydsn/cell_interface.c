@@ -188,7 +188,12 @@ void check_voltages(){
         
         //check for errors
         voltage16 = bat_cell[cell].voltage;
-        if (voltage16 > (uint16_t)OVER_VOLTAGE){
+        //Check if fuse blown
+        if (voltage16 < bat_pack.voltage - FUSE_THRESHOLD){
+            bat_cell[cell].bad_counter++;
+            bat_cell[cell].bad_type = 2;
+            //check where bad_type is checked
+        }else if (voltage16 > (uint16_t)OVER_VOLTAGE){
             bat_cell[cell].bad_counter++;
             bat_cell[cell].bad_type = 1;
         }else if (voltage16 < (uint16_t)UNDER_VOLTAGE){
@@ -215,12 +220,17 @@ void check_voltages(){
             if (bat_subpack[subpack].cells[cell]->bad_counter > ERROR_VOLTAGE_LIMIT){
                 if (bat_subpack[subpack].cells[cell]->bad_type == 0){
                     bat_subpack[subpack].under_voltage |= (1u<<cell);
-                    bat_pack.status |= CELL_VOLT_OVER;
-                    bat_err_add(CELL_VOLT_OVER, bat_subpack[subpack].over_voltage, subpack);
-                }else{
-                    bat_subpack[subpack].over_voltage |= (1u<<cell);
-                    bat_pack.status  |= CELL_VOLT_UNDER;
+                    bat_pack.status |= CELL_VOLT_UNDER;
                     bat_err_add(CELL_VOLT_UNDER, bat_subpack[subpack].under_voltage, subpack);
+                } else if (bat_subpack[subpack].cells[cell]->bad_type == 1) {
+                    bat_subpack[subpack].over_voltage |= (1u<<cell);
+                    bat_pack.status  |= CELL_VOLT_OVER;
+                    bat_err_add(CELL_VOLT_OVER, bat_subpack[subpack].over_voltage, subpack);
+                } else if (bat_subpack[subpack].cells[cell]->bad_type == 2) {
+                    // Added case for blown fuse
+                    bat_subpack[subpack].fuse_blown|= (1u<<cell);
+                    bat_pack.status  |= FUSE_BLOWN;
+                    bat_err_add(FUSE_BLOWN, bat_subpack[subpack].fuse_blown, subpack);                    
                 }
             }
             total_voltage += bat_subpack[subpack].cells[cell]->voltage; 
@@ -446,7 +456,8 @@ void mypack_init(){
     }
 
     for (subpack = 0; subpack < N_OF_SUBPACK; subpack++){
-        for (cell = 0; cell < (CELLS_PER_SUBPACK); cell++){    
+        for (cell = 0; cell < (CELLS_PER_SUBPACK); cell++){
+            //bat_subpack is a pointer to bat_cell
             bat_subpack[subpack].cells[cell] = &(bat_cell[subpack*(CELLS_PER_SUBPACK)+cell]);
         }
         for (temp = 0; temp < (CELL_TEMPS_PER_PACK); temp++){
@@ -527,7 +538,9 @@ uint8_t bat_health_check(){
         (bat_pack.status & COM_FAILURE) ||
         (bat_pack.status & ISO_FAULT) || 
         (bat_pack.status & CELL_VOLT_OVER) ||
-        (bat_pack.status & CELL_VOLT_UNDER)       
+        (bat_pack.status & CELL_VOLT_UNDER) ||
+        // Added case for blown fuse
+        (bat_pack.status & FUSE_BLOWN)
     ){
         bat_pack.health = FAULT;
         return 1;
