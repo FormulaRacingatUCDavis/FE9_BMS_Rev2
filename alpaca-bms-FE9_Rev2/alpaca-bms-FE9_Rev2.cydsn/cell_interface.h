@@ -27,6 +27,8 @@
 #define CELL_ENABLE_LOW (0x3DF)
 #define OVER_VOLTAGE (42000u) //(4.2V)
 #define UNDER_VOLTAGE (25000u) //(2.5V)
+// Arbitrary defined threshold, change later
+#define FUSE_THRESHOLD (1000u) //(0.1V)
 #define STACK_VOLT_DIFF_LIMIT (90000u)   //9 volt
 #define CRITICAL_TEMP_L (0u)          // 0 C
 #define CRITICAL_TEMP_H (60u)             //60 C
@@ -55,7 +57,7 @@ uint16_t aux_codes[IC_PER_BUS][5];
 #define NO_ERROR 0x0000
 #define CHARGEMODE 0x0001
 #define PACK_TEMP_OVER 0x0002
-#define STACK_FUSE_BROKEN 0x0004
+#define FUSE_BLOWN 0x0004
 #define PACK_TEMP_UNDER 0x0008
 #define LOW_SOC   0x0010
 #define CRITICAL_SOC   0x0020
@@ -121,6 +123,8 @@ typedef struct
   volatile uint32_t over_temp_cell;
   volatile uint32_t under_temp_cell;
   volatile uint32_t over_voltage;
+// added fuse_blown
+  volatile uint32_t fuse_blown; 
   volatile uint32_t under_temp_board;
   volatile uint32_t over_temp_board;
   volatile uint32_t under_voltage;
