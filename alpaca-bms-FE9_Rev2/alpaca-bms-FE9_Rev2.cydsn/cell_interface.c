@@ -532,7 +532,7 @@ uint8_t rawToHumidity(uint16_t raw){
 uint8_t bat_health_check(){
     if (
         (bat_pack.status & PACK_TEMP_OVER) ||
-        (bat_pack.status & STACK_FUSE_BROKEN) ||
+        (bat_pack.status & FUSE_BLOWN) ||
         (bat_pack.status & PACK_TEMP_UNDER) ||
         //(bat_pack.status & IMBALANCE) || not in use
         (bat_pack.status & COM_FAILURE) ||
