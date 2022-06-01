@@ -9,8 +9,8 @@
  *
  * ========================================
 */
-#ifndef KALMAN_H
-#define KALMAN_H
+#ifndef KALMAN_H_
+#define KALMAN_H_
     
 #include<stdio.h>
 #include<math.h>
@@ -18,13 +18,13 @@
 #include<stdbool.h>
 
 // Constants
-volatile double dt = 0.1;		// Sampling Period - From TopDesign.cysch 
-volatile double R0 = 0.01;
-volatile double Rc = 0.015;
-volatile int Cc = 2400;
-volatile int Cbat = 18000;
-volatile double Voc0 = 3.435;
-volatile double alp = 0.007;
+extern volatile double dt;		// Sampling Period - From TopDesign.cysch 
+extern volatile double R0;
+extern volatile double Rc;
+extern volatile int Cc;
+extern volatile int Cbat;
+extern volatile double Voc0;
+extern volatile double alp;
 
 
 volatile double** Aprime;
@@ -73,10 +73,12 @@ volatile double** sub_mat_3;
 
 // Variables subject to constant change
 volatile int i, j;
-volatile double t = 0.0, actualSOC = 1.0, Vc = 0.0;
-volatile double I = 0.0;
-volatile double Ik_1 = 0.0;
-volatile double V = 0.0;		// current 
+volatile double t;
+volatile double actualSOC;
+volatile double Vc;
+volatile double I;
+volatile double Ik_1;
+volatile double V;		// current 
     
 
 // Function declarations

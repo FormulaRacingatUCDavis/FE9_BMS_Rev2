@@ -9,6 +9,8 @@
  *
  * ========================================
 */
+#define ONLY_DECLARATIONS
+#include "kalman.h"
 
 #include "project.h"
 #include "cell_interface.h"
@@ -17,8 +19,24 @@
 #include "math.h"
 #include "time.h"
 #include "pwm.h"
-#include "kalman.h"
 #include "cyapicallbacks.h"
+
+
+//Define Kalman Filter parameters
+volatile double t = 0.0;
+volatile double actualSOC = 1.0; 
+volatile double Vc = 0.0;
+volatile double I = 0.0;
+volatile double Ik_1 = 0.0;
+volatile double V = 0.0;
+
+volatile double dt = 0.1;		// Sampling Period - From TopDesign.cysch 
+volatile double R0 = 0.01;             //Have this
+volatile double Rc = 0.015;            //Need this
+volatile int Cc = 2400;                //Need this
+volatile int Cbat = 18000;             //Need this
+volatile double Voc0 = 3.435;
+volatile double alp = 0.007;
 
 //The old code had many more BMS modes, are we ever going to need that?
 //Need BMS_CHARGING at least. We only want to balance cells during charging. 
