@@ -34,7 +34,7 @@ volatile double dt = 0.1;		// Sampling Period - From TopDesign.cysch
 volatile double R0 = 0.01;             //Have this
 volatile double Rc = 0.015;            //Need this
 volatile int Cc = 2400;                //Need this
-volatile int Cbat = 18000;
+volatile int Cbat = 18000;             //Need this
 volatile double Voc0 = 3.435;
 volatile double alp = 0.007;
 

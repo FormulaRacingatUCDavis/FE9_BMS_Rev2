@@ -225,6 +225,10 @@ void init_kalman() {
 
 void KalmanFilt_Int_Interrupt_InterruptCallback() {
     CyGlobalIntDisable;
+    
+    I = bat_pack.current;
+    V = bat_pack.voltage;
+    
     // FUNCTION TO CALCULATE xhatCorrected & PCorrected
 	EKF(&xhatk_1, &Pk_1, I, Ik_1, V, Voc0, Rk, &Aprime, &Cprime, &Eprime,
 		&Fprime, &fk_, dt, Cbat, Cc, Rc, &Qk1,
@@ -243,6 +247,9 @@ void KalmanFilt_Int_Interrupt_InterruptCallback() {
 			Pk_1[i][j] = PCorrected[i][j];
 		}
 	}
+    
+    //Store previous current
+    Ik_1 = I;
     
     //Update SOC percentage to be the most recently calculated value
     bat_pack.SOC_percent = xhatk_1[0][0];
