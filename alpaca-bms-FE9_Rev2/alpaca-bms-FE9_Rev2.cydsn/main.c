@@ -17,6 +17,7 @@
 #include "math.h"
 #include "time.h"
 #include "pwm.h"
+#include "kalman.h"
 #include "cyapicallbacks.h"
 
 //The old code had many more BMS modes, are we ever going to need that?
@@ -52,6 +53,9 @@ void init(void){   //initialize modules
     
     //Initialize and enable radiator fan, water pump, and accumulator fan PWM modules
     pwm_init(); 
+    
+    // Initialize the Kalman Filter variables
+    init_kalman();
 }
 
 void process_event(){
@@ -149,7 +153,7 @@ int main(void)
     BMS_MODE bms_status = BMS_NORMAL;
     uint32_t system_interval = 0;
 
-    volatile double prev_time_interval;
+    //volatile double prev_time_interval;
 
     while(1) {
         switch(bms_status) {
