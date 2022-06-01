@@ -10,10 +10,13 @@
  * ========================================
 */
 
+#include "cell_interface.h"
 #include "kalman.h"
 #include "project.h"
 
 //------------------------------- SMALLER CALCULATION FUNCTIONS --------------------------------
+
+extern volatile BAT_PACK_t bat_pack;
 
 // Functions we need to calculate
 double VOC(double SOC, double Voc0) {
@@ -240,6 +243,9 @@ void KalmanFilt_Int_Interrupt_InterruptCallback() {
 			Pk_1[i][j] = PCorrected[i][j];
 		}
 	}
+    
+    //Update SOC percentage to be the most recently calculated value
+    bat_pack.SOC_percent = xhatk_1[0][0];
     
     CyGlobalIntEnable
 }
