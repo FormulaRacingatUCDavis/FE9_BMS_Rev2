@@ -62,6 +62,7 @@ void process_event(){
     	bat_pack.SOC_percent,
     	bat_pack.status,
     	0,0,0);
+    
     CyDelay(10);
     // send voltage   
     can_send_volt(bat_pack.LO_voltage,
@@ -69,16 +70,10 @@ void process_event(){
 				bat_pack.voltage);
     CyDelay(10);
     
-    // TEST_DAY_1
-    //send temp only if within reasonable range from last temperature
-
-    //TODO: rewrite this for dynamic number of subpacks? 
     can_send_temp(bat_pack.subpacks,
 			bat_pack.HI_temp_subpack,
 			bat_pack.HI_temp_c);
-    
-    can_send_volt(bat_pack.LO_voltage, bat_pack.HI_voltage, bat_pack.voltage);
-    //TODO: current will be sent by PEI board
+
     CyDelay(10);
 
     CyGlobalIntEnable;
@@ -179,7 +174,7 @@ int main(void)
                 //SOC = SOC_estimation(double prev_time_interval, voltage, current);
                 
                 //Update status
-                bms_status = bat_health_check();
+                //bms_status = bat_health_check();
 
                 //Calculating time spent in state
                 //Old code said "do these time tests ONE FILE AT A TIME due to the hardcoded variable"
