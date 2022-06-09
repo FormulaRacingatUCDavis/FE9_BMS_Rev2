@@ -52,6 +52,7 @@ uint16_t aux_codes[IC_PER_BUS][5];
 #define THERM_CELL (0u)
 #define THERM_BOARD (1u)
 
+#define TEMP_IGNORE_LIMIT (500u) //ignore temperatures over this value, probably a bad thermistor
 
 // bms_status
 #define NO_ERROR 0x0000

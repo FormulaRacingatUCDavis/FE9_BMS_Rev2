@@ -51,15 +51,14 @@ void can_send_temp(volatile BAT_SUBPACK_t ** subpacks,
     volatile uint8_t high_temp_subpack,
     volatile uint8_t high_temp)
 {
-    for (unsigned int i = 0; i < 6; i++) {  //works up to 6 subpacks
+    for (unsigned int i = 0; i < 7; i++) {  //works up to 7 subpacks
         uint8_t temp = 0; 
         if(i < N_OF_SUBPACK){  //if subpack[i] exists
             temp = subpacks[i]->high_temp; 
         } 
         PCAN_TX_DATA_BYTE(PCAN_TX_MAILBOX_temp, i) = temp; 
     }    
-    PCAN_TX_DATA_BYTE7(PCAN_TX_MAILBOX_temp) = 0xff & high_temp_subpack;
-    PCAN_TX_DATA_BYTE8(PCAN_TX_MAILBOX_temp) = high_temp; //(high_temp/10)<<4 | (high_temp%10);
+    PCAN_TX_DATA_BYTE8(PCAN_TX_MAILBOX_temp) = high_temp;
 
     //This works in the case that the number of subpacks is
 

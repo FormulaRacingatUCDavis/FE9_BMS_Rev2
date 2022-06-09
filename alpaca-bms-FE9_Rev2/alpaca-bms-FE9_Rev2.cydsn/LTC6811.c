@@ -40,6 +40,17 @@ cmd[0] = addressify_cmd(ltc_address, cmd[0]);
  */
 uint8_t addressify_cmd(uint8_t lt_addr, uint8_t cmd0)
 {
+    
+    //tweak addresses for spare node
+    //node 4 -> node 5
+    //ltc 8,9 -> ltc 10,11
+    
+    if(lt_addr == 8){            
+        lt_addr = 10; 
+    } else if (lt_addr == 9){
+        lt_addr = 11;
+    }
+    
     //uint8_t addr = lt_addr % IC_PER_BUS;  
     lt_addr <<= 3;           //bitshift to correct posotion
     lt_addr &= 0b01111000;   //clear unwanted bits
@@ -392,7 +403,8 @@ int8_t LTC6811_rdcv_ltc_reg(uint8_t reg, uint8_t * data, uint8_t addr){
         cmd[0] = 0x00;
     }
 
-    cmd[0] = 0x80 + (addr << 3);
+    cmd[0] = 0x80;
+    cmd[0] = addressify_cmd(addr, cmd[0]); 
 
     temp_pec = pec15_calc(2, cmd);
     cmd[2] = (uint8_t)(temp_pec >> 8);
@@ -529,7 +541,8 @@ void LTC6811_rdcv_reg(uint8_t reg,
   //4
   for(int current_ic = 0; current_ic<total_ic; current_ic++)
   {
-	cmd[0] = 0x80 + (current_ic<<3); //Setting address
+	cmd[0] = 0x80; //Setting address
+    cmd[0] = addressify_cmd(current_ic, cmd[0]); 
     
     temp_pec = pec15_calc(2, cmd);
 	cmd[2] = (uint8_t)(temp_pec >> 8);

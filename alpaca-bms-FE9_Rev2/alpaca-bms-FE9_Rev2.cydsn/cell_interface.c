@@ -210,7 +210,7 @@ void check_voltages(){
     
     bat_pack.HI_voltage = max_voltage;
     bat_pack.LO_voltage = min_voltage;
-    bat_pack.voltage = total_voltage/N_OF_CELL; 
+    bat_pack.voltage = total_voltage/N_OF_SUBPACK; 
 
     
     // Update subpacks & pack for errors
@@ -235,7 +235,7 @@ void check_voltages(){
             }
             total_voltage += bat_subpack[subpack].cells[cell]->voltage; 
         }
-        bat_subpack[subpack].voltage = total_voltage/CELLS_PER_SUBPACK; 
+        bat_subpack[subpack].voltage = total_voltage; 
     } 
     
     //check for spi errors
@@ -248,8 +248,8 @@ void check_voltages(){
 }
 
 void check_temps(){
-    uint8_t temp, subpack, cell;
-    uint16_t temp_c;
+    uint8_t subpack, cell;
+    uint16_t temp_c, temp;
     
     //float median = getMedianTemp();
     
@@ -257,16 +257,18 @@ void check_temps(){
     for (cell = 0; cell < N_OF_TEMP_CELL; cell++){
         temp_c = bat_temp[cell].temp_c;
 
-        if (temp_c > (uint8_t)CRITICAL_TEMP_H){  //if over temperature
-            bat_temp[cell].bad_counter++;
-            bat_temp[cell].bad_type = 1;
-        }else if (temp_c < (uint8_t)CRITICAL_TEMP_L){ // if under temperature
-            bat_temp[cell].bad_counter++;
-            bat_temp[cell].bad_type = 0;
-        }else{    //if there is no error
-            if (bat_temp[cell].bad_counter > 0){
-                bat_temp[cell].bad_counter--;
-            }           
+        if(temp_c < TEMP_IGNORE_LIMIT){
+            if (temp_c > (uint8_t)CRITICAL_TEMP_H){  //if over temperature
+                bat_temp[cell].bad_counter++;
+                bat_temp[cell].bad_type = 1;
+            }else if (temp_c < (uint8_t)CRITICAL_TEMP_L){ // if under temperature
+                bat_temp[cell].bad_counter++;
+                bat_temp[cell].bad_type = 0;
+            }else{    //if there is no error
+                if (bat_temp[cell].bad_counter > 0){
+                    bat_temp[cell].bad_counter--;
+                }           
+            }
         }
     }
     
@@ -314,29 +316,31 @@ void check_temps(){
     }
     
     // update max temps
-    uint8_t max_temp;
+    uint16_t max_temp;
     uint8_t i;
     
     bat_pack.HI_temp_c = 0;
     bat_pack.HI_temp_raw = 0;
     
     for (subpack = 0; subpack < N_OF_SUBPACK; subpack++){
-        max_temp = bat_pack.subpacks[subpack]->cell_temps[0]->temp_c;
+        max_temp = 0;
         for (i = 0; i < (CELL_TEMPS_PER_PACK); i++){
             temp = bat_pack.subpacks[subpack]->cell_temps[i]->temp_c;
             
-            //update subpack max temp
-            if (max_temp < temp){
-                max_temp = bat_pack.subpacks[subpack]->cell_temps[i]->temp_c;
+            if(temp < TEMP_IGNORE_LIMIT){
+                //update subpack max temp
+                if (max_temp < temp){
+                    max_temp = bat_pack.subpacks[subpack]->cell_temps[i]->temp_c;
+                }
+                
+                //update pack max temp
+                if (temp > bat_pack.HI_temp_c){
+                    bat_pack.HI_temp_c = temp;
+                    bat_pack.HI_temp_raw = bat_pack.subpacks[subpack]->cell_temps[i]->temp_raw;
+                    bat_pack.HI_temp_subpack = subpack;
+                    bat_pack.HI_temp_subpack_index = i;
+                } 
             }
-            
-            //update pack max temp
-            if (temp > bat_pack.HI_temp_c){
-                bat_pack.HI_temp_c = temp;
-                bat_pack.HI_temp_raw = bat_pack.subpacks[subpack]->cell_temps[i]->temp_raw;
-                bat_pack.HI_temp_subpack = subpack;
-                bat_pack.HI_temp_subpack_index = i;
-            } 
         }
         
         bat_pack.subpacks[subpack]->high_temp = max_temp;
