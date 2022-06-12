@@ -9,8 +9,6 @@
  *
  * ========================================
 */
-#define ONLY_DECLARATIONS
-#include "kalman.h"
 
 #include "project.h"
 #include "cell_interface.h"
@@ -21,22 +19,6 @@
 #include "pwm.h"
 #include "cyapicallbacks.h"
 
-
-//Define Kalman Filter parameters
-volatile double t = 0.0;
-volatile double actualSOC = 1.0; 
-volatile double Vc = 0.0;
-volatile double I = 0.0;
-volatile double Ik_1 = 0.0;
-volatile double V = 0.0;
-
-volatile double dt = 0.1;		// Sampling Period - From TopDesign.cysch 
-volatile double R0 = 0.01;             //Have this
-volatile double Rc = 0.015;            //Need this
-volatile int Cc = 2400;                //Need this
-volatile int Cbat = 18000;             //Need this
-volatile double Voc0 = 3.435;
-volatile double alp = 0.007;
 
 //The old code had many more BMS modes, are we ever going to need that?
 //Need BMS_CHARGING at least. We only want to balance cells during charging. 
@@ -73,7 +55,7 @@ void init(void){   //initialize modules
     pwm_init(); 
     
     // Initialize the Kalman Filter variables
-    init_kalman();
+    //init_kalman();
 }
 
 void process_event(){
@@ -182,10 +164,10 @@ int main(void)
                 //Make sure OK signal is high
                 OK_SIG_Write(1);
 
-                //Set higher acuracy for voltages
-                set_adc_mode(MD_FILTERED);
                 get_voltages();     //update voltages from packs
                 check_voltages();   //parse voltages
+                
+                bat_pack.SOC_percent = (uint8_t)(bat_pack.voltage/10000); 
                 
                 //Balancing should only be done when charger is attached and HV is enabled
                 //This corresponds to vcu_state == CHARGING (see can_manager.c)

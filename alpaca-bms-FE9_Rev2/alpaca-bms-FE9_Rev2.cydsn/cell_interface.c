@@ -71,7 +71,7 @@ void get_voltages(){
     SPI_ClearFIFO();
     
     LTC6811_adcv();  //run ADC conversion (all LTCs)
-    CyDelay(1);
+    CyDelay(5);
     
     uint16_t cell_voltages[CELLS_PER_LTC];  //temporarily store LTC voltages
     
@@ -536,15 +536,13 @@ uint8_t rawToHumidity(uint16_t raw){
 uint8_t bat_health_check(){
     if (
         (bat_pack.status & PACK_TEMP_OVER) ||
-        (bat_pack.status & FUSE_BLOWN) ||
+        //(bat_pack.status & FUSE_BLOWN) ||
         (bat_pack.status & PACK_TEMP_UNDER) ||
         //(bat_pack.status & IMBALANCE) || not in use
         (bat_pack.status & COM_FAILURE) ||
         (bat_pack.status & ISO_FAULT) || 
         (bat_pack.status & CELL_VOLT_OVER) ||
-        (bat_pack.status & CELL_VOLT_UNDER) ||
-        // Added case for blown fuse
-        (bat_pack.status & FUSE_BLOWN)
+        (bat_pack.status & CELL_VOLT_UNDER)      
     ){
         bat_pack.health = FAULT;
         return 1;
