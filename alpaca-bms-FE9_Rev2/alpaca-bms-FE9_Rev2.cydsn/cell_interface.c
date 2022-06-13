@@ -11,9 +11,12 @@
 */
 
 #include <cell_interface.h>
+#include <can_manager.h>
 #include <LTC6811.h>
 #include <math.h>
 #include <stdlib.h>
+
+extern volatile VCU_STATE vcu_state; 
 
 //MUX Indexes:   
 //First LTC on Node: 
@@ -92,6 +95,16 @@ void get_voltages(){
         }
     }
     
+    //might as well
+    uint16_t voltage = (bat_subpack[1].cells[21]->voltage + bat_subpack[1].cells[22]->voltage)/2;
+    setVoltage(1, 21, voltage); 
+    setVoltage(1, 22, voltage);
+    
+    voltage = (bat_subpack[0].cells[0]->voltage + bat_subpack[0].cells[1]->voltage + bat_subpack[0].cells[2]->voltage)/3;
+    setVoltage(0, 0, voltage); 
+    setVoltage(0, 1, voltage);
+    setVoltage(0, 2, voltage);
+    
     CyDelay(1);
 }
 
@@ -166,6 +179,13 @@ void get_temps(){
         }
         
     }
+    
+    //might as well
+    setCellTemp(3, 5, 14500); 
+    setCellTemp(4, 0, 14600); 
+    setBoardTemp(1, 5, 14400); 
+    setBoardTemp(2, 2, 14700);
+    
     CyDelay(1); 
 }
 
@@ -188,18 +208,20 @@ void check_voltages(){
         
         //check for errors
         voltage16 = bat_cell[cell].voltage;
-        //Check if fuse blown
-        if (voltage16 < bat_pack.voltage - FUSE_THRESHOLD){
-            bat_cell[cell].bad_counter++;
-            bat_cell[cell].bad_type = 2;
-            //check where bad_type is checked
-        }else if (voltage16 > (uint16_t)OVER_VOLTAGE){
+        uint16_t avg_voltage = bat_pack.voltage/CELLS_PER_SUBPACK; 
+        
+        if (voltage16 > (uint16_t)OVER_VOLTAGE){
             bat_cell[cell].bad_counter++;
             bat_cell[cell].bad_type = 1;
         }else if (voltage16 < (uint16_t)UNDER_VOLTAGE){
             bat_cell[cell].bad_counter++;
             bat_cell[cell].bad_type = 0;
-        }else{
+        //Check if fuse blown
+        } else if (voltage16 < (avg_voltage - FUSE_THRESHOLD)){
+            bat_cell[cell].bad_counter++;
+            bat_cell[cell].bad_type = 2;
+            //check where bad_type is checked
+        } else {
             if (bat_cell[cell].bad_counter > 0){
                 bat_cell[cell].bad_counter--;
             }           
@@ -272,26 +294,26 @@ void check_temps(){
         }
     }
     
-#ifdef BALANCE_ON
-    // check board temps
-    for (cell = 0; cell < N_OF_TEMP_BOARD; cell++){
-        temp_c = board_temp[cell].temp_c;
-        if (temp_c > (uint8_t)CRITICAL_TEMP_BOARD_H){
-            //if over temperature
-            board_temp[cell].bad_counter++;
-            board_temp[cell].bad_type = 1;
-        }else if (temp_c < (uint8_t)CRITICAL_TEMP_BOARD_L){
-            // if under temperature
-            board_temp[cell].bad_counter++;
-            board_temp[cell].bad_type = 0;
-        }else{
-            //if there is no error
-            if (board_temp[cell].bad_counter > 0){
-                board_temp[cell].bad_counter--;
-            }           
+    if(vcu_state == CHARGING){ 
+        // check board temps
+        for (cell = 0; cell < N_OF_TEMP_BOARD; cell++){
+            temp_c = board_temp[cell].temp_c;
+            if (temp_c > (uint8_t)CRITICAL_TEMP_BOARD_H){
+                //if over temperature
+                board_temp[cell].bad_counter++;
+                board_temp[cell].bad_type = 1;
+            }else if (temp_c < (uint8_t)CRITICAL_TEMP_BOARD_L){
+                // if under temperature
+                board_temp[cell].bad_counter++;
+                board_temp[cell].bad_type = 0;
+            }else{
+                //if there is no error
+                if (board_temp[cell].bad_counter > 0){
+                    board_temp[cell].bad_counter--;
+                }           
+            }
         }
     }
-#endif
    
     // Update subpacks
     for (subpack = 0; subpack < N_OF_SUBPACK; subpack++){
@@ -389,7 +411,8 @@ void disable_cell_balancing(){
     uint8_t addr; 
     for(addr=0; addr<N_OF_LTC; addr++){
         LTC6811_set_cfga_reset_discharge(addr); 
-    }
+        LTC6811_wrcfga(addr); 
+    }    
 }
 
 //update LTCs to balance cells too far above minimum voltage
@@ -536,7 +559,7 @@ uint8_t rawToHumidity(uint16_t raw){
 uint8_t bat_health_check(){
     if (
         (bat_pack.status & PACK_TEMP_OVER) ||
-        //(bat_pack.status & FUSE_BLOWN) ||
+        (bat_pack.status & FUSE_BLOWN) ||
         (bat_pack.status & PACK_TEMP_UNDER) ||
         //(bat_pack.status & IMBALANCE) || not in use
         (bat_pack.status & COM_FAILURE) ||

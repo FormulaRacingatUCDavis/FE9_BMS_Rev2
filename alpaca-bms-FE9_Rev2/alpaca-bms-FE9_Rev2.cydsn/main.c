@@ -161,16 +161,20 @@ int main(void)
                 //Start timer to time normal state
                 //Timer_1_Start();
 
+                //UNCOMMENT FOR CHARGING
+                //vcu_state = CHARGING;
+            
                 //Make sure OK signal is high
                 OK_SIG_Write(1);
 
                 get_voltages();     //update voltages from packs
                 check_voltages();   //parse voltages
                 
-                bat_pack.SOC_percent = (uint8_t)(bat_pack.voltage/10000); 
+                bat_pack.SOC_percent = (uint8_t)(bat_pack.LO_voltage/1000); 
                 
                 //Balancing should only be done when charger is attached and HV is enabled
                 //This corresponds to vcu_state == CHARGING (see can_manager.c)
+                //should not be balancing if a fault exists
                 if(vcu_state == CHARGING){
                     balance_cells();
                 } else {
@@ -203,6 +207,9 @@ int main(void)
                 
                 //set OK signal to low to open shutdown circuit
                 OK_SIG_Write(0u);
+                
+                //make sure cell balancing is not active
+                disable_cell_balancing(); 
                 
                 //make sure to stay in this state
                 bms_status = BMS_FAULT;

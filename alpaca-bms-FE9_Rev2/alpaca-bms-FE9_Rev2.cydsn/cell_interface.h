@@ -28,12 +28,12 @@
 #define OVER_VOLTAGE (42000u) //(4.2V)
 #define UNDER_VOLTAGE (25000u) //(2.5V)
 // Arbitrary defined threshold, change later
-#define FUSE_THRESHOLD (1000u) //(0.1V)
+#define FUSE_THRESHOLD (5000u) //(0.5V)
 #define STACK_VOLT_DIFF_LIMIT (90000u)   //9 volt
 #define CRITICAL_TEMP_L (0u)          // 0 C
 #define CRITICAL_TEMP_H (60u)             //60 C
 #define CRITICAL_TEMP_BOARD_L (0u)          // 0 C
-#define CRITICAL_TEMP_BOARD_H (60u)  
+#define CRITICAL_TEMP_BOARD_H (80u)  
 #define BAD_THERM_LIMIT (15u)
 #define SOC_NOMIAL      (50000*3600u)    //nomial SOC before calibration
 #define SOC_CALI_HIGH (900000u)     //High cali point at 90V?
@@ -42,7 +42,7 @@
 #define SOC_SOC_LOW   (10000*3600u)      //manually set it in mAh
 #define SOC_FULL_CAP (75000*3600u)     //let's say, 75,000mAh
 #define SOC_FULL (OVER_VOLTAGE*N_OF_CELL)   //when voltage reaches 100.8V, consider it full
-#define BALANCE_THRESHOLD (100u)
+#define BALANCE_THRESHOLD (200u)
 
 uint16_t aux_codes[IC_PER_BUS][5];
 
@@ -52,7 +52,7 @@ uint16_t aux_codes[IC_PER_BUS][5];
 #define THERM_CELL (0u)
 #define THERM_BOARD (1u)
 
-#define TEMP_IGNORE_LIMIT (200u) //ignore temperatures over this value, probably a bad thermistor
+#define TEMP_IGNORE_LIMIT (500u) //ignore temperatures over this value, probably a bad thermistor
 
 // bms_status
 #define NO_ERROR 0x0000
