@@ -171,6 +171,7 @@ void LTC6811_set_cfga_reset_discharge(uint8_t addr){
         tx_cfga[i][5] = CFGA5; 
       } 
     }
+    CY_NOP; 
 }
 
 //turns on discharge for specified cell
@@ -192,7 +193,7 @@ void LTC6811_set_cfga_discharge_cell(uint8_t addr, uint8_t cell_num){
         tx_cfga_global[5] |= set_cfg5;
     } else {
         tx_cfga[addr][4] |= set_cfg4;
-        tx_cfga[addr][5] |= set_cfg4; 
+        tx_cfga[addr][5] |= set_cfg5; 
     }
 }
 

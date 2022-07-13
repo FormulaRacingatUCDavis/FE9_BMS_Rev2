@@ -107,7 +107,7 @@ void init(void){   //initialize modules
     cell_interface_init(); 
     
     //Initialize and enable radiator fan, water pump, and accumulator fan PWM modules
-    //pwm_init(); 
+    pwm_init(); 
     
     // Initialize the Kalman Filter variables
     //init_kalman();
@@ -202,7 +202,7 @@ int main(void)
 
     init();   //initialize modules
     
-    //set_pwm(); //set PWM values for fans & pump
+    set_pwm(); //set PWM values for fans & pump
     
     //Initialize state machine
     BMS_MODE bms_status = BMS_NORMAL;
@@ -217,7 +217,7 @@ int main(void)
                 //Timer_1_Start();
 
                 //UNCOMMENT FOR CHARGING
-                //vcu_state = CHARGING;
+                vcu_state = CHARGING;
             
                 //Make sure OK signal is high
                 OK_SIG_Write(1);

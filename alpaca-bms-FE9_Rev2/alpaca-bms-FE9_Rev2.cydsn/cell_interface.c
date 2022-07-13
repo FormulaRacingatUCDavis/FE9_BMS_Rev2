@@ -96,11 +96,11 @@ void get_voltages(){
     }
     
     //might as well
-    uint16_t voltage = (bat_subpack[1].cells[21]->voltage + bat_subpack[1].cells[22]->voltage)/2;
+    uint16_t voltage = bat_subpack[1].voltage/CELLS_PER_SUBPACK; //(bat_subpack[1].cells[21]->voltage + bat_subpack[1].cells[22]->voltage)/2;
     setVoltage(1, 21, voltage); 
     setVoltage(1, 22, voltage);
     
-    voltage = (bat_subpack[0].cells[0]->voltage + bat_subpack[0].cells[1]->voltage + bat_subpack[0].cells[2]->voltage)/3;
+    voltage = bat_subpack[0].voltage/CELLS_PER_SUBPACK; //(bat_subpack[0].cells[0]->voltage + bat_subpack[0].cells[1]->voltage + bat_subpack[0].cells[2]->voltage)/3;
     setVoltage(0, 0, voltage); 
     setVoltage(0, 1, voltage);
     setVoltage(0, 2, voltage);
@@ -183,8 +183,13 @@ void get_temps(){
     //might as well
     setCellTemp(3, 5, 14500); 
     setCellTemp(4, 0, 14600); 
+    setCellTemp(1, 14, 14500); 
     setBoardTemp(1, 5, 14400); 
     setBoardTemp(2, 2, 14700);
+    setBoardTemp(4, 3, 14500); 
+    setBoardTemp(4, 4, 14500); 
+    setBoardTemp(4, 5, 14500); 
+    setBoardTemp(4, 6, 14500); 
     
     CyDelay(1); 
 }
@@ -367,6 +372,26 @@ void check_temps(){
         
         bat_pack.subpacks[subpack]->high_temp = max_temp;
     }
+    
+    // update max temps
+    bat_pack.HI_temp_board_c = 0;
+    
+    max_temp = 0;
+    for (subpack = 0; subpack < N_OF_SUBPACK; subpack++){
+        
+        for (i = 0; i < (BOARD_TEMPS_PER_PACK); i++){
+            temp = bat_pack.subpacks[subpack]->board_temps[i]->temp_c;
+       
+            if(temp < TEMP_IGNORE_LIMIT){
+                //update subpack max temp
+                if (max_temp < temp){
+                    max_temp = bat_pack.subpacks[subpack]->board_temps[i]->temp_c;
+                }
+            }
+        }        
+    }
+    
+    bat_pack.HI_temp_board_c = max_temp;
 
 #ifdef BALANCE_ON
     // Update the battery_pack highest temperature
@@ -429,6 +454,7 @@ void balance_cells(){
             if(difference > BALANCE_THRESHOLD){
                 LTC6811_set_cfga_discharge_cell(addr, cell); //discharge cell
             }
+            cell_counter++;
         }
         
         LTC6811_wrcfga(addr);  //write updated cfga values to LTC
