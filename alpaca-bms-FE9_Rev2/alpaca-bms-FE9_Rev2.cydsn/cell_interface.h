@@ -33,7 +33,7 @@
 #define CRITICAL_TEMP_L (0u)          // 0 C
 #define CRITICAL_TEMP_H (60u)             //60 C
 #define CRITICAL_TEMP_BOARD_L (0u)          // 0 C
-#define CRITICAL_TEMP_BOARD_H (80u)  
+#define CRITICAL_TEMP_BOARD_H (120u)  
 #define BAD_THERM_LIMIT (15u)
 #define SOC_NOMIAL      (50000*3600u)    //nomial SOC before calibration
 #define SOC_CALI_HIGH (900000u)     //High cali point at 90V?

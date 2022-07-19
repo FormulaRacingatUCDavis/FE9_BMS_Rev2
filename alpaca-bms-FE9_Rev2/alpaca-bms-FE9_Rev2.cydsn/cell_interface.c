@@ -184,6 +184,8 @@ void get_temps(){
     setCellTemp(3, 5, 14500); 
     setCellTemp(4, 0, 14600); 
     setCellTemp(1, 14, 14500); 
+    setCellTemp(3, 14, 14500); 
+    setCellTemp(1, 16, 14500); 
     setBoardTemp(1, 5, 14400); 
     setBoardTemp(2, 2, 14700);
     setBoardTemp(4, 3, 14500); 
@@ -207,7 +209,8 @@ void check_voltages(){
         if (max_voltage < bat_cell[cell].voltage){
             max_voltage = bat_cell[cell].voltage;
         }
-        if(min_voltage > bat_cell[cell].voltage){
+        if(min_voltage > bat_cell[cell].voltage && cell != 95 && cell != 24){ //ignore (3, 23), (1,0) TODO: REMOVE LATER
+            
             min_voltage = bat_cell[cell].voltage;
         }
         
@@ -445,9 +448,9 @@ void balance_cells(){
     uint8_t addr, cell; 
     uint8_t cell_counter = 0; 
     
+    LTC6811_set_cfga_reset_discharge(0); //clear previous discharges
+    
     for(addr = 0; addr<N_OF_LTC; addr++){
-        
-        LTC6811_set_cfga_reset_discharge(addr); //clear previous discharges
         
         for(cell=0; cell<CELLS_PER_LTC; cell++){
             uint32_t difference =  bat_cell[cell_counter].voltage - bat_pack.LO_voltage; 
@@ -456,9 +459,11 @@ void balance_cells(){
             }
             cell_counter++;
         }
-        
+         
         LTC6811_wrcfga(addr);  //write updated cfga values to LTC
     }
+    
+    //LTC6811_set_cfga_reset_discharge(0); 
 }
 
 /**

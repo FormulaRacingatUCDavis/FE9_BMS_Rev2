@@ -40,6 +40,8 @@ typedef enum {
    for n in range [0, 4] to (1u) in lines 78 - 82 in file PCAN.h
 */    
 
+void debug_balance(); 
+
 void can_send_temp(volatile BAT_SUBPACK_t **,
     uint8_t high_tempNode,
     uint8_t high_temp);

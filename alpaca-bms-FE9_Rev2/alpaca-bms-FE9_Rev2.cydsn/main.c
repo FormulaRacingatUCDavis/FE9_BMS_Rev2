@@ -20,6 +20,9 @@
 #include "cyapicallbacks.h"
 
 
+
+
+
 //The old code had many more BMS modes, are we ever going to need that?
 //Need BMS_CHARGING at least. We only want to balance cells during charging. 
 //BMS_CHARGING will share a lot with BMS_NORMAL, so maybe charging shouldn't be its own mode
@@ -197,7 +200,15 @@ int main(void)
     //We can probably get away with no bootup. I did have some odd issues with code outside of the while loop, but we'll see. 
     //Even if something throws a fault outside of the while loop, cant we still set the mode to BMS_FAULT to the same effect? 
     
-
+    OK_SIG_Write(1); 
+    CyDelay(500); 
+    OK_SIG_Write(0); 
+    
+    while(1){
+    }
+    
+    
+    
     CyGlobalIntEnable; //Enable global interrupts. 
 
     init();   //initialize modules
@@ -207,6 +218,8 @@ int main(void)
     //Initialize state machine
     BMS_MODE bms_status = BMS_NORMAL;
     uint32_t system_interval = 0;
+    
+    uint8_t counter = 0; 
 
     //volatile double prev_time_interval;
 
@@ -217,7 +230,7 @@ int main(void)
                 //Timer_1_Start();
 
                 //UNCOMMENT FOR CHARGING
-                vcu_state = CHARGING;
+                //vcu_state = CHARGING;
             
                 //Make sure OK signal is high
                 OK_SIG_Write(1);
@@ -230,11 +243,29 @@ int main(void)
                 //Balancing should only be done when charger is attached and HV is enabled
                 //This corresponds to vcu_state == CHARGING (see can_manager.c)
                 //should not be balancing if a fault exists
+                
+                
+                if(bat_pack.HI_temp_board_c > 85){
+                    vcu_state = LV; 
+                } else if (bat_pack.HI_temp_board_c < 60) {
+                    vcu_state = CHARGING; 
+                }
+                
                 if(vcu_state == CHARGING){
                     balance_cells();
                 } else {
                     disable_cell_balancing();  //this should be redundant
                 }
+                
+                /*if(counter < 15){
+                    counter++; 
+                } else {
+                    disable_cell_balancing(); 
+                    for(counter = 0; counter < 75; counter++){
+                        CyDelay(1000); 
+                    }
+                    counter = 0; 
+                }*/
 
                 //Set lower accuracy (higher speed) for temp measurement
                 set_adc_mode(MD_NORMAL); 
@@ -281,7 +312,8 @@ int main(void)
                 bms_status = BMS_FAULT;
                 break;
         }
-        process_event();
+        //process_event();
+        debug_balance(); 
         CyDelay(system_interval);
     }
 }

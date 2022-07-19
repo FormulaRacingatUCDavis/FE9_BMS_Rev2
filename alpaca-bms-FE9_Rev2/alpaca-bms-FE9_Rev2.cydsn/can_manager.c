@@ -13,6 +13,7 @@
 #include "can_manager.h"
 
 extern BAT_PACK_t bat_pack;
+extern BAT_CELL_t bat_cell[N_OF_CELL]; 
 
 extern volatile VCU_STATE vcu_state; 
 extern volatile VCU_ERROR vcu_error; 
@@ -24,6 +25,26 @@ The datatype consists of three bytes:
 2. upper byte of data
 3. lower byte of data
 */
+
+void debug_balance(){
+    PCAN_TX_MSG msg; 
+    PCAN_DATA_BYTES_MSG data;
+    
+    msg.dlc = 8; 
+    msg.msg = &data; 
+    
+    uint8_t cell_counter = 0; 
+    
+    for(uint8_t i = 0; i < N_OF_CELL/8; i++){
+        msg.id = 0x420 + i; 
+        for(uint8_t j = 0; j < 8; j++){
+            data.byte[j] = (bat_cell[cell_counter].voltage/100) - 230;   
+            cell_counter++; 
+        }
+        PCAN_SendMsg(&msg); 
+        CyDelay(10); 
+    }
+}
 
 /* PCAN_SendMsgx() function associations
 0. PCAN_SendMsg0() => Sends Temps
