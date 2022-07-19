@@ -38,6 +38,8 @@ PACK_HUMIDITY_t pack_humidity[N_OF_SUBPACK];
 
 BAT_SUBPACK_t bat_subpack[N_OF_SUBPACK];
 
+uint16_t OW[N_OF_LTC];   //stores binary results of open wire check
+
 volatile BAT_ERR_t bat_err;
 // Copied from old code
 volatile BAT_ERR_t bat_err_array[100];
@@ -65,7 +67,7 @@ Parameters:
 adc_mode - MD_FAST, MD_NORMAL, or MD_FILTERED
 */
 void set_adc_mode(uint8_t adc_mode){
-    LTC6811_set_adc(adc_mode, DCP_DISABLED, CELL_CH_ALL, AUX_CH_GPIO5);
+    LTC6811_set_adc(adc_mode, DCP_ENABLED, CELL_CH_ALL, AUX_CH_GPIO5);
 }
 
 //reads cell voltages from LTCs
@@ -195,6 +197,66 @@ void get_temps(){
     
     CyDelay(1); 
 }
+
+void open_wire_check(){
+    SPI_ClearFIFO();
+    
+    uint16_t CELL[2][N_OF_LTC][CELLS_PER_LTC];   //stores pull up and pull down cell voltage readings
+    int16_t CELL_DELTA[N_OF_LTC][CELLS_PER_LTC]; 
+    uint8_t addr; 
+    uint16_t OW[N_OF_LTC];   //stores binary OW result
+    
+    //From page 34 of datasheet: 
+    
+    //1. Run the 12-cell command ADOW with PUP = 1 at least
+    //twice. Read the cell voltages for cells 1 through 12 once
+    //at the end and store them in array CELL_PD(n).
+    
+    for(uint8_t pup = 1; pup >= 0; pup--){
+    
+        LTC6811_adow(pup);  //run ADC conversion (all LTCs)
+        CyDelay(5);
+        LTC6811_adow(pup); 
+        CyDelay(5); 
+        
+        for(addr = 0; addr < N_OF_LTC; addr++){
+            if(LTC6811_rdcv_ltc(addr, CELL[pup][addr])){
+                spi_error_counter[addr]++;   //spi error
+            } else {
+                spi_error_counter[addr] = 0; //no spi error
+            }
+        }
+    }
+    
+    uint8_t cell; 
+    
+    for(addr = 0; addr < N_OF_LTC; addr++){
+        //3.
+        for(cell = 1; cell < CELLS_PER_LTC; cell++){
+            CELL_DELTA[addr][cell] = CELL[1][addr][cell] - CELL[0][addr][cell]; 
+        }
+        
+        OW[addr] = 0; 
+        
+        //4. 
+        for(cell = 1; cell < CELLS_PER_LTC; cell++){
+            if(CELL_DELTA[addr][cell] < -4000){  //< -400mV
+                OW[addr] |= (1<<cell);  //(C(cell) is open
+            }
+        }
+        
+        if(CELL[1][addr][0] < 50){
+            OW[addr] |= 1; //C(0) is open
+        }
+        
+        if(CELL[0][addr][CELLS_PER_LTC-1] < 50){
+            OW[addr] |= (1<<12); //C(12) is open
+        }
+        
+    }
+    
+}
+
 
 void check_voltages(){
     uint8_t cell, subpack;

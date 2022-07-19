@@ -14,6 +14,7 @@
 
 uint8_t ADCV[2]; //!< Cell Voltage conversion command.
 uint8_t ADAX[2]; //!< GPIO conversion command.
+uint8_t ADOW[2]; //!< Cell Voltage open wire conversion command. 
 
 uint8_t tx_cfga[IC_PER_BUS][6];   //!< stores cfga data to be written to each LTC
 uint8_t tx_cfga_global[6];        //!< stores cfga data for global write
@@ -73,7 +74,9 @@ uint8_t addressify_cmd(uint8_t lt_addr, uint8_t cmd0)
 			|command	|  10   |   9   |   8   |   7   |   6   |   5   |   4   |   3   |   2   |   1   |   0   | 
 			|-----------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|
 			|ADCV:	    |   0   |   1   | MD[1] | MD[2] |   1   |   1   |  DCP  |   0   | CH[2] | CH[1] | CH[0] | 
-			|ADAX:	    |   1   |   0   | MD[1] | MD[2] |   1   |   1   |  DCP  |   0   | CHG[2]| CHG[1]| CHG[0]| 
+			|ADAX:	    |   1   |   0   | MD[1] | MD[2] |   1   |   1   |  DCP  |   0   | CHG[2]| CHG[1]| CHG[0]|
+            |ADOW:	    |   1   |   0   | MD[1] | MD[2] |  PUP  |   1   |  DCP  |   1   | CHG[2]| CHG[1]| CHG[0]| 
+
  ******************************************************************************************************************/
 void LTC6811_set_adc(uint8_t MD, //ADC Mode   
 			         uint8_t DCP, //Discharge Permit
@@ -86,6 +89,10 @@ void LTC6811_set_adc(uint8_t MD, //ADC Mode
   ADCV[0] = md_bits + 0x02;
   md_bits = (MD & 0x01) << 7;
   ADCV[1] =  md_bits + 0x60 + (DCP<<4) + CH;
+
+  ADOW[0] = ADCV[0]; 
+  md_bits = (MD & 0x01) << 7;
+  ADOW[1] =  md_bits + 0x28 + (DCP<<4) + CH;
  
   md_bits = (MD & 0x02) >> 1;
   ADAX[0] = md_bits + 0x04;
@@ -356,6 +363,7 @@ int8_t LTC6811_rdcfga(uint8_t lt_addr, uint8_t cfga[6])   //tested 2/17
  | DCP    | Determines if Discharge is Permitted	     |
   
 ***********************************************************************************************/
+
 void LTC6811_adcv()
 {
 
@@ -377,6 +385,19 @@ void LTC6811_adcv()
   //4
   spi_write(cmd, 4);
   CyDelay(5);
+}
+
+void LTC6811_adow(uint8_t PUP)
+{
+    
+  ADCV[1] |= 0x08; //set bit 3 to 1
+  if(PUP == 0) ADCV[1] &= 0x40; //set bit 6 to PUP (was 1)
+    
+  LTC6811_adcv(); 
+
+  ADCV[1] &= ~(0x08); //reset bit 3 to 0
+  ADCV[1] |= 0x40;    //reset bit 6 to 1
+    
 }
 
 //reads one register from one chip
