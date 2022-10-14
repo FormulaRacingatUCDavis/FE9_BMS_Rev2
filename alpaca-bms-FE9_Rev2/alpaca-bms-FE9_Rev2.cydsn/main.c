@@ -200,6 +200,8 @@ int main(void)
     //We can probably get away with no bootup. I did have some odd issues with code outside of the while loop, but we'll see. 
     //Even if something throws a fault outside of the while loop, cant we still set the mode to BMS_FAULT to the same effect? 
     
+    CyWdtStart(CYWDT_1024_TICKS, CYWDT_LPMODE_NOCHANGE);
+    
     OK_SIG_Write(1); 
     CyDelay(500); 
     OK_SIG_Write(0); 
