@@ -38,7 +38,7 @@ PACK_HUMIDITY_t pack_humidity[N_OF_SUBPACK];
 
 BAT_SUBPACK_t bat_subpack[N_OF_SUBPACK];
 
-uint16_t OW[N_OF_LTC];   //stores binary results of open wire check
+volatile uint16_t OW[N_OF_LTC];   //stores binary results of open wire check
 
 volatile BAT_ERR_t bat_err;
 // Copied from old code
@@ -97,15 +97,10 @@ void get_voltages(){
         }
     }
     
-    //might as well
+    //probably blown fuse
     uint16_t voltage = bat_subpack[1].voltage/CELLS_PER_SUBPACK; //(bat_subpack[1].cells[21]->voltage + bat_subpack[1].cells[22]->voltage)/2;
     setVoltage(1, 21, voltage); 
     setVoltage(1, 22, voltage);
-    
-    voltage = bat_subpack[0].voltage/CELLS_PER_SUBPACK; //(bat_subpack[0].cells[0]->voltage + bat_subpack[0].cells[1]->voltage + bat_subpack[0].cells[2]->voltage)/3;
-    setVoltage(0, 0, voltage); 
-    setVoltage(0, 1, voltage);
-    setVoltage(0, 2, voltage);
     
     CyDelay(1);
 }
@@ -188,12 +183,12 @@ void get_temps(){
     setCellTemp(1, 14, 14500); 
     setCellTemp(3, 14, 14500); 
     setCellTemp(1, 16, 14500); 
-    setBoardTemp(1, 5, 14400); 
-    setBoardTemp(2, 2, 14700);
-    setBoardTemp(4, 3, 14500); 
-    setBoardTemp(4, 4, 14500); 
-    setBoardTemp(4, 5, 14500); 
-    setBoardTemp(4, 6, 14500); 
+    //setBoardTemp(1, 5, 14400); 
+    //setBoardTemp(2, 2, 14700);
+    //setBoardTemp(4, 3, 14500); 
+    //setBoardTemp(4, 4, 14500); 
+    //setBoardTemp(4, 5, 14500); 
+    //setBoardTemp(4, 6, 14500); 
     
     CyDelay(1); 
 }
@@ -201,10 +196,9 @@ void get_temps(){
 void open_wire_check(){
     SPI_ClearFIFO();
     
-    uint16_t CELL[2][N_OF_LTC][CELLS_PER_LTC];   //stores pull up and pull down cell voltage readings
-    int16_t CELL_DELTA[N_OF_LTC][CELLS_PER_LTC]; 
+    volatile uint16_t CELL[2][N_OF_LTC][CELLS_PER_LTC];   //stores pull up and pull down cell voltage readings
+    volatile int16_t CELL_DELTA[N_OF_LTC][CELLS_PER_LTC]; 
     uint8_t addr; 
-    uint16_t OW[N_OF_LTC];   //stores binary OW result
     
     //From page 34 of datasheet: 
     
@@ -212,12 +206,11 @@ void open_wire_check(){
     //twice. Read the cell voltages for cells 1 through 12 once
     //at the end and store them in array CELL_PD(n).
     
-    for(uint8_t pup = 1; pup >= 0; pup--){
-    
-        LTC6811_adow(pup);  //run ADC conversion (all LTCs)
-        CyDelay(5);
-        LTC6811_adow(pup); 
-        CyDelay(5); 
+    for(int8_t pup = 1; pup >= 0; pup--){
+        for(uint8_t i = 0; i < 10; i++){
+            LTC6811_adow(pup);  //run ADC conversion (all LTCs)
+            CyDelay(5);
+        } 
         
         for(addr = 0; addr < N_OF_LTC; addr++){
             if(LTC6811_rdcv_ltc(addr, CELL[pup][addr])){

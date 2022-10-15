@@ -169,6 +169,7 @@ void set_adc_mode(uint8_t adc_mode);
 
 void get_temps();
 void get_voltages();
+void open_wire_check(); 
 
 void check_voltages();
 void check_temps();

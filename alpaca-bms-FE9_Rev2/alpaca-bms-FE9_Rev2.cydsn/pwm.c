@@ -19,7 +19,7 @@ void pwm_init(){
 
 void set_pwm(){
     //Set duty cycle for accumulator fan
-    ACC_PWM_WriteCompare1(193);
+    ACC_PWM_WriteCompare1(80);
     
     //set Duty cycle for the radiator fan
     //RAD_PUMP_PWM_WriteCompare1(128);

@@ -32,6 +32,9 @@ void debug_balance(){
     
     msg.dlc = 8; 
     msg.msg = &data; 
+    msg.ide = PCAN_STANDARD_MESSAGE; 
+    msg.rtr = PCAN_STANDARD_MESSAGE; 
+    msg.irq = 0; 
     
     uint8_t cell_counter = 0; 
     

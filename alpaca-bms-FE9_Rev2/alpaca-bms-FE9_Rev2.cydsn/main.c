@@ -116,6 +116,12 @@ void init(void){   //initialize modules
     //init_kalman();
 }
 
+void reset_wdt(){
+    WDT_Rst_Write(1); 
+    CyDelay(20); 
+    WDT_Rst_Write(0); 
+}
+
 void process_event(){
     CyGlobalIntDisable
     //Old code: small delay(idk why)
@@ -191,13 +197,16 @@ void process_failure(){
 
 
 int main(void)
-{  //SEE ADOW ON DATASHEET PAGE 33
+ {  //SEE ADOW ON DATASHEET PAGE 33
+    
+    reset_wdt(); 
 
     //In old code, the loop had a BMS_BOOTUP case, but we're doin it all before it
     //goes into the while loop. I am assuming that nothing in the initialization process
     //will throw a BMS_FAULT. If that is the case, we'll need to change it back to how
     //it was.
     //We can probably get away with no bootup. I did have some odd issues with code outside of the while loop, but we'll see. 
+<<<<<<< Updated upstream
     //Even if something throws a fault outside of the while loop, cant we still set the mode to BMS_FAULT to the same effect? 
     
     CyWdtStart(CYWDT_1024_TICKS, CYWDT_LPMODE_NOCHANGE);
@@ -210,6 +219,9 @@ int main(void)
     }
     
     
+=======
+    //Even if something throws a fault outside of the while loop, cant we still set the mode to BMS_FAULT to the same effect?   
+>>>>>>> Stashed changes
     
     CyGlobalIntEnable; //Enable global interrupts. 
 
@@ -237,8 +249,11 @@ int main(void)
                 //Make sure OK signal is high
                 OK_SIG_Write(1);
 
+                set_adc_mode(MD_FILTERED);                 
                 get_voltages();     //update voltages from packs
                 check_voltages();   //parse voltages
+                
+                //open_wire_check(); 
                 
                 bat_pack.SOC_percent = SOC_LUT[((uint32_t)bat_pack.LO_voltage * 28 - 934000) / 1000] / 100;
                 
@@ -247,11 +262,11 @@ int main(void)
                 //should not be balancing if a fault exists
                 
                 
-                if(bat_pack.HI_temp_board_c > 85){
+                /*if(bat_pack.HI_temp_board_c > 85){
                     vcu_state = LV; 
                 } else if (bat_pack.HI_temp_board_c < 60) {
                     vcu_state = CHARGING; 
-                }
+                }*/
                 
                 if(vcu_state == CHARGING){
                     balance_cells();
@@ -314,8 +329,9 @@ int main(void)
                 bms_status = BMS_FAULT;
                 break;
         }
-        //process_event();
-        debug_balance(); 
+        process_event();
+        reset_wdt(); 
+        //debug_balance(); 
         CyDelay(system_interval);
     }
 }

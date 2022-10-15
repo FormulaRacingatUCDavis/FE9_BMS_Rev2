@@ -411,6 +411,7 @@
       <Data key="09546b02-5be8-411f-8fd0-c9110d7aa20b" value="sclk" />
       <Data key="1425177d-0d0e-4468-8bcc-e638e5509a9b" value="PCAN_Rx" />
       <Data key="49155281-7f71-440c-b340-10b85499263b" value="FTDI_Rx" />
+      <Data key="82916617-2784-4051-b79a-c558c85ae390" value="WDT_Rst" />
       <Data key="83689339-8ab6-4fc6-a345-8df9e4a16de2" value="ACC_FAN_PWM_PSOC" />
       <Data key="a4beb176-b272-4eeb-9d73-d00187fdcd0d" value="PUMP_PWM_PSOC" />
       <Data key="a93290ce-7a6d-4baf-96ac-9fa9cabbd467" value="PUMP_PWM_PSOC" />
@@ -3558,6 +3559,11 @@
     <Group key="1425177d-0d0e-4468-8bcc-e638e5509a9b">
       <Group key="0">
         <Data key="Port Format" value="1,7" />
+      </Group>
+    </Group>
+    <Group key="82916617-2784-4051-b79a-c558c85ae390">
+      <Group key="0">
+        <Data key="Port Format" value="1,5" />
       </Group>
     </Group>
     <Group key="83689339-8ab6-4fc6-a345-8df9e4a16de2">

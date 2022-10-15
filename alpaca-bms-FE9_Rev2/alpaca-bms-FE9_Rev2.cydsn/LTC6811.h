@@ -176,7 +176,7 @@ int8_t LTC6811_rdcfga(uint8_t lt_addr, uint8_t cfga[6]);
 
 void LTC6811_adcv();
 void LTC6811_adax();
-void LTC6811_adow(); 
+void LTC6811_adow(uint8_t pup); 
 
 int8_t LTC6811_rdcv_ltc_reg(uint8_t reg, uint8_t * data, uint8_t addr);
 int8_t LTC6811_rdcv_ltc(uint8_t addr, uint16_t voltages[CELLS_PER_LTC]);
