@@ -1,4 +1,4 @@
- /* ========================================
+  /* ========================================
  *
  * Copyright YOUR COMPANY, THE YEAR
  * All Rights Reserved
@@ -126,7 +126,7 @@ void process_event(){
     CyGlobalIntDisable
     //Old code: small delay(idk why)
     CyDelay(50);
-    can_send_status(0xFE,
+    can_send_status(bat_pack.HI_temp_c,
     	bat_pack.SOC_percent,
     	bat_pack.status,
     	0,0,0);
@@ -206,22 +206,10 @@ int main(void)
     //will throw a BMS_FAULT. If that is the case, we'll need to change it back to how
     //it was.
     //We can probably get away with no bootup. I did have some odd issues with code outside of the while loop, but we'll see. 
-<<<<<<< Updated upstream
-    //Even if something throws a fault outside of the while loop, cant we still set the mode to BMS_FAULT to the same effect? 
+
     
     CyWdtStart(CYWDT_1024_TICKS, CYWDT_LPMODE_NOCHANGE);
-    
-    OK_SIG_Write(1); 
-    CyDelay(500); 
-    OK_SIG_Write(0); 
-    
-    while(1){
-    }
-    
-    
-=======
     //Even if something throws a fault outside of the while loop, cant we still set the mode to BMS_FAULT to the same effect?   
->>>>>>> Stashed changes
     
     CyGlobalIntEnable; //Enable global interrupts. 
 
@@ -286,8 +274,15 @@ int main(void)
 
                 //Set lower accuracy (higher speed) for temp measurement
                 set_adc_mode(MD_NORMAL); 
-                get_temps();     //update temperatures from packs
-                check_temps();   //parse temps
+                if(counter < TEMP_LOOP_DIVISION){
+                    get_temps(counter*TEMPS_PER_LOOP, (counter + 1)*TEMPS_PER_LOOP);     //update temperatures from packs
+                    counter++;
+                } else {
+                    get_temps(counter*TEMPS_PER_LOOP, TEMPS_PER_LTC);
+                    sort_temps();    //sort temps in to bat pack
+                    check_temps();   //parse temps
+                    counter = 0; 
+                }
                 
 		        //double SOC;
                 //SOC = SOC_estimation(double prev_time_interval, voltage, current);
@@ -330,7 +325,7 @@ int main(void)
                 break;
         }
         process_event();
-        reset_wdt(); 
+        CyWdtClear(); 
         //debug_balance(); 
         CyDelay(system_interval);
     }

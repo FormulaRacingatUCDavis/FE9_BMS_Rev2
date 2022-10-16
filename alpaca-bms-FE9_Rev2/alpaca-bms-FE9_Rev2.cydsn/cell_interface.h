@@ -167,7 +167,8 @@ typedef struct
 void cell_interface_init(); 
 void set_adc_mode(uint8_t adc_mode);
 
-void get_temps();
+void get_temps(uint8_t start_sel, uint8_t end_sel);
+void sort_temps();
 void get_voltages();
 void open_wire_check(); 
 

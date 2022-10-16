@@ -48,6 +48,7 @@ volatile uint8_t bat_err_index_loop;
 // End of copy
 BAT_PACK_t bat_pack;
 uint8_t spi_error_counter[N_OF_LTC];   //stores the number of SPI communication errors for each LTC
+uint16_t temps[N_OF_LTC][TEMPS_PER_LTC];   //store all temps in matrix
 
 
 //initialize important stuff
@@ -105,14 +106,13 @@ void get_voltages(){
     CyDelay(1);
 }
 
-void get_temps(){
+void get_temps(uint8_t start_sel, uint8_t end_sel){
     SPI_ClearFIFO();
     
-    uint16_t temps[N_OF_LTC][TEMPS_PER_LTC];   //store all temps in matrix
     uint8_t select;
     uint8_t ltc_addr;
     
-    for(select = 0; select < TEMPS_PER_LTC; select++){       //for each mux pin
+    for(select = start_sel; select < end_sel; select++){       //for each mux pin
         for(ltc_addr = 0; ltc_addr < N_OF_LTC; ltc_addr++){  //for each LTC
             LTC6811_set_cfga_mux(ltc_addr, select);             //set tx_cfga variable
             LTC6811_wrcfga(ltc_addr);                           //write to LTC with wrcfga
@@ -130,7 +130,12 @@ void get_temps(){
         }
     }
     
+    
+}
+
+void sort_temps(){
     //sort temps into bat_pack 
+    uint8_t ltc_addr; 
     for(uint8_t pack = 0; pack < N_OF_SUBPACK; pack++){
         uint8_t cell_temp_counter = 0;
         uint8_t board_temp_counter = 0; 

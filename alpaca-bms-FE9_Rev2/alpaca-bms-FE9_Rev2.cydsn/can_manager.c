@@ -114,7 +114,7 @@ void can_send_volt(
 } // can_send_volt()
 
 
-void can_send_status(volatile uint8_t name,
+void can_send_status(volatile uint8_t hi_temp_c,
                     volatile uint8_t SOC_P,
                     volatile uint16_t status,
                     volatile uint8_t stack,
@@ -125,7 +125,7 @@ void can_send_status(volatile uint8_t name,
 //16 BMS Status bits (error flags)
 //16 Number of charge cycles
 //16 Pack balance (delta) mV
-    PCAN_TX_DATA_BYTE1(PCAN_TX_MAILBOX_status) = name;
+    PCAN_TX_DATA_BYTE1(PCAN_TX_MAILBOX_status) = hi_temp_c;
     PCAN_TX_DATA_BYTE2(PCAN_TX_MAILBOX_status) = (uint8_t)(SOC_P/10)<<4 | (uint8_t)(SOC_P%10);
     PCAN_TX_DATA_BYTE3(PCAN_TX_MAILBOX_status) = HI8(status);
     PCAN_TX_DATA_BYTE4(PCAN_TX_MAILBOX_status) = LO8(status);
