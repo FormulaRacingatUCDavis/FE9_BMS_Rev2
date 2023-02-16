@@ -96,15 +96,8 @@ int SOC_LUT[240] =  {
 };
 
 void init(void){   //initialize modules
-<<<<<<< Updated upstream
     FTDI_UART_Start();
     PIC18_UART_Start();
-=======
-    //FTDI_UART_Start();
-    //PIC18_UART_Start();
-
-    //initialize CAN
->>>>>>> Stashed changes
     can_init();
     cell_interface_init(); 
     pwm_init(); 
@@ -115,7 +108,6 @@ void init(void){   //initialize modules
 
 void process_event(){
     CyGlobalIntDisable
-<<<<<<< Updated upstream
     //CAN doesn't seem to work without delay. For FE10 can be reduced to one message instead of 3
     CyDelay(50);
     can_send_status(0);
@@ -127,32 +119,6 @@ void process_event(){
     //dump BMS data over uart
     send_uart_data();
     
-=======
-    //Old code: small delay(idk why)
-    //CyDelay(50);
-    can_send_status(bat_pack.HI_temp_c,
-    	bat_pack.SOC_percent,
-    	bat_pack.status,
-    	bat_pack.HI_temp_board_c,
-        0,0);
-    CyDelay(50);
-    // send voltage   
-    //can_send_volt(bat_pack.LO_voltage, bat_pack.HI_voltage, bat_pack.voltage);
-    //CyDelay(50);
-    
-    // TEST_DAY_1
-    //send temp only if within reasonable range from last temperature
-
-    //TODO: rewrite this for dynamic number of subpacks? 
-    /*can_send_temp(bat_pack.subpacks,
-			bat_pack.HI_temp_subpack,
-			bat_pack.HI_temp_c);
-    */
-    
-    //TODO: current will be sent by PEI board
-    CyDelay(50);
-
->>>>>>> Stashed changes
     CyGlobalIntEnable;
 }
 
@@ -204,13 +170,6 @@ void process_failure(){
 
 int main(void)
  {  //SEE ADOW ON DATASHEET PAGE 33
-<<<<<<< Updated upstream
-
-=======
-   
-    
-    
->>>>>>> Stashed changes
     //In old code, the loop had a BMS_BOOTUP case, but we're doin it all before it
     //goes into the while loop. I am assuming that nothing in the initialization process
     //will throw a BMS_FAULT. If that is the case, we'll need to change it back to how
@@ -224,7 +183,6 @@ int main(void)
     CyGlobalIntEnable; //Enable global interrupts. 
 
     init();   //initialize modules
-    
     set_pwm(); //set PWM values for fans & pump
     
     //Initialize state machine
@@ -253,8 +211,13 @@ int main(void)
             
                 //Make sure OK signal is high
                 OK_SIG_Write(1);
+                
+                set_adc_mode(MD_FILTERED);  
+                get_voltages();     //update voltages from packs
+                check_voltages();   //parse voltages
 
-                 
+                //CODE FOR WEIRD HACKY CELL BALANCING
+                /*
                 if(counter2 < 30){
                     disable_cell_balancing();
                     set_adc_mode(MD_FILTERED);  
@@ -268,7 +231,7 @@ int main(void)
                 counter2++;
                 if (counter2 > 100){
                     counter2 = 0; 
-                }
+                }*/
                 
                 
                 //open_wire_check(); 
