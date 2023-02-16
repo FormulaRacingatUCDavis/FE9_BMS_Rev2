@@ -18,9 +18,7 @@
 #include "time.h"
 #include "pwm.h"
 #include "cyapicallbacks.h"
-
-
-
+#include "FTDI.h"
 
 
 //The old code had many more BMS modes, are we ever going to need that?
@@ -98,55 +96,29 @@ int SOC_LUT[240] =  {
 };
 
 void init(void){   //initialize modules
-    //FTDI_UART_Start();
-    //PIC18_UART_Start();
-    //USB_Start(0, USB_5V_OPERATION);
-    //USB_CDC_Init();
-
-    //initialize CAN
+    FTDI_UART_Start();
+    PIC18_UART_Start();
     can_init();
-    
-    //initialize cell interface
     cell_interface_init(); 
-    
-    //Initialize and enable radiator fan, water pump, and accumulator fan PWM modules
     pwm_init(); 
     
     // Initialize the Kalman Filter variables
     //init_kalman();
 }
 
-void reset_wdt(){
-    WDT_Rst_Write(1); 
-    CyDelay(20); 
-    WDT_Rst_Write(0); 
-}
-
 void process_event(){
     CyGlobalIntDisable
-    //Old code: small delay(idk why)
+    //CAN doesn't seem to work without delay. For FE10 can be reduced to one message instead of 3
     CyDelay(50);
-    can_send_status(bat_pack.HI_temp_c,
-    	bat_pack.SOC_percent,
-    	bat_pack.status,
-    	0,0,0);
+    can_send_status(0);
+    CyDelay(50); 
+    can_send_volt();
     CyDelay(50);
-    // send voltage   
-    can_send_volt(bat_pack.LO_voltage, bat_pack.HI_voltage, bat_pack.voltage);
-    CyDelay(50);
+    can_send_temp();
     
-    // TEST_DAY_1
-    //send temp only if within reasonable range from last temperature
-
-    //TODO: rewrite this for dynamic number of subpacks? 
-    can_send_temp(bat_pack.subpacks,
-			bat_pack.HI_temp_subpack,
-			bat_pack.HI_temp_c);
+    //dump BMS data over uart
+    send_uart_data();
     
-    
-    //TODO: current will be sent by PEI board
-    CyDelay(50);
-
     CyGlobalIntEnable;
 }
 
@@ -198,8 +170,6 @@ void process_failure(){
 
 int main(void)
  {  //SEE ADOW ON DATASHEET PAGE 33
-    
-    reset_wdt(); 
 
     //In old code, the loop had a BMS_BOOTUP case, but we're doin it all before it
     //goes into the while loop. I am assuming that nothing in the initialization process

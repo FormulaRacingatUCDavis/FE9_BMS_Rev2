@@ -71,18 +71,16 @@ Bytes:
 7: Highest temp
 */
 
-void can_send_temp(volatile BAT_SUBPACK_t ** subpacks,
-    volatile uint8_t high_temp_subpack,
-    volatile uint8_t high_temp)
+void can_send_temp()
 {
     for (unsigned int i = 0; i < 7; i++) {  //works up to 7 subpacks
         uint8_t temp = 0; 
         if(i < N_OF_SUBPACK){  //if subpack[i] exists
-            temp = subpacks[i]->high_temp; 
+            temp = bat_pack.subpacks[i]->high_temp; 
         } 
         PCAN_TX_DATA_BYTE(PCAN_TX_MAILBOX_temp, i) = temp; 
     }    
-    PCAN_TX_DATA_BYTE8(PCAN_TX_MAILBOX_temp) = high_temp;
+    PCAN_TX_DATA_BYTE8(PCAN_TX_MAILBOX_temp) = bat_pack.HI_temp_c;
 
     //This works in the case that the number of subpacks is
 
@@ -91,21 +89,19 @@ void can_send_temp(volatile BAT_SUBPACK_t ** subpacks,
 } // can_send_temp() 
 
 
-void can_send_volt(
-    volatile uint16_t min_voltage,
-    volatile uint16_t max_voltage,
-    volatile uint32_t pack_voltage){
+void can_send_volt(){
+    
     //max and min voltage means the voltage of single cell
-        PCAN_TX_DATA_BYTE1(PCAN_TX_MAILBOX_volt) = HI8(min_voltage);
-        PCAN_TX_DATA_BYTE2(PCAN_TX_MAILBOX_volt) = LO8(min_voltage);
+        PCAN_TX_DATA_BYTE1(PCAN_TX_MAILBOX_volt) = HI8(bat_pack.LO_voltage);
+        PCAN_TX_DATA_BYTE2(PCAN_TX_MAILBOX_volt) = LO8(bat_pack.LO_voltage);
 
-        PCAN_TX_DATA_BYTE3(PCAN_TX_MAILBOX_volt) = HI8(max_voltage);
-        PCAN_TX_DATA_BYTE4(PCAN_TX_MAILBOX_volt) = LO8(max_voltage);
+        PCAN_TX_DATA_BYTE3(PCAN_TX_MAILBOX_volt) = HI8(bat_pack.HI_voltage);
+        PCAN_TX_DATA_BYTE4(PCAN_TX_MAILBOX_volt) = LO8(bat_pack.HI_voltage);
 
-        PCAN_TX_DATA_BYTE5(PCAN_TX_MAILBOX_volt) = 0xFF & (pack_voltage >> 24);
-        PCAN_TX_DATA_BYTE6(PCAN_TX_MAILBOX_volt) = 0xFF & (pack_voltage >> 16);
-        PCAN_TX_DATA_BYTE7(PCAN_TX_MAILBOX_volt) = 0xFF & (pack_voltage >> 8);
-        PCAN_TX_DATA_BYTE8(PCAN_TX_MAILBOX_volt) = 0xFF & (pack_voltage);
+        PCAN_TX_DATA_BYTE5(PCAN_TX_MAILBOX_volt) = 0xFF & (bat_pack.voltage >> 24);
+        PCAN_TX_DATA_BYTE6(PCAN_TX_MAILBOX_volt) = 0xFF & (bat_pack.voltage >> 16);
+        PCAN_TX_DATA_BYTE7(PCAN_TX_MAILBOX_volt) = 0xFF & (bat_pack.voltage >> 8);
+        PCAN_TX_DATA_BYTE8(PCAN_TX_MAILBOX_volt) = 0xFF & (bat_pack.voltage);
 
 
         PCAN_SendMsgvolt();  // Sends Voltage
@@ -114,26 +110,15 @@ void can_send_volt(
 } // can_send_volt()
 
 
-void can_send_status(volatile uint8_t hi_temp_c,
-                    volatile uint8_t SOC_P,
-                    volatile uint16_t status,
-                    volatile uint8_t stack,
-                    volatile uint8_t cell,
-                    volatile uint16_t value16){
+void can_send_status(){
 //8 SOC Percent
-//8 AH used since full charge
+//8 SOC Percent
 //16 BMS Status bits (error flags)
-//16 Number of charge cycles
-//16 Pack balance (delta) mV
-    PCAN_TX_DATA_BYTE1(PCAN_TX_MAILBOX_status) = hi_temp_c;
-    PCAN_TX_DATA_BYTE2(PCAN_TX_MAILBOX_status) = (uint8_t)(SOC_P/10)<<4 | (uint8_t)(SOC_P%10);
-    PCAN_TX_DATA_BYTE3(PCAN_TX_MAILBOX_status) = HI8(status);
-    PCAN_TX_DATA_BYTE4(PCAN_TX_MAILBOX_status) = LO8(status);
-    PCAN_TX_DATA_BYTE5(PCAN_TX_MAILBOX_status) = stack & 0xFF;
-    PCAN_TX_DATA_BYTE6(PCAN_TX_MAILBOX_status) = (cell) & 0xFF;
-    PCAN_TX_DATA_BYTE7(PCAN_TX_MAILBOX_status) = HI8(value16);
-    PCAN_TX_DATA_BYTE8(PCAN_TX_MAILBOX_status) = LO8(value16);
-
+    PCAN_TX_DATA_BYTE1(PCAN_TX_MAILBOX_status) = bat_pack.HI_temp_c;
+    PCAN_TX_DATA_BYTE2(PCAN_TX_MAILBOX_status) = (uint8_t)(bat_pack.SOC_percent/10)<<4 | (uint8_t)(bat_pack.SOC_percent%10);
+    PCAN_TX_DATA_BYTE3(PCAN_TX_MAILBOX_status) = HI8(bat_pack.status);
+    PCAN_TX_DATA_BYTE4(PCAN_TX_MAILBOX_status) = LO8(bat_pack.status);
+    
     PCAN_SendMsgstatus(); // Sends Status
 }
                     

@@ -41,24 +41,9 @@ typedef enum {
 */    
 
 void debug_balance(); 
-
-void can_send_temp(volatile BAT_SUBPACK_t **,
-    uint8_t high_tempNode,
-    uint8_t high_temp);
-
-void can_send_volt(
-    uint16_t min_voltage,
-    uint16_t max_voltage,
-    uint32_t pack_voltage);
-
-//void can_send_current(int16_t battery_current) is now obsolete
-
-void can_send_status(uint8_t name,
-                    uint8_t SOC_P,
-                    uint16_t status,
-                    uint8_t stack,
-                    uint8_t cell,
-                    uint16_t value16);
+void can_send_temp();
+void can_send_volt();
+void can_send_status();
 
 void PCAN_ReceiveMsg_current_Callback();
 void PCAN_ReceiveMsg_vehicle_state_Callback(); 
