@@ -89,6 +89,8 @@ void get_voltages(){
             spi_error_counter[addr] = 0; //no spi error
         }
         
+        CyDelay(1);
+        
         //move voltages into bat_pack
         for(uint8_t cell = 0; cell < CELLS_PER_LTC; cell++){
             uint8_t subpack = addr/IC_PER_PACK;
@@ -187,7 +189,21 @@ void sort_temps(){
     setCellTemp(4, 0, 14600); 
     setCellTemp(1, 14, 14500); 
     setCellTemp(3, 14, 14500); 
-    setCellTemp(1, 16, 14500); 
+    setCellTemp(3, 15, 14500); 
+    
+    //discharge issues
+    setCellTemp(0, 8, 14500);
+    setCellTemp(0, 16, 14500);
+    setCellTemp(1, 8, 14500);
+    setCellTemp(1, 16, 14500);
+    setCellTemp(2, 8, 14500);
+    setCellTemp(2, 16, 14500);
+    setCellTemp(3, 8, 14500);
+    setCellTemp(3, 16, 14500);
+    setCellTemp(4, 8, 14500);
+    setCellTemp(4, 16, 14500);
+    //end discharge issues    
+    
     //setBoardTemp(1, 5, 14400); 
     //setBoardTemp(2, 2, 14700);
     //setBoardTemp(4, 3, 14500); 
@@ -269,8 +285,7 @@ void check_voltages(){
         if (max_voltage < bat_cell[cell].voltage){
             max_voltage = bat_cell[cell].voltage;
         }
-        if(min_voltage > bat_cell[cell].voltage && cell != 95 && cell != 24){ //ignore (3, 23), (1,0) TODO: REMOVE LATER
-            
+        if(min_voltage > bat_cell[cell].voltage){// && cell != 95 && cell != 24){ //ignore (3, 23), (1,0) TODO: REMOVE LATER
             min_voltage = bat_cell[cell].voltage;
         }
         
@@ -496,11 +511,11 @@ void check_temps(){
 
 //make sure no cells will discharge
 void disable_cell_balancing(){
-    uint8_t addr; 
-    for(addr=0; addr<N_OF_LTC; addr++){
-        LTC6811_set_cfga_reset_discharge(addr); 
-        LTC6811_wrcfga(addr); 
-    }    
+    //uint8_t addr; 
+    //for(addr=0; addr<N_OF_LTC; addr++){
+        LTC6811_set_cfga_reset_discharge(0); 
+      //  LTC6811_wrcfga(addr); 
+    //}    
 }
 
 //update LTCs to balance cells too far above minimum voltage

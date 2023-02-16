@@ -407,6 +407,7 @@
       <Data key="8f0ab840-9627-48e7-bd76-29217071ca4f" value="PCAN_Tx" />
       <Data key="74fd9d9d-57ab-46d0-aba2-52fa59594c8a" value="miso" />
       <Data key="264be2d3-9481-494b-8d9c-c1905a45e9cc" value="mosi" />
+      <Data key="288a058b-012b-40dc-b746-d01be97594d3" value="Pin_1" />
       <Data key="532a8961-81c0-41d5-b415-42393f19d457" value="Pin_1" />
       <Data key="09546b02-5be8-411f-8fd0-c9110d7aa20b" value="sclk" />
       <Data key="1425177d-0d0e-4468-8bcc-e638e5509a9b" value="PCAN_Rx" />
@@ -3561,6 +3562,11 @@
         <Data key="Port Format" value="1,7" />
       </Group>
     </Group>
+    <Group key="49155281-7f71-440c-b340-10b85499263b">
+      <Group key="0">
+        <Data key="Port Format" value="15,6" />
+      </Group>
+    </Group>
     <Group key="82916617-2784-4051-b79a-c558c85ae390">
       <Group key="0">
         <Data key="Port Format" value="1,5" />
@@ -3608,7 +3614,7 @@
     </Group>
     <Group key="ed092b9b-d398-4703-be89-cebf998501f6">
       <Group key="0">
-        <Data key="Port Format" value="15,6" />
+        <Data key="Port Format" value="15,7" />
       </Group>
     </Group>
     <Group key="ef71b3b0-51fd-4ace-bf2e-dbb3e0fc1dd5">

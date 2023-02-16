@@ -96,8 +96,15 @@ int SOC_LUT[240] =  {
 };
 
 void init(void){   //initialize modules
+<<<<<<< Updated upstream
     FTDI_UART_Start();
     PIC18_UART_Start();
+=======
+    //FTDI_UART_Start();
+    //PIC18_UART_Start();
+
+    //initialize CAN
+>>>>>>> Stashed changes
     can_init();
     cell_interface_init(); 
     pwm_init(); 
@@ -108,6 +115,7 @@ void init(void){   //initialize modules
 
 void process_event(){
     CyGlobalIntDisable
+<<<<<<< Updated upstream
     //CAN doesn't seem to work without delay. For FE10 can be reduced to one message instead of 3
     CyDelay(50);
     can_send_status(0);
@@ -119,6 +127,32 @@ void process_event(){
     //dump BMS data over uart
     send_uart_data();
     
+=======
+    //Old code: small delay(idk why)
+    //CyDelay(50);
+    can_send_status(bat_pack.HI_temp_c,
+    	bat_pack.SOC_percent,
+    	bat_pack.status,
+    	bat_pack.HI_temp_board_c,
+        0,0);
+    CyDelay(50);
+    // send voltage   
+    //can_send_volt(bat_pack.LO_voltage, bat_pack.HI_voltage, bat_pack.voltage);
+    //CyDelay(50);
+    
+    // TEST_DAY_1
+    //send temp only if within reasonable range from last temperature
+
+    //TODO: rewrite this for dynamic number of subpacks? 
+    /*can_send_temp(bat_pack.subpacks,
+			bat_pack.HI_temp_subpack,
+			bat_pack.HI_temp_c);
+    */
+    
+    //TODO: current will be sent by PEI board
+    CyDelay(50);
+
+>>>>>>> Stashed changes
     CyGlobalIntEnable;
 }
 
@@ -170,7 +204,13 @@ void process_failure(){
 
 int main(void)
  {  //SEE ADOW ON DATASHEET PAGE 33
+<<<<<<< Updated upstream
 
+=======
+   
+    
+    
+>>>>>>> Stashed changes
     //In old code, the loop had a BMS_BOOTUP case, but we're doin it all before it
     //goes into the while loop. I am assuming that nothing in the initialization process
     //will throw a BMS_FAULT. If that is the case, we'll need to change it back to how
@@ -192,10 +232,17 @@ int main(void)
     uint32_t system_interval = 0;
     
     uint8_t counter = 0; 
+    uint8_t counter2 = 0; 
 
     //volatile double prev_time_interval;
 
     while(1) {
+        /*while(PIC18_UART_GetRxBufferSize()){
+            FTDI_UART_PutChar(PIC18_UART_ReadRxData());
+        }
+        
+        PIC18_UART_PutString("Sup bitches\n");*/
+        
         switch(bms_status) {
             case BMS_NORMAL:
                 //Start timer to time normal state
@@ -207,9 +254,22 @@ int main(void)
                 //Make sure OK signal is high
                 OK_SIG_Write(1);
 
-                set_adc_mode(MD_FILTERED);                 
-                get_voltages();     //update voltages from packs
-                check_voltages();   //parse voltages
+                 
+                if(counter2 < 30){
+                    disable_cell_balancing();
+                    set_adc_mode(MD_FILTERED);  
+                    get_voltages();     //update voltages from packs
+                    check_voltages();   //parse voltages
+                } else if (counter2 < 90){
+                    balance_cells();
+                } else {
+                    disable_cell_balancing();
+                }
+                counter2++;
+                if (counter2 > 100){
+                    counter2 = 0; 
+                }
+                
                 
                 //open_wire_check(); 
                 
@@ -226,12 +286,12 @@ int main(void)
                     vcu_state = CHARGING; 
                 }*/
                 
-                if(vcu_state == CHARGING){
-                    balance_cells();
-                } else {
-                    disable_cell_balancing();  //this should be redundant
-                }
-                
+                //if(vcu_state == CHARGING){
+                    //balance_cells();
+                //} else {
+                    //disable_cell_balancing();  //this should be redundant
+                //}
+          
                 /*if(counter < 15){
                     counter++; 
                 } else {
@@ -294,6 +354,7 @@ int main(void)
                 bms_status = BMS_FAULT;
                 break;
         }
+        set_pwm();
         process_event();
         CyWdtClear(); 
         //debug_balance(); 
