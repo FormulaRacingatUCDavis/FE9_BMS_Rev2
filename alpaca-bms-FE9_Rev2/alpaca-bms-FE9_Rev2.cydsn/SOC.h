@@ -9,21 +9,12 @@
  *
  * ========================================
 */
-#ifndef FTDI_H
-#define FTDI_H
+#ifndef SOC_H
+#define SOC_H
 
-#include "project.h"
-#include "data.h"
 #include "cell_interface.h"
 
-#define ESCAPE_CHAR 0x05
-#define FRAME_START 0x01
-#define FRAME_END 0x0A
-
-extern BAT_SUBPACK_t bat_subpack[N_OF_SUBPACK];
-
-void send_byte_with_escape(uint8_t byte);
-void send_uart_data();
+void update_soc();
 
 #endif
 /* [] END OF FILE */

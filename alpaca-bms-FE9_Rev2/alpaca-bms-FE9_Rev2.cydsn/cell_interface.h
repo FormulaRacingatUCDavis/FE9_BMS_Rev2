@@ -16,6 +16,10 @@
 #include <stdint.h>
 #include <project.h>
 #include "data.h"
+#include <can_manager.h>
+#include <LTC6811.h>
+#include <math.h>
+#include <stdlib.h>
 
 #define ERROR_VOLTAGE_LIMIT (4u)
 #define ERROR_TEMPERATURE_LIMIT (4u)
@@ -167,7 +171,8 @@ typedef struct
 void cell_interface_init(); 
 void set_adc_mode(uint8_t adc_mode);
 
-void get_temps(uint8_t start_sel, uint8_t end_sel);
+void get_temps();
+void get_temps_from_to(uint8_t start_sel, uint8_t end_sel);
 void sort_temps();
 void get_voltages();
 void open_wire_check(); 
@@ -189,7 +194,6 @@ uint8_t rawToHumidity(uint16_t raw);
 float32 rawToCelcius(uint16_t raw);
 
 uint8_t bat_health_check();
-void bat_err_add(uint16_t err, uint8_t bad_cell, uint8_t bad_subpack);
 
 #endif
 /* [] END OF FILE */

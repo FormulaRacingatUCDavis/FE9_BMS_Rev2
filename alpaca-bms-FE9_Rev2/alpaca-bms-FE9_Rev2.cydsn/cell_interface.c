@@ -11,44 +11,23 @@
 */
 
 #include <cell_interface.h>
-#include <can_manager.h>
-#include <LTC6811.h>
-#include <math.h>
-#include <stdlib.h>
 
 extern volatile VCU_STATE vcu_state; 
 
-//MUX Indexes:   
-//First LTC on Node: 
-//IC1_ADDRESSES: 0, 2, 4, 6, 8 
-uint8_t CELL_TEMP_INDEXES_IC1[12] = {0, 1, 2, 3, 4, 5, 6, 7, 12, 13, 14, 15};  //cell thermistors
-uint8_t BOARD_TEMP_INDEXES_IC1[3] = {8, 10, 11};                                //board thermistors
-uint8_t HUMIDITY_INDEX_IC1 = 9;                                               //humidity sensors
-uint8_t HUMIDITY_INDEX_PACKS[1] = {0};                                          //subpacks w/ humidity
-
-//Second LTC on Node: 
-//IC2_ADDRESSES: 1, 3, 5, 7, 9 
-uint8_t CELL_TEMP_INDEXES_IC2[12] = {0, 1, 2, 3, 8, 9, 10, 11, 12, 13, 14, 15};  //cell thermistors
-uint8_t BOARD_TEMP_INDEXES_IC2[4] = {4, 5, 6, 7};                               //board thermistors
+BAT_PACK_t bat_pack;
+BAT_SUBPACK_t bat_subpack[N_OF_SUBPACK];
 
 BAT_CELL_t bat_cell[N_OF_CELL];
 BAT_TEMP_t bat_temp[N_OF_TEMP_CELL];
 BAT_TEMP_t board_temp[N_OF_TEMP_BOARD];
 PACK_HUMIDITY_t pack_humidity[N_OF_SUBPACK];
 
-BAT_SUBPACK_t bat_subpack[N_OF_SUBPACK];
-
 volatile uint16_t OW[N_OF_LTC];   //stores binary results of open wire check
 
-volatile BAT_ERR_t bat_err;
-// Copied from old code
-volatile BAT_ERR_t bat_err_array[100];
-volatile uint8_t bat_err_index;
-volatile uint8_t bat_err_index_loop;
-// End of copy
-BAT_PACK_t bat_pack;
 uint8_t spi_error_counter[N_OF_LTC];   //stores the number of SPI communication errors for each LTC
 uint16_t temps[N_OF_LTC][TEMPS_PER_LTC];   //store all temps in matrix
+
+uint8_t counter = 0;  //counter for get_temps
 
 
 //initialize important stuff
@@ -74,6 +53,7 @@ void set_adc_mode(uint8_t adc_mode){
 //reads cell voltages from LTCs
 //stores in bat_pack
 void get_voltages(){
+    set_adc_mode(MD_FILTERED);  //higher accuracy for voltage measurements
     SPI_ClearFIFO();
     
     LTC6811_adcv();  //run ADC conversion (all LTCs)
@@ -108,7 +88,22 @@ void get_voltages(){
     CyDelay(1);
 }
 
-void get_temps(uint8_t start_sel, uint8_t end_sel){
+//gets only a portion of temps each call to speed up main loop
+//fraction of temps set by TEMP_LOOP_DIVISION
+void get_temps(){
+    if(counter < TEMP_LOOP_DIVISION){
+        get_temps_from_to(counter*TEMPS_PER_LOOP, (counter + 1)*TEMPS_PER_LOOP);     //update temperatures from packs
+        counter++;
+    } else {
+        get_temps_from_to(counter*TEMPS_PER_LOOP, TEMPS_PER_LTC);
+        sort_temps();    //sort temps in to bat pack
+        check_temps();   //parse temps
+        counter = 0; 
+    }
+}
+
+void get_temps_from_to(uint8_t start_sel, uint8_t end_sel){
+    set_adc_mode(MD_NORMAL); //lower accuracy for temp measurements
     SPI_ClearFIFO();
     
     uint8_t select;
@@ -131,12 +126,24 @@ void get_temps(uint8_t start_sel, uint8_t end_sel){
             }
         }
     }
-    
-    
 }
 
 void sort_temps(){
     //sort temps into bat_pack 
+    
+    //MUX Indexes:   
+    //First LTC on Node: 
+    //IC1_ADDRESSES: 0, 2, 4, 6, 8 
+    const uint8_t CELL_TEMP_INDEXES_IC1[12] = {0, 1, 2, 3, 4, 5, 6, 7, 12, 13, 14, 15};   //cell thermistors
+    const uint8_t BOARD_TEMP_INDEXES_IC1[3] = {8, 10, 11};                                //board thermistors
+    const uint8_t HUMIDITY_INDEX_IC1 = 9;                                                 //humidity sensors
+    const uint8_t HUMIDITY_INDEX_PACKS[1] = {0};                                          //subpacks w/ humidity
+
+    //Second LTC on Node: 
+    //IC2_ADDRESSES: 1, 3, 5, 7, 9 
+    const uint8_t CELL_TEMP_INDEXES_IC2[12] = {0, 1, 2, 3, 8, 9, 10, 11, 12, 13, 14, 15};  //cell thermistors
+    const uint8_t BOARD_TEMP_INDEXES_IC2[4] = {4, 5, 6, 7};                               //board thermistors
+    
     uint8_t ltc_addr; 
     for(uint8_t pack = 0; pack < N_OF_SUBPACK; pack++){
         uint8_t cell_temp_counter = 0;
@@ -326,16 +333,13 @@ void check_voltages(){
                 if (bat_subpack[subpack].cells[cell]->bad_type == 0){
                     bat_subpack[subpack].under_voltage |= (1u<<cell);
                     bat_pack.status |= CELL_VOLT_UNDER;
-                    bat_err_add(CELL_VOLT_UNDER, bat_subpack[subpack].under_voltage, subpack);
                 } else if (bat_subpack[subpack].cells[cell]->bad_type == 1) {
                     bat_subpack[subpack].over_voltage |= (1u<<cell);
                     bat_pack.status  |= CELL_VOLT_OVER;
-                    bat_err_add(CELL_VOLT_OVER, bat_subpack[subpack].over_voltage, subpack);
                 } else if (bat_subpack[subpack].cells[cell]->bad_type == 2) {
                     // Added case for blown fuse
                     bat_subpack[subpack].fuse_blown|= (1u<<cell);
-                    bat_pack.status  |= FUSE_BLOWN;
-                    bat_err_add(FUSE_BLOWN, bat_subpack[subpack].fuse_blown, subpack);                    
+                    bat_pack.status  |= FUSE_BLOWN;                   
                 }
             }
             total_voltage += bat_subpack[subpack].cells[cell]->voltage; 
@@ -471,39 +475,22 @@ void check_temps(){
     
     bat_pack.HI_temp_board_c = max_temp;
 
-#ifdef BALANCE_ON
-    // Update the battery_pack highest temperature
-    bat_pack.HI_temp_board_c = board_temp[0].temp_c;
-    bat_pack.HI_temp_board_node = 0;
-    
-    for (i = 1; i < N_OF_TEMP_BOARD; i++){
-        if (board_temp[i].temp_c > bat_pack.HI_temp_board_c){
-            bat_pack.HI_temp_board_c = board_temp[i].temp_c;
-            bat_pack.HI_temp_board_node = i / (N_OF_TEMP_BOARD / N_OF_SUBPACK);
-        }    
-    }
-#endif
-
     // update pack of temp error
     for (subpack = 0; subpack < N_OF_SUBPACK; subpack++){
         if (bat_pack.subpacks[subpack]->over_temp_cell != 0){
-            bat_pack.status |= PACK_TEMP_OVER;
-            bat_err_add(PACK_TEMP_OVER, bat_subpack[subpack].over_temp_cell, subpack);  
+            bat_pack.status |= PACK_TEMP_OVER;  
         }
 
         if (bat_pack.subpacks[subpack]->under_temp_cell != 0){
             bat_pack.status  |= PACK_TEMP_UNDER;
-            bat_err_add(PACK_TEMP_UNDER, bat_subpack[subpack].under_temp_cell, subpack);
         }
         
         if (bat_pack.subpacks[subpack]->over_temp_board != 0){
             bat_pack.status |= PACK_TEMP_OVER;
-            bat_err_add(PACK_TEMP_OVER, bat_subpack[subpack].over_temp_board, subpack);
         }
 
         if (bat_pack.subpacks[subpack]->under_temp_board != 0){
             bat_pack.status  |= PACK_TEMP_UNDER;
-            bat_err_add(PACK_TEMP_UNDER, bat_subpack[subpack].under_temp_board, subpack);
         }
     }
     
@@ -539,6 +526,58 @@ void balance_cells(){
     }
     
     //LTC6811_set_cfga_reset_discharge(0); 
+}
+
+void setVoltage(uint8_t pack, uint8_t index, uint16_t raw_voltage){
+    bat_pack.subpacks[pack]->cells[index]->voltage = raw_voltage;
+}
+
+void setCellTemp(uint8_t pack, uint8_t index, uint16_t raw_temp){
+    bat_pack.subpacks[pack]->cell_temps[index]->temp_raw = raw_temp;
+    bat_pack.subpacks[pack]->cell_temps[index]->temp_c = rawToCelcius(raw_temp);
+}
+
+void setBoardTemp(uint8_t pack, uint8_t index, uint16_t raw_temp){
+    bat_pack.subpacks[pack]->board_temps[index]->temp_raw = raw_temp;
+    bat_pack.subpacks[pack]->board_temps[index]->temp_c = rawToCelcius(raw_temp);
+}
+
+void setBoardHum(uint8_t pack, uint8_t index, uint16_t raw_humidity){
+    bat_pack.subpacks[pack]->pack_humidity[index]->humidity_raw = raw_humidity;
+    bat_pack.subpacks[pack]->pack_humidity[index]->humidity = rawToHumidity(raw_humidity);
+  //still need to create rawToRelative function for conversion
+}
+
+float32 rawToCelcius(uint16_t raw){
+    float32 temp = (float32)raw/10000;
+    temp = (1/((1/298.15) + ((1/3428.0)*log(temp/(3-temp))))) - 273.15;
+    
+    return temp;
+}
+
+uint8_t rawToHumidity(uint16_t raw){
+    double humidity = (double)raw/10000;
+    humidity = ((humidity/3.0f)-0.1515f)/0.00636f;
+    return (uint8_t)humidity;
+}
+
+// Also copied from old code, to be edited to fit our use.
+uint8_t bat_health_check(){
+    if (
+        (bat_pack.status & PACK_TEMP_OVER) ||
+        (bat_pack.status & FUSE_BLOWN) ||
+        (bat_pack.status & PACK_TEMP_UNDER) ||
+        //(bat_pack.status & IMBALANCE) || not in use
+        (bat_pack.status & COM_FAILURE) ||
+        (bat_pack.status & ISO_FAULT) || 
+        (bat_pack.status & CELL_VOLT_OVER) ||
+        (bat_pack.status & CELL_VOLT_UNDER)      
+    ){
+        bat_pack.health = FAULT;
+        return 1;
+    }else{
+        return 0;
+    }   
 }
 
 /**
@@ -628,98 +667,5 @@ void mypack_init(){
     bat_pack.SOC_percent = 0;
 }
 
-void setVoltage(uint8_t pack, uint8_t index, uint16_t raw_voltage){
-    bat_pack.subpacks[pack]->cells[index]->voltage = raw_voltage;
-}
-
-void setCellTemp(uint8_t pack, uint8_t index, uint16_t raw_temp){
-    bat_pack.subpacks[pack]->cell_temps[index]->temp_raw = raw_temp;
-    bat_pack.subpacks[pack]->cell_temps[index]->temp_c = rawToCelcius(raw_temp);
-}
-
-void setBoardTemp(uint8_t pack, uint8_t index, uint16_t raw_temp){
-    bat_pack.subpacks[pack]->board_temps[index]->temp_raw = raw_temp;
-    bat_pack.subpacks[pack]->board_temps[index]->temp_c = rawToCelcius(raw_temp);
-}
-
-void setBoardHum(uint8_t pack, uint8_t index, uint16_t raw_humidity){
-    bat_pack.subpacks[pack]->pack_humidity[index]->humidity_raw = raw_humidity;
-    bat_pack.subpacks[pack]->pack_humidity[index]->humidity = rawToHumidity(raw_humidity);
-  //still need to create rawToRelative function for conversion
-}
-
-float32 rawToCelcius(uint16_t raw){
-    float32 temp = (float32)raw/10000;
-    temp = (1/((1/298.15) + ((1/3428.0)*log(temp/(3-temp))))) - 273.15;
-    
-    return temp;
-}
-
-uint8_t rawToHumidity(uint16_t raw){
-    double humidity = (double)raw/10000;
-    humidity = ((humidity/3.0f)-0.1515f)/0.00636f;
-    return (uint8_t)humidity;
-}
-
-// Also copied from old code, to be edited to fit our use.
-uint8_t bat_health_check(){
-    if (
-        (bat_pack.status & PACK_TEMP_OVER) ||
-        (bat_pack.status & FUSE_BLOWN) ||
-        (bat_pack.status & PACK_TEMP_UNDER) ||
-        //(bat_pack.status & IMBALANCE) || not in use
-        (bat_pack.status & COM_FAILURE) ||
-        (bat_pack.status & ISO_FAULT) || 
-        (bat_pack.status & CELL_VOLT_OVER) ||
-        (bat_pack.status & CELL_VOLT_UNDER)      
-    ){
-        bat_pack.health = FAULT;
-        return 1;
-    }else{
-        return 0;
-    }   
-}
-
-void bat_err_add(uint16_t err, uint8_t bad_cell, uint8_t bad_subpack){
-    bat_pack.health = FAULT; 
-    /* 
-    * Sirius: I know this set-to-fault is redundant with the check in bat_health_check(), 
-    * but just want to have an extra assurance for FE4 Competition because we haven't run this new firmware
-    * on track
-    */
-    
-    uint8_t i=0;
-    // check array, dont duplicate
-    if (bat_err_index_loop){
-        for (i=0;i<100;i++){
-            if (err == bat_err_array[i].err
-             || bad_cell == bat_err_array[i].bad_cell
-             || bad_subpack == bat_err_array[i].bad_node){
-                return;
-            }
-        }
-    }else{
-        for (i=0;i<bat_err_index;i++){
-            if (err == bat_err_array[i].err
-             || bad_cell == bat_err_array[i].bad_cell
-             || bad_subpack == bat_err_array[i].bad_node){
-                return;
-            }
-        }
-    }
-
-    if (bat_err_index>=100){
-        bat_err_index_loop = 1;
-        bat_err_index = 0;
-    }else{
-        bat_err_index++;
-    }
-
-    bat_err_array[bat_err_index].err = err;
-    bat_err_array[bat_err_index].bad_cell = bad_cell;
-    bat_err_array[bat_err_index].bad_node = bad_subpack;
-
-    return;
-}
 // End of copy
 /* [] END OF FILE */
