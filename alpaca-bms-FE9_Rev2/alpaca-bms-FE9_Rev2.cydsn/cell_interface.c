@@ -191,14 +191,14 @@ void sort_temps(){
         
     }
     
-    //might as well
+    //bad thermistors
     setCellTemp(3, 5, 14500); 
     setCellTemp(4, 0, 14600); 
     setCellTemp(1, 14, 14500); 
     setCellTemp(3, 14, 14500); 
     setCellTemp(3, 15, 14500); 
     
-    //discharge issues
+    //wtf is wrong with index 8 and 16
     setCellTemp(0, 8, 14500);
     setCellTemp(0, 16, 14500);
     setCellTemp(1, 8, 14500);
@@ -209,16 +209,7 @@ void sort_temps(){
     setCellTemp(3, 16, 14500);
     setCellTemp(4, 8, 14500);
     setCellTemp(4, 16, 14500);
-    //end discharge issues    
-    
-    //setBoardTemp(1, 5, 14400); 
-    //setBoardTemp(2, 2, 14700);
-    //setBoardTemp(4, 3, 14500); 
-    //setBoardTemp(4, 4, 14500); 
-    //setBoardTemp(4, 5, 14500); 
-    //setBoardTemp(4, 6, 14500); 
-    
-    CyDelay(1); 
+    //end wtf    
 }
 
 void open_wire_check(){
