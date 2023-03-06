@@ -98,14 +98,8 @@ void init(void){   //initialize modules
 
 void can_tasks(){
     CyGlobalIntDisable;
-    //CAN doesn't seem to work without delay. For FE10 can be reduced to one message instead of 3
-    CyDelay(50);
-    can_send_status(0);
-    CyDelay(50); 
-    can_send_volt();
-    CyDelay(50);
-    can_send_temp();
-    
+    can_send_status();
+
     //dump BMS data over uart
     send_uart_data();
     

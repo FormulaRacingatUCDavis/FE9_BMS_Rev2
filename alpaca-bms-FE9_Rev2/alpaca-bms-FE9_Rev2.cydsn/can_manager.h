@@ -40,7 +40,6 @@ typedef enum {
    for n in range [0, 4] to (1u) in lines 78 - 82 in file PCAN.h
 */    
 
-void debug_balance(); 
 void can_send_temp();
 void can_send_volt();
 void can_send_status();

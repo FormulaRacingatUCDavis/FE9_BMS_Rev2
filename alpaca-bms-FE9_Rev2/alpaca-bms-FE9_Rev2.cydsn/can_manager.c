@@ -26,28 +26,6 @@ The datatype consists of three bytes:
 3. lower byte of data
 */
 
-void debug_balance(){
-    PCAN_TX_MSG msg; 
-    PCAN_DATA_BYTES_MSG data;
-    
-    msg.dlc = 8; 
-    msg.msg = &data; 
-    msg.ide = PCAN_STANDARD_MESSAGE; 
-    msg.rtr = PCAN_STANDARD_MESSAGE; 
-    msg.irq = 0; 
-    
-    uint8_t cell_counter = 0; 
-    
-    for(uint8_t i = 0; i < N_OF_CELL/8; i++){
-        msg.id = 0x420 + i; 
-        for(uint8_t j = 0; j < 8; j++){
-            data.byte[j] = (bat_cell[cell_counter].voltage/100) - 230;   
-            cell_counter++; 
-        }
-        PCAN_SendMsg(&msg); 
-        CyDelay(10); 
-    }
-}
 
 /* PCAN_SendMsgx() function associations
 0. PCAN_SendMsg0() => Sends Temps
