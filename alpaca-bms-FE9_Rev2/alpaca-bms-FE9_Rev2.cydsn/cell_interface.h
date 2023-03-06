@@ -120,15 +120,12 @@ typedef struct
 
 typedef struct
 {
-  volatile BAT_CELL_t *cells[N_OF_CELL / N_OF_SUBPACK]; // Cells per subpack
-  volatile BAT_TEMP_t *cell_temps[N_OF_TEMP_CELL / N_OF_SUBPACK]; // 14 Thermistors per subpack (measuring cells)
-  volatile BAT_TEMP_t *board_temps[N_OF_TEMP_BOARD / N_OF_SUBPACK];
-  volatile PACK_HUMIDITY_t *pack_humidity[HUMIDITY_SENSORS_PER_PACK];
+  volatile BAT_CELL_t *cells[CELLS_PER_SUBPACK]; // Cells per subpack
+  volatile BAT_TEMP_t *cell_temps[CELL_TEMPS_PER_PACK]; // 14 Thermistors per subpack (measuring cells)
   volatile uint8 high_temp;
   volatile uint32_t over_temp_cell;
   volatile uint32_t under_temp_cell;
   volatile uint32_t over_voltage;
-// added fuse_blown
   volatile uint32_t fuse_blown; 
   volatile uint32_t under_temp_board;
   volatile uint32_t over_temp_board;
@@ -142,21 +139,19 @@ typedef struct
   volatile BAT_SUBPACK_t *subpacks[N_OF_SUBPACK];
   volatile uint32_t voltage;
   volatile int16_t current;
-  volatile uint8_t fuse_fault;
+  //volatile uint8_t fuse_fault;
   volatile uint16_t status;
   volatile BAT_HEALTH health;
-  volatile uint32_t current_charge;
+  //volatile uint32_t current_charge;
   volatile uint8_t SOC_percent;
-  volatile uint8_t SOC_cali_flag;
+  //volatile uint8_t SOC_cali_flag;
   volatile uint8_t HI_temp_c;
-  volatile uint8_t HI_temp_board_c;
-  volatile uint8_t HI_temp_board_subpack;
   volatile uint8_t HI_temp_subpack;
   volatile uint8_t HI_temp_subpack_index;
   volatile uint8_t HI_temp_raw;
   volatile uint16_t HI_voltage;
   volatile uint16_t LO_voltage;
-  volatile uint16_t time_stamp;
+  //volatile uint16_t time_stamp;
   volatile uint16_t spi_error_address;    
 }BAT_PACK_t;
 

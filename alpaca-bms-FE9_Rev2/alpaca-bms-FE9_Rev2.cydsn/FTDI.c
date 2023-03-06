@@ -24,10 +24,6 @@ void send_uart_data(){
             send_byte_with_escape(HI8(v));
             send_byte_with_escape(LO8(v));
         }
-        for(j = 0; j < BOARD_TEMPS_PER_PACK; j++){
-            uint8_t t = (uint8_t)(bat_subpack[i].board_temps[j]->temp_c);
-            send_byte_with_escape(t);
-        }
         for(j = 0; j < CELL_TEMPS_PER_PACK; j++){
             uint8_t t = (uint8_t)(bat_subpack[i].cell_temps[j]->temp_c);
             send_byte_with_escape(t);

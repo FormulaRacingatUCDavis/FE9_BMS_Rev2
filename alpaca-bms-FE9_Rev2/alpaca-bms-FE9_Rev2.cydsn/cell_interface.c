@@ -19,7 +19,6 @@ BAT_SUBPACK_t bat_subpack[N_OF_SUBPACK];
 
 BAT_CELL_t bat_cell[N_OF_CELL];
 BAT_TEMP_t bat_temp[N_OF_TEMP_CELL];
-BAT_TEMP_t board_temp[N_OF_TEMP_BOARD];
 PACK_HUMIDITY_t pack_humidity[N_OF_SUBPACK];
 
 volatile uint16_t OW[N_OF_LTC];   //stores binary results of open wire check
@@ -129,87 +128,20 @@ void get_temps_from_to(uint8_t start_sel, uint8_t end_sel){
 }
 
 void sort_temps(){
-    //sort temps into bat_pack 
-    
-    //MUX Indexes:   
-    //First LTC on Node: 
-    //IC1_ADDRESSES: 0, 2, 4, 6, 8 
-    const uint8_t CELL_TEMP_INDEXES_IC1[12] = {0, 1, 2, 3, 4, 5, 6, 7, 12, 13, 14, 15};   //cell thermistors
-    const uint8_t BOARD_TEMP_INDEXES_IC1[3] = {8, 10, 11};                                //board thermistors
-    const uint8_t HUMIDITY_INDEX_IC1 = 9;                                                 //humidity sensors
-    const uint8_t HUMIDITY_INDEX_PACKS[1] = {0};                                          //subpacks w/ humidity
-
-    //Second LTC on Node: 
-    //IC2_ADDRESSES: 1, 3, 5, 7, 9 
-    const uint8_t CELL_TEMP_INDEXES_IC2[12] = {0, 1, 2, 3, 8, 9, 10, 11, 12, 13, 14, 15};  //cell thermistors
-    const uint8_t BOARD_TEMP_INDEXES_IC2[4] = {4, 5, 6, 7};                               //board thermistors
+    //sort temps into bat_pack                             //board thermistors
     
     uint8_t ltc_addr; 
     for(uint8_t pack = 0; pack < N_OF_SUBPACK; pack++){
-        uint8_t cell_temp_counter = 0;
-        uint8_t board_temp_counter = 0; 
         uint8_t i;
         uint16_t raw_temp;
-        uint16_t raw_humidity;
         
         ltc_addr = pack*IC_PER_PACK;
         //IC1 cell temps
-        for(i = 0; i < sizeof(CELL_TEMP_INDEXES_IC1); i++){
-            raw_temp = temps[ltc_addr][CELL_TEMP_INDEXES_IC1[i]];
-            setCellTemp(pack, cell_temp_counter, raw_temp);
-            cell_temp_counter++;
-        }
-        
-        //IC1 board temps
-        for(i = 0; i < sizeof(BOARD_TEMP_INDEXES_IC1); i++){
-            raw_temp = temps[ltc_addr][BOARD_TEMP_INDEXES_IC1[i]];
-            setBoardTemp(pack, board_temp_counter, raw_temp);
-            board_temp_counter++;
-        }
-        //IC1 Humidity Sensor
-        for(uint8_t i=0; i < sizeof(HUMIDITY_INDEX_PACKS);i++){ //see if pack matches hum_index_pack
-            if (pack==HUMIDITY_INDEX_PACKS[i]){
-                raw_humidity=temps[ltc_addr][HUMIDITY_INDEX_IC1];
-                setBoardHum(pack,0,raw_humidity);
-            }
-        }
-                
-        ltc_addr++;
-        //IC2 cell temps
-        for(i = 0; i < sizeof(CELL_TEMP_INDEXES_IC2); i++){
-            raw_temp = temps[ltc_addr][CELL_TEMP_INDEXES_IC2[i]];
-            setCellTemp(pack, cell_temp_counter, raw_temp);
-            cell_temp_counter++;
-        }
-        
-        //IC2 board temps
-        for(i = 0; i < sizeof(BOARD_TEMP_INDEXES_IC2); i++){
-            raw_temp = temps[ltc_addr][BOARD_TEMP_INDEXES_IC2[i]];
-            setBoardTemp(pack, board_temp_counter, raw_temp);
-            board_temp_counter++;
-        }
-        
-    }
-    
-    //bad thermistors
-    setCellTemp(3, 5, 14500); 
-    setCellTemp(4, 0, 14600); 
-    setCellTemp(1, 14, 14500); 
-    setCellTemp(3, 14, 14500); 
-    setCellTemp(3, 15, 14500); 
-    
-    //wtf is wrong with index 8 and 16
-    setCellTemp(0, 8, 14500);
-    setCellTemp(0, 16, 14500);
-    setCellTemp(1, 8, 14500);
-    setCellTemp(1, 16, 14500);
-    setCellTemp(2, 8, 14500);
-    setCellTemp(2, 16, 14500);
-    setCellTemp(3, 8, 14500);
-    setCellTemp(3, 16, 14500);
-    setCellTemp(4, 8, 14500);
-    setCellTemp(4, 16, 14500);
-    //end wtf    
+        for(i = 0; i < CELL_TEMPS_PER_LTC; i++){
+            raw_temp = temps[ltc_addr][i];
+            setCellTemp(pack, i, raw_temp);
+        }  
+    }  
 }
 
 void open_wire_check(){
@@ -371,27 +303,7 @@ void check_temps(){
             }
         }
     }
-    
-    if(vcu_state == CHARGING){ 
-        // check board temps
-        for (cell = 0; cell < N_OF_TEMP_BOARD; cell++){
-            temp_c = board_temp[cell].temp_c;
-            if (temp_c > (uint8_t)CRITICAL_TEMP_BOARD_H){
-                //if over temperature
-                board_temp[cell].bad_counter++;
-                board_temp[cell].bad_type = 1;
-            }else if (temp_c < (uint8_t)CRITICAL_TEMP_BOARD_L){
-                // if under temperature
-                board_temp[cell].bad_counter++;
-                board_temp[cell].bad_type = 0;
-            }else{
-                //if there is no error
-                if (board_temp[cell].bad_counter > 0){
-                    board_temp[cell].bad_counter--;
-                }           
-            }
-        }
-    }
+   
    
     // Update subpacks
     for (subpack = 0; subpack < N_OF_SUBPACK; subpack++){
@@ -401,15 +313,6 @@ void check_temps(){
                     bat_subpack[subpack].under_temp_cell |= (1u<<temp);
                 }else{
                     bat_subpack[subpack].over_temp_cell |= (1u<<temp);
-                }
-            }
-        }
-        for (temp = 0; temp < (BOARD_TEMPS_PER_PACK); temp++){
-            if (bat_subpack[subpack].board_temps[temp]->bad_counter > ERROR_TEMPERATURE_LIMIT){
-                if (bat_subpack[subpack].board_temps[temp]->bad_type == 0){
-                    bat_subpack[subpack].under_temp_board |= (1u<<temp);
-                }else{
-                    bat_subpack[subpack].over_temp_board |= (1u<<temp);
                 }
             }
         }
@@ -445,26 +348,6 @@ void check_temps(){
         
         bat_pack.subpacks[subpack]->high_temp = max_temp;
     }
-    
-    // update max temps
-    bat_pack.HI_temp_board_c = 0;
-    
-    max_temp = 0;
-    for (subpack = 0; subpack < N_OF_SUBPACK; subpack++){
-        
-        for (i = 0; i < (BOARD_TEMPS_PER_PACK); i++){
-            temp = bat_pack.subpacks[subpack]->board_temps[i]->temp_c;
-       
-            if(temp < TEMP_IGNORE_LIMIT){
-                //update subpack max temp
-                if (max_temp < temp){
-                    max_temp = bat_pack.subpacks[subpack]->board_temps[i]->temp_c;
-                }
-            }
-        }        
-    }
-    
-    bat_pack.HI_temp_board_c = max_temp;
 
     // update pack of temp error
     for (subpack = 0; subpack < N_OF_SUBPACK; subpack++){
@@ -473,14 +356,6 @@ void check_temps(){
         }
 
         if (bat_pack.subpacks[subpack]->under_temp_cell != 0){
-            bat_pack.status  |= PACK_TEMP_UNDER;
-        }
-        
-        if (bat_pack.subpacks[subpack]->over_temp_board != 0){
-            bat_pack.status |= PACK_TEMP_OVER;
-        }
-
-        if (bat_pack.subpacks[subpack]->under_temp_board != 0){
             bat_pack.status  |= PACK_TEMP_UNDER;
         }
     }
@@ -526,17 +401,6 @@ void setVoltage(uint8_t pack, uint8_t index, uint16_t raw_voltage){
 void setCellTemp(uint8_t pack, uint8_t index, uint16_t raw_temp){
     bat_pack.subpacks[pack]->cell_temps[index]->temp_raw = raw_temp;
     bat_pack.subpacks[pack]->cell_temps[index]->temp_c = rawToCelcius(raw_temp);
-}
-
-void setBoardTemp(uint8_t pack, uint8_t index, uint16_t raw_temp){
-    bat_pack.subpacks[pack]->board_temps[index]->temp_raw = raw_temp;
-    bat_pack.subpacks[pack]->board_temps[index]->temp_c = rawToCelcius(raw_temp);
-}
-
-void setBoardHum(uint8_t pack, uint8_t index, uint16_t raw_humidity){
-    bat_pack.subpacks[pack]->pack_humidity[index]->humidity_raw = raw_humidity;
-    bat_pack.subpacks[pack]->pack_humidity[index]->humidity = rawToHumidity(raw_humidity);
-  //still need to create rawToRelative function for conversion
 }
 
 float32 rawToCelcius(uint16_t raw){
@@ -599,13 +463,6 @@ void mypack_init(){
         bat_temp[temp].bad_type = 0;
         bat_temp[temp].type = THERM_CELL;
     }
-    for (temp = 0; temp < N_OF_TEMP_BOARD; temp++){
-        board_temp[temp].temp_c = (uint8_t)temp;
-        board_temp[temp].temp_raw = (uint16_t)temp;
-        board_temp[temp].bad_counter = 0;
-        board_temp[temp].bad_type = 0;
-        board_temp[temp].type = THERM_BOARD;
-    }
     
     //initialize humidity values
     for (uint8_t i=0; i<N_OF_SUBPACK;i++){
@@ -626,10 +483,6 @@ void mypack_init(){
         for (temp = 0; temp < (CELL_TEMPS_PER_PACK); temp++){
             bat_subpack[subpack].cell_temps[temp] = &(bat_temp[subpack*(CELL_TEMPS_PER_PACK)+temp]);
         }
-        for (temp = 0; temp < (BOARD_TEMPS_PER_PACK); temp++){
-            bat_subpack[subpack].board_temps[temp] = &(board_temp[subpack*(BOARD_TEMPS_PER_PACK)+temp]);
-        }
-        bat_subpack[subpack].pack_humidity[0]= &pack_humidity[subpack];
         
         bat_subpack[subpack].over_temp_cell = 0;
         bat_subpack[subpack].under_temp_cell = 0;
@@ -646,15 +499,15 @@ void mypack_init(){
     //initialize pack values
     bat_pack.voltage = 0;
     bat_pack.current = 0;
-    bat_pack.fuse_fault = 0;
+    //bat_pack.fuse_fault = 0;
     bat_pack.status = 0; 
     bat_pack.health = NORMAL;
-    bat_pack.SOC_cali_flag =0;
+    //bat_pack.SOC_cali_flag =0;
     bat_pack.HI_temp_c = 0;
     bat_pack.HI_temp_raw = 0;
     bat_pack.HI_voltage = 0;
     bat_pack.LO_voltage = 0;
-    bat_pack.time_stamp = 0;
+    //bat_pack.time_stamp = 0;
     bat_pack.SOC_percent = 0;
 }
 
