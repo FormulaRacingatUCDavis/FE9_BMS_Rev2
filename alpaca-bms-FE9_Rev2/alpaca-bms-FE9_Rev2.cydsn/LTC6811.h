@@ -168,7 +168,7 @@ void LTC6811_init_cfg();
 void LTC6811_wakeup();
 
 void LTC6811_set_cfga_mux(uint8_t addr, uint8_t select);
-void LTC6811_set_cfga_reset_discharge(uint8_t addr);
+void LTC6811_set_cfga_reset_discharge();
 void LTC6811_set_cfga_discharge_cell(uint8_t addr, uint8_t cell_num);
 void LTC6811_wrcfga(uint8_t lt_addr);//, uint8_t select, uint8_t orig_cfga_data[5]);
 //void LTC6811_wrcfga_balance(uint8_t lt_addr);//, uint8_t cfga_data[5]);

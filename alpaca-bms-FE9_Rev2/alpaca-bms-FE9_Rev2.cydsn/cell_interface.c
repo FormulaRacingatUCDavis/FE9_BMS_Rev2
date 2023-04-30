@@ -59,30 +59,19 @@ void get_voltages(){
     CyDelay(5);
     
     uint16_t cell_voltages[CELLS_PER_LTC];  //temporarily store LTC voltages
+    uint8_t addr, result; 
     
-    uint8_t addr; 
     for(addr = 0; addr < N_OF_LTC; addr++){
-        if(LTC6811_rdcv_ltc(addr, cell_voltages)){
-            spi_error_counter[addr]++;   //spi error
-        } else {
-            spi_error_counter[addr] = 0; //no spi error
-        }
+        result = LTC6811_rdcv_ltc(addr, cell_voltages);
+        update_spi_errors(addr, result);
         
         CyDelay(1);
         
         //move voltages into bat_pack
         for(uint8_t cell = 0; cell < CELLS_PER_LTC; cell++){
-            uint8_t subpack = addr/IC_PER_PACK;
-            uint8_t ic_num = addr%IC_PER_PACK;
-            uint8_t index = ic_num*CELLS_PER_LTC + cell;
-            setVoltage(subpack, index, cell_voltages[cell]);
+            setVoltage_addr(addr, cell, cell_voltages[cell]);
         }
     }
-    
-    //probably blown fuse
-    uint16_t voltage = bat_subpack[1].voltage/CELLS_PER_SUBPACK; //(bat_subpack[1].cells[21]->voltage + bat_subpack[1].cells[22]->voltage)/2;
-    setVoltage(1, 21, voltage); 
-    setVoltage(1, 22, voltage);
     
     CyDelay(1);
 }
@@ -101,6 +90,7 @@ void get_temps(){
     }
 }
 
+//collects subset of temperatures so voltages can be collected more often
 void get_temps_from_to(uint8_t start_sel, uint8_t end_sel){
     set_adc_mode(MD_NORMAL); //lower accuracy for temp measurements
     SPI_ClearFIFO();
@@ -149,7 +139,7 @@ void open_wire_check(){
     
     volatile uint16_t CELL[2][N_OF_LTC][CELLS_PER_LTC];   //stores pull up and pull down cell voltage readings
     volatile int16_t CELL_DELTA[N_OF_LTC][CELLS_PER_LTC]; 
-    uint8_t addr; 
+    uint8_t addr, result; 
     
     //From page 34 of datasheet: 
     
@@ -164,11 +154,8 @@ void open_wire_check(){
         } 
         
         for(addr = 0; addr < N_OF_LTC; addr++){
-            if(LTC6811_rdcv_ltc(addr, CELL[pup][addr])){
-                spi_error_counter[addr]++;   //spi error
-            } else {
-                spi_error_counter[addr] = 0; //no spi error
-            }
+            result = LTC6811_rdcv_ltc(addr, CELL[pup][addr]);
+            update_spi_errors(addr, result);
         }
     }
     
@@ -211,16 +198,17 @@ void check_voltages(){
 
     // Check each cell
     for (cell = 0; cell < N_OF_CELL; cell++){
+        voltage16 = bat_cell[cell].voltage;
+        
         //find max and min
-        if (max_voltage < bat_cell[cell].voltage){
-            max_voltage = bat_cell[cell].voltage;
+        if (max_voltage < voltage16){
+            max_voltage = voltage16;
         }
-        if(min_voltage > bat_cell[cell].voltage){// && cell != 95 && cell != 24){ //ignore (3, 23), (1,0) TODO: REMOVE LATER
-            min_voltage = bat_cell[cell].voltage;
+        if(min_voltage > voltage16){// && cell != 95 && cell != 24){ //ignore (3, 23), (1,0) TODO: REMOVE LATER
+            min_voltage = voltage16;
         }
         
         //check for errors
-        voltage16 = bat_cell[cell].voltage;
         uint16_t avg_voltage = bat_pack.voltage/CELLS_PER_SUBPACK; 
         
         if (voltage16 > (uint16_t)OVER_VOLTAGE){
@@ -328,12 +316,12 @@ void check_temps(){
     for (subpack = 0; subpack < N_OF_SUBPACK; subpack++){
         max_temp = 0;
         for (i = 0; i < (CELL_TEMPS_PER_PACK); i++){
-            temp = bat_pack.subpacks[subpack]->cell_temps[i]->temp_c;
+            temp = (uint16_t)getCellTemp(subpack, i);
             
             if(temp < TEMP_IGNORE_LIMIT){
                 //update subpack max temp
                 if (max_temp < temp){
-                    max_temp = bat_pack.subpacks[subpack]->cell_temps[i]->temp_c;
+                    max_temp = temp;
                 }
                 
                 //update pack max temp
@@ -364,28 +352,24 @@ void check_temps(){
 
 //make sure no cells will discharge
 void disable_cell_balancing(){
-    //uint8_t addr; 
-    //for(addr=0; addr<N_OF_LTC; addr++){
-        LTC6811_set_cfga_reset_discharge(0); 
-      //  LTC6811_wrcfga(addr); 
-    //}    
+    LTC6811_set_cfga_reset_discharge(); 
 }
 
 //update LTCs to balance cells too far above minimum voltage
 void balance_cells(){
     uint8_t addr, cell; 
-    uint8_t cell_counter = 0; 
+    uint16_t target_voltage = 34000; //bat_pack.LO_voltage;
     
-    LTC6811_set_cfga_reset_discharge(0); //clear previous discharges
+    LTC6811_set_cfga_reset_discharge(); //clear previous discharges
     
     for(addr = 0; addr<N_OF_LTC; addr++){
-        
         for(cell=0; cell<CELLS_PER_LTC; cell++){
-            uint32_t difference =  bat_cell[cell_counter].voltage - bat_pack.LO_voltage; 
+            
+            uint16_t difference = getVoltage_addr(addr, cell);
+            difference -= target_voltage; 
             if(difference > BALANCE_THRESHOLD){
                 LTC6811_set_cfga_discharge_cell(addr, cell); //discharge cell
             }
-            cell_counter++;
         }
          
         LTC6811_wrcfga(addr);  //write updated cfga values to LTC
@@ -398,9 +382,30 @@ void setVoltage(uint8_t pack, uint8_t index, uint16_t raw_voltage){
     bat_pack.subpacks[pack]->cells[index]->voltage = raw_voltage;
 }
 
+void setVoltage_addr(uint8_t addr, uint8_t index, uint16_t raw_voltage){
+    uint8_t subpack = addr/IC_PER_PACK;
+    uint8_t ic_num = addr%IC_PER_PACK;
+    uint8_t pack_index = ic_num*CELLS_PER_LTC + index;
+    setVoltage(subpack, pack_index, raw_voltage);
+}
+
+uint16_t getVoltage(uint8_t pack, uint8_t index){
+    return bat_pack.subpacks[pack]->cells[index]->voltage;
+}
+
+uint16_t getVoltage_addr(uint8_t addr, uint8_t index){
+    uint8_t pack = addr/IC_PER_PACK;
+    index = index % CELLS_PER_LTC;
+    return getVoltage(pack, index);
+}
+
 void setCellTemp(uint8_t pack, uint8_t index, uint16_t raw_temp){
     bat_pack.subpacks[pack]->cell_temps[index]->temp_raw = raw_temp;
     bat_pack.subpacks[pack]->cell_temps[index]->temp_c = rawToCelcius(raw_temp);
+}
+
+double getCellTemp(uint8_t pack, uint8_t index){
+    return bat_pack.subpacks[pack]->cell_temps[index]->temp_c;
 }
 
 float32 rawToCelcius(uint16_t raw){
@@ -410,10 +415,12 @@ float32 rawToCelcius(uint16_t raw){
     return temp;
 }
 
-uint8_t rawToHumidity(uint16_t raw){
-    double humidity = (double)raw/10000;
-    humidity = ((humidity/3.0f)-0.1515f)/0.00636f;
-    return (uint8_t)humidity;
+void update_spi_errors(uint8_t addr, uint8_t result){
+    if(result){
+        spi_error_counter[addr]++;   //spi error
+    } else {
+        spi_error_counter[addr] = 0; //no spi error
+    }
 }
 
 // Also copied from old code, to be edited to fit our use.

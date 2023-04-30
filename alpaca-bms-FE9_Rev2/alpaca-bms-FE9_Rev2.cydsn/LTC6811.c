@@ -166,17 +166,13 @@ void LTC6811_set_cfga_mux(uint8_t addr, uint8_t select){
 
 //turns off discharge for all cells by resetting cfga4 and cfga5 to default
 //does not affect cfga0 - cfga3, including gpio bits
-void LTC6811_set_cfga_reset_discharge(uint8_t addr){
-    if (addr == 0xFF){
-        tx_cfga_global[4] = CFGA4;  
-        tx_cfga_global[5] = CFGA5; 
-    } else {
-      uint8_t i = 0;
-      for(i = 0; i<IC_PER_BUS;i++)
-      {
+void LTC6811_set_cfga_reset_discharge(){
+    tx_cfga_global[4] = CFGA4;  
+    tx_cfga_global[5] = CFGA5; 
+
+    for(uint8_t i = 0; i<IC_PER_BUS;i++){
         tx_cfga[i][4] = CFGA4;
         tx_cfga[i][5] = CFGA5; 
-      } 
     }
 }
 

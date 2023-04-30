@@ -27,28 +27,15 @@ int main(void){
     //Initialize state machine
     BMS_MODE bms_status = BMS_NORMAL;
 
-    while(1) {        
+    while(1){
         switch(bms_status) {
             case BMS_NORMAL:
                   
                 OK_SIG_Write(1);   //Make sure OK signal is high
-
-                //CODE FOR WEIRD HACKY CELL BALANCING
-                /*
-                if(counter2 < 30){
-                    disable_cell_balancing();
-                    set_adc_mode(MD_FILTERED);  
-                    get_voltages();     //update voltages from packs
-                    check_voltages();   //parse voltages
-                } else if (counter2 < 90){
+                
+                if(vcu_state == CHARGING){
                     balance_cells();
-                } else {
-                    disable_cell_balancing();
                 }
-                counter2++;
-                if (counter2 > 100){
-                    counter2 = 0; 
-                }*/
                 
                 //Update status
                 bms_status = bat_health_check();
@@ -72,11 +59,10 @@ int main(void){
         
         get_voltages();     //update voltages from packs
         check_voltages();   //parse voltages
-        update_soc();
-        
+        update_soc(); 
         get_temps();        //update temps
-        
         can_tasks();
+        
         CyWdtClear(); 
     }
 }
@@ -89,11 +75,9 @@ void init(void){   //initialize modules
     cell_interface_init(); 
     pwm_init(); 
     set_pwm(); //set PWM values for fans & pump
+    //PIC18_UART_RxISR_Start();
     
     CyWdtStart(CYWDT_1024_TICKS, CYWDT_LPMODE_NOCHANGE);
-    
-    // Initialize the Kalman Filter variables
-    //init_kalman();
 }
 
 void can_tasks(){

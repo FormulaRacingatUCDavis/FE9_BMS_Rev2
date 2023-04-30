@@ -46,7 +46,7 @@
 #define SOC_SOC_LOW   (10000*3600u)      //manually set it in mAh
 #define SOC_FULL_CAP (75000*3600u)     //let's say, 75,000mAh
 #define SOC_FULL (OVER_VOLTAGE*N_OF_CELL)   //when voltage reaches 100.8V, consider it full
-#define BALANCE_THRESHOLD (200u)
+#define BALANCE_THRESHOLD (10u)
 
 uint16_t aux_codes[IC_PER_BUS][5];
 
@@ -181,13 +181,15 @@ void balance_cells();
 void mypack_init();
 
 void setVoltage(uint8_t pack, uint8_t index, uint16_t raw_voltage);
+void setVoltage_addr(uint8_t addr, uint8_t index, uint16_t raw_voltage);
+uint16_t getVoltage(uint8_t pack, uint8_t index);
+uint16_t getVoltage_addr(uint8_t addr, uint8_t index);
 void setCellTemp(uint8_t pack, uint8_t index, uint16_t raw_temp);
-void setBoardTemp(uint8_t pack, uint8_t index, uint16_t raw_temp);
-void setBoardHum(uint8_t pack, uint8_t index, uint16_t raw_temp);
+double getCellTemp(uint8_t pack, uint8_t index);
 
-uint8_t rawToHumidity(uint16_t raw);
 float32 rawToCelcius(uint16_t raw);
 
+void update_spi_errors(uint8_t addr, uint8_t result);
 uint8_t bat_health_check();
 
 #endif
