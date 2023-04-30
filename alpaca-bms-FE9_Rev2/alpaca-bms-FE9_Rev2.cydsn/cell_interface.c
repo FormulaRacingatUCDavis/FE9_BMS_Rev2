@@ -46,7 +46,7 @@ Parameters:
 adc_mode - MD_FAST, MD_NORMAL, or MD_FILTERED
 */
 void set_adc_mode(uint8_t adc_mode){
-    LTC6811_set_adc(adc_mode, DCP_ENABLED, CELL_CH_ALL, AUX_CH_GPIO5);
+    LTC6811_set_adc(adc_mode, DCP_DISABLED, CELL_CH_ALL, AUX_CH_GPIO5);
 }
 
 //reads cell voltages from LTCs
@@ -358,7 +358,7 @@ void disable_cell_balancing(){
 //update LTCs to balance cells too far above minimum voltage
 void balance_cells(){
     uint8_t addr, cell; 
-    uint16_t target_voltage = 34000; //bat_pack.LO_voltage;
+    uint16_t target_voltage = 35420; //bat_pack.LO_voltage;
     
     LTC6811_set_cfga_reset_discharge(); //clear previous discharges
     
