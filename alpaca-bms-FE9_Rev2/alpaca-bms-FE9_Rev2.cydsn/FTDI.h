@@ -21,6 +21,7 @@
 #define FRAME_END 0x0A
 
 extern BAT_SUBPACK_t bat_subpack[N_OF_SUBPACK];
+extern BAT_PACK_t bat_pack;
 
 void send_byte_with_escape(uint8_t byte);
 void send_uart_data();

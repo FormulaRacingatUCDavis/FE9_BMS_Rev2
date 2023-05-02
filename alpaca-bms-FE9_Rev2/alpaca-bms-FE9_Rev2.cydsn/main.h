@@ -32,7 +32,7 @@ typedef enum {
     BMS_FAULT
 }BMS_MODE;
 
-extern volatile BAT_PACK_t bat_pack;
+extern BAT_PACK_t bat_pack;
 extern BAT_SUBPACK_t bat_subpack[N_OF_SUBPACK];
 extern volatile float32 sortedTemps[N_OF_TEMP_CELL]; 
 extern volatile BAT_ERR_t* bat_err_array;
