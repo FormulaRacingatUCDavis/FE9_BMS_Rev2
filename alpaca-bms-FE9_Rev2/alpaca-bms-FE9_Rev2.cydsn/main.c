@@ -12,7 +12,7 @@
 
 #include "main.h"
 
-volatile VCU_STATE vcu_state = LV;
+volatile VCU_STATE vcu_state = CHARGING;
 volatile VCU_ERROR vcu_error = NONE; 
 volatile uint8_t charger_attached = 0; 
 
