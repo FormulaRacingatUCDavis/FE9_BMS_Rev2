@@ -95,24 +95,20 @@ void get_temps_from_to(uint8_t start_sel, uint8_t end_sel){
     set_adc_mode(MD_NORMAL); //lower accuracy for temp measurements
     SPI_ClearFIFO();
     
-    uint8_t select;
-    uint8_t ltc_addr;
+    uint8_t select, addr, result;
     
     for(select = start_sel; select < end_sel; select++){       //for each mux pin
-        for(ltc_addr = 0; ltc_addr < N_OF_LTC; ltc_addr++){  //for each LTC
-            LTC6811_set_cfga_mux(ltc_addr, select);             //set tx_cfga variable
-            LTC6811_wrcfga(ltc_addr);                           //write to LTC with wrcfga
+        for(addr = 0; addr < N_OF_LTC; addr++){  //for each LTC
+            LTC6811_set_cfga_mux(addr, select);             //set tx_cfga variable
+            LTC6811_wrcfga(addr);                           //write to LTC with wrcfga
         }
         
         LTC6811_adax(); //run ADC conversion (all LTCs)
         CyDelay(1);
         
-        for(ltc_addr = 0; ltc_addr < N_OF_LTC; ltc_addr++){                    //for each LTC
-            if(LTC6811_rdaux_pin(ltc_addr, GPIO5, &temps[ltc_addr][select])){  //get ADC result
-                spi_error_counter[ltc_addr]++;  //spi error
-            } else {
-                spi_error_counter[ltc_addr] = 0;  //no spi error
-            }
+        for(addr = 0; addr < N_OF_LTC; addr++){                             //for each LTC
+            result = LTC6811_rdaux_pin(addr, GPIO5, &temps[addr][select]);  //get ADC result
+            update_spi_errors(addr, result);
         }
     }
 }
@@ -353,12 +349,16 @@ void check_temps(){
 //make sure no cells will discharge
 void disable_cell_balancing(){
     LTC6811_set_cfga_reset_discharge(); 
+    
+    for(uint8_t addr = 0; addr < N_OF_LTC; addr++){
+        LTC6811_wrcfga(addr);
+    }
 }
 
 //update LTCs to balance cells too far above minimum voltage
 void balance_cells(){
     uint8_t addr, cell; 
-    uint16_t target_voltage = 34000; //bat_pack.LO_voltage;
+    uint16_t target_voltage = bat_pack.LO_voltage;
     
     LTC6811_set_cfga_reset_discharge(); //clear previous discharges
     
@@ -374,9 +374,8 @@ void balance_cells(){
          
         LTC6811_wrcfga(addr);  //write updated cfga values to LTC
     }
-    
-    //LTC6811_set_cfga_reset_discharge(0); 
 }
+
 
 void setVoltage(uint8_t pack, uint8_t index, uint16_t raw_voltage){
     bat_pack.subpacks[pack]->cells[index]->voltage = raw_voltage;
