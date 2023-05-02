@@ -46,7 +46,7 @@ Parameters:
 adc_mode - MD_FAST, MD_NORMAL, or MD_FILTERED
 */
 void set_adc_mode(uint8_t adc_mode){
-    LTC6811_set_adc(adc_mode, DCP_ENABLED, CELL_CH_ALL, AUX_CH_GPIO5);
+    LTC6811_set_adc(adc_mode, DCP_DISABLED, CELL_CH_ALL, AUX_CH_GPIO5);
 }
 
 //reads cell voltages from LTCs
