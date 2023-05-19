@@ -15,9 +15,8 @@
 volatile VCU_STATE vcu_state = LV;
 volatile VCU_ERROR vcu_error = NONE; 
 volatile uint8_t charger_attached = 0; 
-
-//UNCOMMENT FOR CHARGING
-//vcu_state = CHARGING;
+volatile uint8_t vcu_attached = 0;
+volatile uint32_t loop_counter = 0;
 
 int main(void){ 
 
@@ -26,34 +25,34 @@ int main(void){
     PCAN_Init();
    
     //volatile uint8_t result = PCAN_SetTsegSample(13, 2, 2, PCAN_ONE_SAMPLE_POINT);
-    PCAN_SetPreScaler(2);
     
-    PCAN_Enable();
 
     init();   //initialize modules
     
     //Initialize state machine
     BMS_MODE bms_status = BMS_NORMAL;
-    
-    
 
     while(1){
-        switch(bms_status) {
-            case BMS_NORMAL:
-                  
-                OK_SIG_Write(1);   //Make sure OK signal is high
+        
+        get_voltages();     //update voltages from packs
+        check_voltages();   //parse voltages
+        update_soc(); 
+        get_temps();        //update temps
+        set_pwm();
+        
+        switch(bms_status) {                
+            case BMS_NORMAL:    
+                OK_SIG_Write(1); 
+                bms_status = bat_health_check();
+                check_vcu_charger();
                 
                 if(vcu_state == CHARGING){
                     balance_cells();
                 }
                 
-                //Update status
-                bms_status = bat_health_check();
-                
                 break;
-                
-            case BMS_FAULT:  //fault state (no shit)
-                
+     
+            case BMS_FAULT:  //fault state (no shit)    
                 OK_SIG_Write(0u);   //set OK signal to low to open shutdown circuit
 
                 disable_cell_balancing();  //make sure cell balancing is not active
@@ -67,15 +66,11 @@ int main(void){
                 break;
         }
 
-        get_voltages();     //update voltages from packs
-        check_voltages();   //parse voltages
-        update_soc(); 
-        get_temps();        //update temps
-        can_tasks();
         
-        //open_wire_check();
-        
+        can_tasks();       
         CyWdtClear(); 
+        
+        loop_counter++;
     }
 }
 
@@ -94,11 +89,10 @@ void init(void){   //initialize modules
 
 void can_tasks(){
     CyGlobalIntDisable;
-    //can_send_status();
-    PCAN_SendMsgcharger_bms();
+    can_send_status();
 
     //dump BMS data over uart
-    //send_uart_data();
+    send_uart_data();
     
     CyGlobalIntEnable;
 }

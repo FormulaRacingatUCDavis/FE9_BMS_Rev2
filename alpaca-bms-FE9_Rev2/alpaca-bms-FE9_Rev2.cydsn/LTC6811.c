@@ -198,7 +198,6 @@ void LTC6811_wrcfga(uint8_t lt_addr)//, uint8_t select)  //tested 2/17
 {
     uint8_t cmd[12];
     uint16_t temp_pec;
-    uint8_t cfga_data;
     uint8_t i; 
     
     // see LTC6811 datasheet for command codes
@@ -760,7 +759,6 @@ int8_t LTC6811_rdaux_pin(uint8_t lt_addr, enum AuxPins pin, uint16_t *aux)
     uint8_t cmd[4];
     uint16_t cmd_pec;
     uint8_t rx_data[8];
-    int8_t pec_error;
     uint16_t received_pec;
     uint16_t data_pec;
     
@@ -1036,7 +1034,7 @@ int8_t spi_write_read(volatile uint8_t tx_Data[],//array of data to be written o
     SPI_ClearRxBuffer();
     
     uint8_t i = 0;
-    uint8_t dummy_read;         //stores uneeded values
+    uint8_t dummy_read = 0;         //stores uneeded values
     
     for(i = 0; i < tx_len; i++){
         SPI_WriteTxData(tx_Data[i]);

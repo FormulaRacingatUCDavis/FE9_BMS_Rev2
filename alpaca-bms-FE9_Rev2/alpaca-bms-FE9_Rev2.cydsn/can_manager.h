@@ -22,8 +22,9 @@ typedef enum {
     PRECHARGING,
     HV_ENABLED,
     DRIVE,
-    VCU_FAULT, 
-    CHARGING
+    VCU_FAULT,
+    CHARGING, 
+    CHARGER_FAULT
 } VCU_STATE; 
 
 typedef enum {
@@ -36,17 +37,22 @@ typedef enum {
     BRAKE_IMPLAUSIBLE
 } VCU_ERROR;
 
+#define CAN_TIMEOUT_LOOP_COUNT 10
+
 /* When cleaning and rebuilding project, change PCAN_TXn_FUNC_ENABLE
    for n in range [0, 4] to (1u) in lines 78 - 82 in file PCAN.h
 */    
 
-void can_send_temp();
-void can_send_volt();
 void can_send_status();
 
-void PCAN_ReceiveMsg_current_Callback();
+void PCAN_ReceiveMsg_pei_current_Callback();
 void PCAN_ReceiveMsg_vehicle_state_Callback(); 
-void PCAN_ReceiveMsg_charger_Callback(); 
+void PCAN_ReceiveMsg_charger_status_Callback(); 
+
+void check_vcu_charger();
+void PCAN_toggle_baud();
+void PCAN_to_125KB();
+void PCAN_to_500KB();
 
 /*
 // Function called from main to set current
