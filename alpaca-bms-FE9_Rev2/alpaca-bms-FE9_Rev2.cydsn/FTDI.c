@@ -11,14 +11,14 @@
 */
 #include "FTDI.h"
 
-void send_uart_data(){
-    FTDI_UART_PutChar(ESCAPE_CHAR);
-    FTDI_UART_PutChar(FRAME_START);
-    
+void send_uart_data(){    
     uint8_t i = 0;
     uint8_t j = 0;
     
     for(i = 0; i < N_OF_SUBPACK; i++){
+        FTDI_UART_PutChar(ESCAPE_CHAR);
+        FTDI_UART_PutChar(i);
+        
         for(j = 0; j < CELLS_PER_SUBPACK; j++){
             uint16_t v = bat_subpack[i].cells[j]->voltage;
             send_byte_with_escape(HI8(v));
@@ -28,7 +28,13 @@ void send_uart_data(){
             uint8_t t = (uint8_t)(bat_subpack[i].cell_temps[j]->temp_c);
             send_byte_with_escape(t);
         }
+        
+        FTDI_UART_PutChar(ESCAPE_CHAR);
+        FTDI_UART_PutChar(FRAME_END);
     }
+    
+    FTDI_UART_PutChar(ESCAPE_CHAR);
+    FTDI_UART_PutChar(PACK_FRAME_START);
     
     uint16_t v = (uint16_t)bat_pack.voltage;
     send_byte_with_escape(HI8(v));

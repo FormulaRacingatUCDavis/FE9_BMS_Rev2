@@ -56,9 +56,9 @@ void can_send_temp()
         if(i < N_OF_SUBPACK){  //if subpack[i] exists
             temp = bat_pack.subpacks[i]->high_temp; 
         } 
-        PCAN_TX_DATA_BYTE(PCAN_TX_MAILBOX_temp, i) = temp; 
+        //PCAN_TX_DATA_BYTE(PCAN_TX_MAILBOX_temp, i) = temp; 
     }    
-    PCAN_TX_DATA_BYTE8(PCAN_TX_MAILBOX_temp) = bat_pack.HI_temp_c;
+    //PCAN_TX_DATA_BYTE8(PCAN_TX_MAILBOX_temp) = bat_pack.HI_temp_c;
 
     //This works in the case that the number of subpacks is
 
@@ -68,7 +68,7 @@ void can_send_temp()
 
 
 void can_send_volt(){
-    
+    /*
     //max and min voltage means the voltage of single cell
         PCAN_TX_DATA_BYTE1(PCAN_TX_MAILBOX_volt) = HI8(bat_pack.LO_voltage);
         PCAN_TX_DATA_BYTE2(PCAN_TX_MAILBOX_volt) = LO8(bat_pack.LO_voltage);
@@ -81,7 +81,7 @@ void can_send_volt(){
         PCAN_TX_DATA_BYTE7(PCAN_TX_MAILBOX_volt) = 0xFF & (bat_pack.voltage >> 8);
         PCAN_TX_DATA_BYTE8(PCAN_TX_MAILBOX_volt) = 0xFF & (bat_pack.voltage);
 
-
+*/
         PCAN_SendMsgvolt();  // Sends Voltage
         CyDelay(1);
 
@@ -92,11 +92,11 @@ void can_send_status(){
 //8 SOC Percent
 //8 SOC Percent
 //16 BMS Status bits (error flags)
-    PCAN_TX_DATA_BYTE1(PCAN_TX_MAILBOX_status) = bat_pack.HI_temp_c;
+    /*PCAN_TX_DATA_BYTE1(PCAN_TX_MAILBOX_status) = bat_pack.HI_temp_c;
     PCAN_TX_DATA_BYTE2(PCAN_TX_MAILBOX_status) = (uint8_t)(bat_pack.SOC_percent/10)<<4 | (uint8_t)(bat_pack.SOC_percent%10);
     PCAN_TX_DATA_BYTE3(PCAN_TX_MAILBOX_status) = HI8(bat_pack.status);
     PCAN_TX_DATA_BYTE4(PCAN_TX_MAILBOX_status) = LO8(bat_pack.status);
-    
+    */
     PCAN_SendMsgstatus(); // Sends Status
 }
                     
@@ -105,14 +105,16 @@ void can_send_status(){
 //handles state if charger is attached
 void PCAN_ReceiveMsg_current_Callback(){
     CyGlobalIntDisable; 
+    
+    
     int16_t current = 0; 
-    current |= (PCAN_RX_DATA_BYTE1(PCAN_RX_MAILBOX_current)<<8) & 0xFF00; 
-    current |= PCAN_RX_DATA_BYTE2(PCAN_RX_MAILBOX_current) & 0xFF; 
+    //current |= (PCAN_RX_DATA_BYTE1(PCAN_RX_MAILBOX_current)<<8) & 0xFF00; 
+    //current |= PCAN_RX_DATA_BYTE2(PCAN_RX_MAILBOX_current) & 0xFF; 
     bat_pack.current = current; 
     
     //if charger is attached, keep track of LV/HV state from PEI feedback
     if(charger_attached){
-        uint8_t shutdown_status = PCAN_RX_DATA_BYTE3(PCAN_RX_MAILBOX_current); 
+        uint8_t shutdown_status = 0; //PCAN_RX_DATA_BYTE3(PCAN_RX_MAILBOX_current); 
         /*
         HV is enabled when shutdown_final is high and AIRs are low.
         
@@ -133,7 +135,7 @@ void PCAN_ReceiveMsg_current_Callback(){
 //IRQ handler for receiving VCU state
 //moves state 
 void PCAN_ReceiveMsg_vehicle_state_Callback(){
-    uint8_t state = PCAN_RX_DATA_BYTE1(PCAN_RX_MAILBOX_vehicle_state); 
+    uint8_t state = 0; //PCAN_RX_DATA_BYTE1(PCAN_RX_MAILBOX_vehicle_state); 
     if(state & 0x80){  //check fault bit
         vcu_state = VCU_FAULT; 
         vcu_error = state & 0x0F; 

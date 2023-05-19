@@ -41,17 +41,6 @@ cmd[0] = addressify_cmd(ltc_address, cmd[0]);
  */
 uint8_t addressify_cmd(uint8_t lt_addr, uint8_t cmd0)
 {
-    
-    //tweak addresses for spare node
-    //node 4 -> node 5
-    //ltc 8,9 -> ltc 10,11
-    
-    if(lt_addr == 8){            
-        lt_addr = 10; 
-    } else if (lt_addr == 9){
-        lt_addr = 11;
-    }
-    
     //uint8_t addr = lt_addr % IC_PER_BUS;  
     lt_addr <<= 3;           //bitshift to correct posotion
     lt_addr &= 0b01111000;   //clear unwanted bits

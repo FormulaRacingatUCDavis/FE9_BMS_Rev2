@@ -16,8 +16,8 @@
 #include "data.h"
 #include "cell_interface.h"
 
-#define ESCAPE_CHAR 0x05
-#define FRAME_START 0x01
+#define ESCAPE_CHAR 0xAA
+#define PACK_FRAME_START 0xBB
 #define FRAME_END 0x0A
 
 extern BAT_SUBPACK_t bat_subpack[N_OF_SUBPACK];

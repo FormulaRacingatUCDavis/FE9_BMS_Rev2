@@ -12,7 +12,7 @@
 
 #include "main.h"
 
-volatile VCU_STATE vcu_state = CHARGING;
+volatile VCU_STATE vcu_state = LV;
 volatile VCU_ERROR vcu_error = NONE; 
 volatile uint8_t charger_attached = 0; 
 
@@ -56,12 +56,14 @@ int main(void){
                 bms_status = BMS_FAULT;
                 break;
         }
-        
+
         get_voltages();     //update voltages from packs
         check_voltages();   //parse voltages
         update_soc(); 
         get_temps();        //update temps
         can_tasks();
+        
+        //open_wire_check();
         
         CyWdtClear(); 
     }
@@ -82,10 +84,11 @@ void init(void){   //initialize modules
 
 void can_tasks(){
     CyGlobalIntDisable;
-    can_send_status();
+    //can_send_status();
+    PCAN_SendMsgcharger_bms();
 
     //dump BMS data over uart
-    send_uart_data();
+    //send_uart_data();
     
     CyGlobalIntEnable;
 }

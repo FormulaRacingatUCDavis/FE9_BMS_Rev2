@@ -31,8 +31,6 @@
 #define CELL_ENABLE_LOW (0x3DF)
 #define OVER_VOLTAGE (42000u) //(4.2V)
 #define UNDER_VOLTAGE (25000u) //(2.5V)
-// Arbitrary defined threshold, change later
-#define FUSE_THRESHOLD (5000u) //(0.5V)
 #define STACK_VOLT_DIFF_LIMIT (90000u)   //9 volt
 #define CRITICAL_TEMP_L (0u)          // 0 C
 #define CRITICAL_TEMP_H (60u)             //60 C
@@ -46,7 +44,8 @@
 #define SOC_SOC_LOW   (10000*3600u)      //manually set it in mAh
 #define SOC_FULL_CAP (75000*3600u)     //let's say, 75,000mAh
 #define SOC_FULL (OVER_VOLTAGE*N_OF_CELL)   //when voltage reaches 100.8V, consider it full
-#define BALANCE_THRESHOLD (10u)
+#define BALANCE_THRESHOLD (20)     //balance to within 2mV
+#define IMBALANCE_THRESHOLD (2000) //200mV imbalance = fault
 
 uint16_t aux_codes[IC_PER_BUS][5];
 
@@ -137,7 +136,7 @@ typedef struct
 typedef struct
 {
   volatile BAT_SUBPACK_t *subpacks[N_OF_SUBPACK];
-  volatile uint32_t voltage;
+  volatile uint16_t voltage;
   volatile int16_t current;
   //volatile uint8_t fuse_fault;
   volatile uint16_t status;
