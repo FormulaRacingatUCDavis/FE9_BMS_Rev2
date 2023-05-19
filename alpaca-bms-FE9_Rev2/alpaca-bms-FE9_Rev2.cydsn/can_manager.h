@@ -37,7 +37,7 @@ typedef enum {
     BRAKE_IMPLAUSIBLE
 } VCU_ERROR;
 
-#define CAN_TIMEOUT_LOOP_COUNT 10
+#define CAN_TIMEOUT_LOOP_COUNT 30
 
 /* When cleaning and rebuilding project, change PCAN_TXn_FUNC_ENABLE
    for n in range [0, 4] to (1u) in lines 78 - 82 in file PCAN.h

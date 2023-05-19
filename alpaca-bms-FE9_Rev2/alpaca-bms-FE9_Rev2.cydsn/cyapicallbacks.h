@@ -15,7 +15,7 @@
 //define these so that PCAN_TX_RX_func will call the IRQ handlers
 #define PCAN_RECEIVE_MSG_pei_current_CALLBACK
 #define PCAN_RECEIVE_MSG_vehicle_state_CALLBACK
-#define PCAN_RECEIVE_MSG_charger_CALLBACK
+#define PCAN_RECEIVE_MSG_charger_status_CALLBACK
 // Defined to enable interrupts for Kalman Filter
 #define KalmanFilt_Int_INTERRUPT_INTERRUPT_CALLBACK
     

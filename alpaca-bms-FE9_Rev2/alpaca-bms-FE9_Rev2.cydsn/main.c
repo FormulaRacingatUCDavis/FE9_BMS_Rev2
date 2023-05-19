@@ -39,12 +39,12 @@ int main(void){
         update_soc(); 
         get_temps();        //update temps
         set_pwm();
+        check_vcu_charger();
         
         switch(bms_status) {                
             case BMS_NORMAL:    
                 OK_SIG_Write(1); 
                 bms_status = bat_health_check();
-                check_vcu_charger();
                 
                 if(vcu_state == CHARGING){
                     balance_cells();

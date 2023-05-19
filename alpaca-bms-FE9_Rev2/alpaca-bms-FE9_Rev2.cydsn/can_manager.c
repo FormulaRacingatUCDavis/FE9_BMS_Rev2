@@ -81,11 +81,13 @@ void PCAN_ReceiveMsg_vehicle_state_Callback(){
     
     vcu_attached = 1;
     charger_attached = 0; //make sure we don't think the charger is attached, eh? 
+    bat_pack.status &= (~CHARGEMODE); //clear chargemode bit
 }
 
 //IRQ handler for charger
 //If charger is attached, LV/HV state will be determined from PEI message
 void PCAN_ReceiveMsg_charger_status_Callback(){
+    bat_pack.status |= CHARGEMODE;
     charger_attached = 1;    
     vcu_attached = 0;
     
@@ -102,12 +104,12 @@ void PCAN_ReceiveMsg_charger_status_Callback(){
 //checks to see if a can timout has occured and toggles can bus if so
 void check_vcu_charger(){
     if(charger_attached || vcu_attached){
-        loop_counter = 0;
         return;
     }
     
     if(loop_counter > CAN_TIMEOUT_LOOP_COUNT){
         PCAN_toggle_baud();
+        loop_counter = 0;
     }
 }
         
@@ -124,11 +126,17 @@ void PCAN_toggle_baud(){
 }
 
 void PCAN_to_125KB(){
+    PCAN_Stop();
+    PCAN_Init();
     PCAN_SetPreScaler(11);
+    PCAN_Enable();
 }
 
 void PCAN_to_500KB(){
+    PCAN_Stop();
+    PCAN_Init();
     PCAN_SetPreScaler(2);
+    PCAN_Enable();
 }
                     
 void can_init(){
