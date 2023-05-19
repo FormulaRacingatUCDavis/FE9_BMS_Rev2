@@ -22,10 +22,20 @@ volatile uint8_t charger_attached = 0;
 int main(void){ 
 
     CyGlobalIntEnable; //Enable global interrupts. 
+    
+    PCAN_Init();
+   
+    //volatile uint8_t result = PCAN_SetTsegSample(13, 2, 2, PCAN_ONE_SAMPLE_POINT);
+    PCAN_SetPreScaler(2);
+    
+    PCAN_Enable();
+
     init();   //initialize modules
     
     //Initialize state machine
     BMS_MODE bms_status = BMS_NORMAL;
+    
+    
 
     while(1){
         switch(bms_status) {

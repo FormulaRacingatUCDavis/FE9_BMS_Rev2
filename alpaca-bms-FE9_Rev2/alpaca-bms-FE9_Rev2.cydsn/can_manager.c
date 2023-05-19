@@ -181,6 +181,6 @@ void RX_get_current(uint8_t *msg, int CAN_ID)
 void can_init()
 {
 	PCAN_GlobalIntEnable(); // CAN Initialization
-	PCAN_Start();
+	//PCAN_Start();
 } // can_init(
 /* [] END OF FILE */

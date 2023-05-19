@@ -375,7 +375,6 @@ void balance_cells(){
     }
 }
 
-asdf
 void setVoltage(uint8_t pack, uint8_t index, uint16_t raw_voltage){
     bat_pack.subpacks[pack]->cells[index]->voltage = raw_voltage;
 }
