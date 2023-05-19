@@ -24,7 +24,7 @@ PACK_HUMIDITY_t pack_humidity[N_OF_SUBPACK];
 volatile uint16_t OW[N_OF_LTC];   //stores binary results of open wire check
 
 uint8_t spi_error_counter[N_OF_LTC];   //stores the number of SPI communication errors for each LTC
-uint16_t temps[N_OF_LTC][TEMPS_PER_LTC];   //store all temps in matrix
+uint16_t temps[N_OF_LTC][CELL_TEMPS_PER_LTC];   //store all temps in matrix
 
 uint8_t counter = 0;  //counter for get_temps
 
@@ -67,9 +67,11 @@ void get_voltages(){
         
         CyDelay(1);
         
-        //move voltages into bat_pack
-        for(uint8_t cell = 0; cell < CELLS_PER_LTC; cell++){
-            setVoltage_addr(addr, cell, cell_voltages[cell]);
+        //move voltages into bat_pack if no SPI fault
+        if(!result){
+            for(uint8_t cell = 0; cell < CELLS_PER_LTC; cell++){
+                setVoltage_addr(addr, cell, cell_voltages[cell]);
+            }
         }
     }
     
@@ -79,11 +81,11 @@ void get_voltages(){
 //gets only a portion of temps each call to speed up main loop
 //fraction of temps set by TEMP_LOOP_DIVISION
 void get_temps(){
-    if(counter < TEMP_LOOP_DIVISION){
+    if(counter < (TEMP_LOOP_DIVISION-1)){
         get_temps_from_to(counter*TEMPS_PER_LOOP, (counter + 1)*TEMPS_PER_LOOP);     //update temperatures from packs
         counter++;
     } else {
-        get_temps_from_to(counter*TEMPS_PER_LOOP, TEMPS_PER_LTC);
+        get_temps_from_to(counter*TEMPS_PER_LOOP, CELL_TEMPS_PER_LTC);
         sort_temps();    //sort temps in to bat pack
         check_temps();   //parse temps
         counter = 0; 
@@ -204,9 +206,6 @@ void check_voltages(){
             min_voltage = voltage16;
         }
         
-        //check for errors
-        uint16_t avg_voltage = bat_pack.voltage/CELLS_PER_SUBPACK; 
-        
         if (voltage16 > (uint16_t)OVER_VOLTAGE){
             bat_cell[cell].bad_counter++;
             bat_cell[cell].bad_type = 1;
@@ -214,7 +213,7 @@ void check_voltages(){
             bat_cell[cell].bad_counter++;
             bat_cell[cell].bad_type = 0;
         //Check if fuse blown
-        } else if (voltage16 < (avg_voltage - FUSE_THRESHOLD)){
+        } else if ((voltage16 - bat_pack.LO_voltage) > IMBALANCE_THRESHOLD){
             bat_cell[cell].bad_counter++;
             bat_cell[cell].bad_type = 2;
             //check where bad_type is checked
@@ -229,7 +228,7 @@ void check_voltages(){
     
     bat_pack.HI_voltage = max_voltage;
     bat_pack.LO_voltage = min_voltage;
-    bat_pack.voltage = total_voltage/N_OF_SUBPACK; 
+    bat_pack.voltage = total_voltage/100; 
 
     
     // Update subpacks & pack for errors
@@ -365,7 +364,7 @@ void balance_cells(){
     for(addr = 0; addr<N_OF_LTC; addr++){
         for(cell=0; cell<CELLS_PER_LTC; cell++){
             
-            uint16_t difference = getVoltage_addr(addr, cell);
+            volatile int32_t difference = getVoltage_addr(addr, cell);
             difference -= target_voltage; 
             if(difference > BALANCE_THRESHOLD){
                 LTC6811_set_cfga_discharge_cell(addr, cell); //discharge cell
@@ -376,7 +375,7 @@ void balance_cells(){
     }
 }
 
-
+asdf
 void setVoltage(uint8_t pack, uint8_t index, uint16_t raw_voltage){
     bat_pack.subpacks[pack]->cells[index]->voltage = raw_voltage;
 }
