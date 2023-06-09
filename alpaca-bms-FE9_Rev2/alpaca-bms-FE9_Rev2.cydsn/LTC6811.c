@@ -16,7 +16,7 @@ uint8_t ADCV[2]; //!< Cell Voltage conversion command.
 uint8_t ADAX[2]; //!< GPIO conversion command.
 uint8_t ADOW[2]; //!< Cell Voltage open wire conversion command. 
 
-uint8_t tx_cfga[IC_PER_BUS][6];   //!< stores cfga data to be written to each LTC
+uint8_t tx_cfga[N_OF_LTC][6];   //!< stores cfga data to be written to each LTC
 uint8_t tx_cfga_global[6];        //!< stores cfga data for global write
 
 
@@ -41,6 +41,10 @@ cmd[0] = addressify_cmd(ltc_address, cmd[0]);
  */
 uint8_t addressify_cmd(uint8_t lt_addr, uint8_t cmd0)
 {
+    if(lt_addr == 0){
+        lt_addr = 10;
+    }
+    
     //uint8_t addr = lt_addr % IC_PER_BUS;  
     lt_addr <<= 3;           //bitshift to correct posotion
     lt_addr &= 0b01111000;   //clear unwanted bits
@@ -112,7 +116,7 @@ void LTC6811_wakeup()
 void LTC6811_init_cfg()
 {
   uint8_t i = 0;
-  for(i = 0; i<IC_PER_BUS;i++)
+  for(i = 0; i<N_OF_LTC;i++)
   {
     tx_cfga[i][0] = CFGA0; 
     tx_cfga[i][1] = CFGA1;
@@ -159,7 +163,7 @@ void LTC6811_set_cfga_reset_discharge(){
     tx_cfga_global[4] = CFGA4;  
     tx_cfga_global[5] = CFGA5; 
 
-    for(uint8_t i = 0; i<IC_PER_BUS;i++){
+    for(uint8_t i = 0; i<N_OF_LTC;i++){
         tx_cfga[i][4] = CFGA4;
         tx_cfga[i][5] = CFGA5; 
     }

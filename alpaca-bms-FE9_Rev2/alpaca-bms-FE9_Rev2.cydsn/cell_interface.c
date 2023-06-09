@@ -123,7 +123,7 @@ void sort_temps(){
         uint8_t i;
         uint16_t raw_temp;
         
-        ltc_addr = pack*IC_PER_PACK;
+        ltc_addr = pack*IC_PER_SUBPACK;
         //IC1 cell temps
         for(i = 0; i < CELL_TEMPS_PER_LTC; i++){
             raw_temp = temps[ltc_addr][i];
@@ -380,8 +380,8 @@ void setVoltage(uint8_t pack, uint8_t index, uint16_t raw_voltage){
 }
 
 void setVoltage_addr(uint8_t addr, uint8_t index, uint16_t raw_voltage){
-    uint8_t subpack = addr/IC_PER_PACK;
-    uint8_t ic_num = addr%IC_PER_PACK;
+    uint8_t subpack = addr/IC_PER_SUBPACK;
+    uint8_t ic_num = addr%IC_PER_SUBPACK;
     uint8_t pack_index = ic_num*CELLS_PER_LTC + index;
     setVoltage(subpack, pack_index, raw_voltage);
 }
@@ -391,7 +391,7 @@ uint16_t getVoltage(uint8_t pack, uint8_t index){
 }
 
 uint16_t getVoltage_addr(uint8_t addr, uint8_t index){
-    uint8_t pack = addr/IC_PER_PACK;
+    uint8_t pack = addr/IC_PER_SUBPACK;
     index = index % CELLS_PER_LTC;
     return getVoltage(pack, index);
 }

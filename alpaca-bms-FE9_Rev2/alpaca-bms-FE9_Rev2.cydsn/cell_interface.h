@@ -47,7 +47,7 @@
 #define BALANCE_THRESHOLD (20)     //balance to within 2mV
 #define IMBALANCE_THRESHOLD (2000) //200mV imbalance = fault
 
-uint16_t aux_codes[IC_PER_BUS][5];
+uint16_t aux_codes[N_OF_LTC][5];
 
 #define OVER_TEMP (60u)             //now it just for debug purpose
 #define UNDER_TEMP (0u)

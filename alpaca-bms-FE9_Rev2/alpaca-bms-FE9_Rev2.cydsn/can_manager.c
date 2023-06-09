@@ -108,7 +108,7 @@ void check_vcu_charger(){
     }
     
     if(loop_counter > CAN_TIMEOUT_LOOP_COUNT){
-        PCAN_toggle_baud();
+        //PCAN_toggle_baud();
         loop_counter = 0;
     }
 }

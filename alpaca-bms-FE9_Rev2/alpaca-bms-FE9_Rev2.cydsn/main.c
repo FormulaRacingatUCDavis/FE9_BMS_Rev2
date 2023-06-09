@@ -39,7 +39,6 @@ int main(void){
         update_soc(); 
         get_temps();        //update temps
         set_pwm();
-        check_vcu_charger();
         
         switch(bms_status) {                
             case BMS_NORMAL:    
@@ -48,6 +47,8 @@ int main(void){
                 
                 if(vcu_state == CHARGING){
                     balance_cells();
+                } else {
+                    disable_cell_balancing();
                 }
                 
                 break;
@@ -67,7 +68,7 @@ int main(void){
         }
 
         
-        can_tasks();       
+        can_tasks(); 
         CyWdtClear(); 
         
         loop_counter++;
@@ -90,6 +91,7 @@ void init(void){   //initialize modules
 void can_tasks(){
     CyGlobalIntDisable;
     can_send_status();
+    check_vcu_charger();
 
     //dump BMS data over uart
     send_uart_data();
