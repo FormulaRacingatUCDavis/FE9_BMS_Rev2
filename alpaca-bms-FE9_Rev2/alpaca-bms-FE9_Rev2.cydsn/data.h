@@ -34,7 +34,6 @@
 #define N_OF_CELL (N_OF_LTC * CELLS_PER_LTC)                      //total number of cells
 #define CELLS_PER_SUBPACK (N_OF_CELL / N_OF_SUBPACK)              //cells per subpack
 #define N_OF_TEMP_CELL (CELL_TEMPS_PER_PACK * N_OF_SUBPACK)                 //total number of temps
-#define N_OF_TEMP (N_OF_TEMP_CELL + N_OF_TEMP_BOARD)
 
 #define TEMPS_PER_LOOP (CELL_TEMPS_PER_LTC/TEMP_LOOP_DIVISION)
     

@@ -144,6 +144,8 @@ typedef struct
   //volatile uint32_t current_charge;
   volatile uint8_t SOC_percent;
   //volatile uint8_t SOC_cali_flag;
+  volatile uint8_t AVG_temp_c;
+  volatile uint8_t LO_temp_c;
   volatile uint8_t HI_temp_c;
   volatile uint8_t HI_temp_subpack;
   volatile uint8_t HI_temp_subpack_index;

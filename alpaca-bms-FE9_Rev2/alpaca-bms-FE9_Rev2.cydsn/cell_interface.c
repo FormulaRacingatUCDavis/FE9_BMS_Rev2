@@ -303,13 +303,17 @@ void check_temps(){
     
     // update max temps
     uint16_t max_temp;
+    uint32_t avg_temp = 0;
     uint8_t i;
     
     bat_pack.HI_temp_c = 0;
     bat_pack.HI_temp_raw = 0;
+    bat_pack.LO_temp_c = 0xFF;
+    
     
     for (subpack = 0; subpack < N_OF_SUBPACK; subpack++){
         max_temp = 0;
+        
         for (i = 0; i < (CELL_TEMPS_PER_PACK); i++){
             temp = (uint16_t)getCellTemp(subpack, i);
             
@@ -326,11 +330,20 @@ void check_temps(){
                     bat_pack.HI_temp_subpack = subpack;
                     bat_pack.HI_temp_subpack_index = i;
                 } 
+                
+                //update pack min temp
+                if (temp < bat_pack.LO_temp_c){
+                    bat_pack.LO_temp_c = temp;
+                }
+                
+                avg_temp += temp;
             }
         }
         
         bat_pack.subpacks[subpack]->high_temp = max_temp;
     }
+    
+    bat_pack.AVG_temp_c = avg_temp/N_OF_TEMP_CELL;
 
     // update pack of temp error
     for (subpack = 0; subpack < N_OF_SUBPACK; subpack++){

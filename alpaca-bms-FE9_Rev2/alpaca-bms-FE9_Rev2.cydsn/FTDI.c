@@ -51,12 +51,18 @@ void send_uart_data(){
     uint8_t t = (uint8_t)bat_pack.HI_temp_c;
     send_byte_with_escape(t);
     
+    t = (uint8_t)bat_pack.LO_temp_c;
+    send_byte_with_escape(t);
+    
+    t = (uint8_t)bat_pack.AVG_temp_c;
+    send_byte_with_escape(t);
+    
     send_byte_with_escape(bat_pack.SOC_percent);
     
     v = (uint16_t)bat_pack.status;
     send_byte_with_escape(HI8(v));
     send_byte_with_escape(LO8(v));
-    
+       
     FTDI_UART_PutChar(ESCAPE_CHAR);
     FTDI_UART_PutChar(FRAME_END);
 }

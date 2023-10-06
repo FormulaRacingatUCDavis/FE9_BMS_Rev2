@@ -91,7 +91,7 @@ void init(void){   //initialize modules
 void can_tasks(){
     CyGlobalIntDisable;
     can_send_status();
-    check_vcu_charger();
+    //check_vcu_charger();
 
     //dump BMS data over uart
     send_uart_data();
