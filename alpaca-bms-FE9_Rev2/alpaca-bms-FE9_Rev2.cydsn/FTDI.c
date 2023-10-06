@@ -75,4 +75,36 @@ void send_byte_with_escape(uint8_t byte){
     FTDI_UART_PutChar(byte);
 }
 
+//sends extra escape byte if byte is escape byte
+void send_byte_with_escape_pic18(uint8_t byte){
+    if(byte == 0x05){
+        PIC18_UART_PutChar(0x05);
+    }
+    PIC18_UART_PutChar(byte);
+}
+
+void send_soc_data()
+{
+    PIC18_UART_PutChar(0x05);
+    PIC18_UART_PutChar(0x0A);
+    
+    send_byte_with_escape(LO8(bat_pack.voltage));
+    send_byte_with_escape(HI8(bat_pack.voltage));
+    send_byte_with_escape(LO8(bat_pack.voltage));
+    send_byte_with_escape(HI8(bat_pack.voltage));
+    send_byte_with_escape(LO8(bat_pack.current));
+    send_byte_with_escape(HI8(bat_pack.current));
+    
+    PIC18_UART_PutChar(0x05);
+    PIC18_UART_PutChar(0x0B);
+}
+
+void update_soc()
+{
+    while(PIC18_UART_GetRxBufferSize() > 0)
+    {
+        bat_pack.SOC_percent = PIC18_UART_ReadRxData();
+    }
+}
+
 /* [] END OF FILE */

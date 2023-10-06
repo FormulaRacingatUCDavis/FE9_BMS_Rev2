@@ -73,4 +73,5 @@ void update_soc(){
     bat_pack.SOC_percent = SOC_LUT[((uint32_t)bat_pack.LO_voltage * 28 - 934000) / 1000] / 100;
 }
 
+
 /* [] END OF FILE */
