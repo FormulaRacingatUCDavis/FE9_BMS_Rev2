@@ -36,7 +36,7 @@ int main(void){
         
         get_voltages();     //update voltages from packs
         check_voltages();   //parse voltages
-        update_soc(); 
+        //update_soc(); 
         get_temps();        //update temps
         set_pwm();
         
@@ -95,6 +95,11 @@ void can_tasks(){
 
     //dump BMS data over uart
     send_uart_data();
+    
+    PIC18_UART_PutChar(0xAA);
+    
+    //send_soc_data();
+    update_soc();
     
     CyGlobalIntEnable;
 }
