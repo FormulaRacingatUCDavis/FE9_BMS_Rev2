@@ -88,12 +88,12 @@ void send_soc_data()
     PIC18_UART_PutChar(0x05);
     PIC18_UART_PutChar(0x0A);
     
-    send_byte_with_escape(LO8(bat_pack.voltage));
-    send_byte_with_escape(HI8(bat_pack.voltage));
-    send_byte_with_escape(LO8(bat_pack.voltage));
-    send_byte_with_escape(HI8(bat_pack.voltage));
-    send_byte_with_escape(LO8(bat_pack.current));
-    send_byte_with_escape(HI8(bat_pack.current));
+    send_byte_with_escape(LO8(45000));
+    send_byte_with_escape(HI8(45000));
+    send_byte_with_escape(LO8(45000));
+    send_byte_with_escape(HI8(45000));
+    send_byte_with_escape(LO8(0));
+    send_byte_with_escape(HI8(0));
     
     PIC18_UART_PutChar(0x05);
     PIC18_UART_PutChar(0x0B);

@@ -25,6 +25,8 @@ extern BAT_PACK_t bat_pack;
 
 void send_byte_with_escape(uint8_t byte);
 void send_uart_data();
+void send_soc_data();
+void update_soc();
 
 #endif
 /* [] END OF FILE */

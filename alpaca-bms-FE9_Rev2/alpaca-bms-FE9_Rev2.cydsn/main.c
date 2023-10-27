@@ -94,7 +94,16 @@ void can_tasks(){
     //check_vcu_charger();
 
     //dump BMS data over uart
-    send_uart_data();
+    //send_uart_data();
+    send_soc_data();
+    update_soc();
+    /*
+    while(PIC18_UART_GetRxBufferSize() > 0){
+        FTDI_UART_PutChar(PIC18_UART_GetChar());
+    }
+    while(FTDI_UART_GetRxBufferSize() > 0){
+        PIC18_UART_PutChar(FTDI_UART_GetChar());
+    }*/
     
     CyGlobalIntEnable;
 }

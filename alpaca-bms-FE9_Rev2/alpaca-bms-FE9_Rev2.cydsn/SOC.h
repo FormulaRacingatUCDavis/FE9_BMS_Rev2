@@ -14,7 +14,7 @@
 
 #include "cell_interface.h"
 
-void update_soc();
+//void update_soc();
 
 #endif
 /* [] END OF FILE */
