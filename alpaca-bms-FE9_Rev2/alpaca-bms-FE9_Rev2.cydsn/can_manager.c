@@ -22,13 +22,15 @@ extern volatile uint8_t vcu_attached;
 extern volatile uint8_t loop_counter;
 volatile uint8_t baud = 0;
 
+extern volatile uint8_t SOC;
+
 
 void can_send_status(){
 //8 SOC Percent
 //8 SOC Percent
 //16 BMS Status bits (error flags)
     PCAN_TX_DATA_BYTE1(PCAN_TX_MAILBOX_status) = bat_pack.HI_temp_c;
-    PCAN_TX_DATA_BYTE2(PCAN_TX_MAILBOX_status) = (uint8_t)(bat_pack.SOC_percent/10)<<4 | (uint8_t)(bat_pack.SOC_percent%10);
+    PCAN_TX_DATA_BYTE2(PCAN_TX_MAILBOX_status) = SOC; //(uint8_t)(bat_pack.SOC_percent/10)<<4 | (uint8_t)(bat_pack.SOC_percent%10);
     PCAN_TX_DATA_BYTE3(PCAN_TX_MAILBOX_status) = HI8(bat_pack.status);
     PCAN_TX_DATA_BYTE4(PCAN_TX_MAILBOX_status) = LO8(bat_pack.status);
     PCAN_TX_DATA_BYTE5(PCAN_TX_MAILBOX_status) = HI8(bat_pack.voltage);
