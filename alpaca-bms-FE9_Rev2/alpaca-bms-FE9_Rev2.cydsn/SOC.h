@@ -80,7 +80,7 @@ void update_SOC_input(uint16_t voltage, int16_t current);
 float VOC(float soc);
 float hk(float SOC_val, float I);
 void fk(Matrix* xhatk_1, float I, Matrix* fk_);
-void EKF(Matrix* xhatk_1, Matrix* Pk_1, float I, float Ik_1, float V,
+void EKF(Matrix* xhatk_1, Matrix* Pk_1, float I, float V,
 	float Rk, Matrix* Aprime, Matrix* Cprime, Matrix* Eprime,
 	Matrix* fk_, Matrix* Qk1,
 	Matrix* Aprime_transpose, Matrix* Eprime_transpose,
