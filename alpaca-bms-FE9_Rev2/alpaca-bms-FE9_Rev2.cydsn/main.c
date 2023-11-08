@@ -129,7 +129,7 @@ int main(void){
         SOC = (uint8_t)(mat_get(1, 1, &xhatCorrected) * 100);
         // Send over USB
         char SOC_str[10];
-        sprintf(SOC_str, "%d", SOC);
+        sprintf(SOC_str, "%d", SOC);   
         FTDI_UART_PutString(SOC_str);
         // TODO: Send to dashboard (see can_manager.c)
 

@@ -440,8 +440,8 @@ uint8_t bat_health_check(){
         //(bat_pack.status & FUSE_BLOWN) ||
         (bat_pack.status & PACK_TEMP_UNDER) ||
         //(bat_pack.status & IMBALANCE) || not in use
-        //(bat_pack.status & COM_FAILURE) ||
-        //(bat_pack.status & ISO_FAULT) || 
+        (bat_pack.status & COM_FAILURE) ||
+        (bat_pack.status & ISO_FAULT) || 
         (bat_pack.status & CELL_VOLT_OVER) ||
         (bat_pack.status & CELL_VOLT_UNDER)      
     ){
